@@ -20,6 +20,7 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { MatchOverlay, type MatchOverlayPayload } from '@/components/match-overlay';
+import { SessionSummary } from '@/components/session-summary';
 import { SwipeDeck, type OnLocalCommitPayload, type OnMatchPayload } from '@/components/swipe-deck';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
@@ -257,20 +258,13 @@ export default function SessionScreen() {
     );
   }
 
-  // ended
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.container} testID="session-ended">
-        <ThemedText type="title">Session ended</ThemedText>
-        <ThemedText type="small">
-          {session.ended_reason ? `Reason: ${session.ended_reason}.` : 'Thanks for swiping.'}
-        </ThemedText>
-        <Pressable style={styles.cta} onPress={() => router.replace('/home')}>
-          <ThemedText type="small" style={styles.ctaText}>
-            Back to home
-          </ThemedText>
-        </Pressable>
-      </View>
+      <SessionSummary
+        sessionId={session.id}
+        podId={session.pod_id}
+        endedReason={session.ended_reason}
+      />
     </SafeAreaView>
   );
 }

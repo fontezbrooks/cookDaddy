@@ -72,6 +72,41 @@ jest.mock('@/components/swipe-deck', () => {
   };
 });
 
+jest.mock('@/components/session-summary', () => {
+  const React = require('react');
+  const { View, Text } = require('react-native');
+  return {
+    SessionSummary: (props: { endedReason: string | null }) =>
+      React.createElement(
+        View,
+        { testID: 'session-summary-stub' },
+        React.createElement(Text, null, props.endedReason ?? 'none'),
+      ),
+  };
+});
+
+jest.mock('@/components/match-overlay', () => {
+  const React = require('react');
+  const { View, Text, Pressable } = require('react-native');
+  return {
+    MatchOverlay: (props: {
+      payload: { recipeTitle: string };
+      onClose: () => void;
+      variant: string;
+    }) =>
+      React.createElement(
+        View,
+        { testID: 'match-overlay' },
+        React.createElement(Text, null, props.payload.recipeTitle),
+        React.createElement(
+          Pressable,
+          { testID: 'match-overlay-secondary', onPress: props.onClose },
+          React.createElement(Text, null, 'Keep swiping'),
+        ),
+      ),
+  };
+});
+
 const mockUseSwipeBroadcast = jest.fn();
 jest.mock('@/lib/use-swipe-broadcast', () => ({
   useSwipeBroadcast: () => mockUseSwipeBroadcast(),
@@ -95,10 +130,16 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ replace: mockReplace, push: jest.fn(), back: jest.fn() }),
 }));
 
+const queryClients: QueryClient[] = [];
+
 function wrap(children: ReactNode) {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    defaultOptions: {
+      queries: { gcTime: Infinity, retry: false },
+      mutations: { gcTime: Infinity, retry: false },
+    },
   });
+  queryClients.push(client);
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 
@@ -128,6 +169,10 @@ describe('SessionScreen', () => {
       broadcastMatch: jest.fn().mockResolvedValue(undefined),
     });
     setSignedIn();
+  });
+
+  afterEach(() => {
+    queryClients.splice(0).forEach((client) => client.clear());
   });
 
   it('renders the no-id placeholder when sessionId is missing', () => {
@@ -244,9 +289,9 @@ describe('SessionScreen', () => {
 
     render(wrap(<SessionScreen />));
     await waitFor(() => {
-      expect(screen.getByTestId('session-ended')).toBeOnTheScreen();
+      expect(screen.getByTestId('session-summary-stub')).toBeOnTheScreen();
     });
-    expect(screen.getByTestId('session-ended')).toHaveTextContent(/completed/);
+    expect(screen.getByTestId('session-summary-stub')).toHaveTextContent(/completed/);
   });
 
   it('mounts MatchOverlay when SwipeDeck reports a local match', async () => {
