@@ -89,6 +89,16 @@ jest.mock('react-native-reanimated', () => {
       return {};
     }
   };
+  // Confetti (P8 Slice 2) uses useDerivedValue per particle. Return a
+  // plain shared-value-shaped object whose `.value` is the closure's
+  // current result — production code only reads the value, never sets it.
+  const useDerivedValue = (fn) => {
+    try {
+      return { value: fn() };
+    } catch {
+      return { value: 0 };
+    }
+  };
   const withSpring = (v) => v;
   const withTiming = (v) => v;
   const withDelay = (_d, v) => v;
@@ -112,6 +122,7 @@ jest.mock('react-native-reanimated', () => {
     default: Animated,
     useSharedValue,
     useAnimatedStyle,
+    useDerivedValue,
     withSpring,
     withTiming,
     withDelay,
@@ -170,6 +181,43 @@ jest.mock('expo-haptics', () => ({
   ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
   NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
 }));
+
+// @shopify/react-native-skia ships a native module that fails to initialize
+// under Jest. Stub the surface the Confetti component touches: Canvas/Group/
+// Circle/Rect/Path as plain Views (so testID still resolves), plus a
+// minimal Skia namespace whose Path.MakeFromSVGString + Matrix().scale()
+// chain return placeholder objects so the heart-path construction doesn't
+// throw. The mock is intentionally thin — confetti animation is GPU work
+// that can't be meaningfully verified in JSDOM.
+jest.mock('@shopify/react-native-skia', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const SkiaView = React.forwardRef(function SkiaView(props, ref) {
+    return React.createElement(View, { ref, ...props });
+  });
+  const passthroughNull = () => null;
+  const matrix = () => {
+    const m = {
+      scale: () => m,
+      translate: () => m,
+      rotate: () => m,
+    };
+    return m;
+  };
+  return {
+    Canvas: SkiaView,
+    Group: SkiaView,
+    Circle: passthroughNull,
+    Rect: passthroughNull,
+    Path: passthroughNull,
+    Skia: {
+      Path: {
+        MakeFromSVGString: () => ({ transform: () => null }),
+      },
+      Matrix: matrix,
+    },
+  };
+});
 
 // expo-secure-store is the backing for Clerk's token cache. Tests don't touch
 // the keychain; provide an in-memory shim.

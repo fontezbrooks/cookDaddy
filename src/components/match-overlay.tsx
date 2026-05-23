@@ -15,8 +15,8 @@
 // "Cook this!" + "Keep swiping" CTAs, reduced-motion crossfade fallback,
 // 2.5s auto-close hard cap (§14), a11y label per §10.
 
-import { useEffect, useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -25,6 +25,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { Confetti } from '@/components/confetti';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -105,16 +106,25 @@ function FullMotionOverlay({
   a11yLabel,
 }: MatchOverlayProps & { a11yLabel: string }) {
   // Backdrop dim (§4.2): 0 → 0.7 over 280ms. Card scale (§3 t=120ms):
-  // 1.0 → 1.15 over 280ms with overshoot. The flip + confetti from §3
-  // are structural placeholders here — the card just springs into view.
+  // 1.0 → 1.15 over 280ms with overshoot.
   const backdropOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.85);
   const cardOpacity = useSharedValue(0);
+  // Confetti is gated behind a state toggle that flips at t=750ms per
+  // MATCH-UX §3 (`revealFromCommitMs`). Mounting only at that moment
+  // means React doesn't pay for 60 particles + 240 derived values during
+  // the lead-in animation.
+  const [confettiVisible, setConfettiVisible] = useState(false);
 
   useEffect(() => {
-    backdropOpacity.value = withTiming(0.7, { duration: 280 });
+    backdropOpacity.value = withTiming(0.7, { duration: DesignTokens.motion.timings.backdropMs });
     cardOpacity.value = withTiming(1, { duration: 120 });
-    cardScale.value = withDelay(120, withSpring(1, { damping: 12, stiffness: 180, mass: 1 }));
+    cardScale.value = withDelay(120, withSpring(1, DesignTokens.motion.springs.card));
+    const confettiTimer = setTimeout(
+      () => setConfettiVisible(true),
+      DesignTokens.motion.timings.revealFromCommitMs,
+    );
+    return () => clearTimeout(confettiTimer);
   }, [backdropOpacity, cardOpacity, cardScale]);
 
   const backdropStyle = useAnimatedStyle(() => ({ opacity: backdropOpacity.value }));
@@ -127,6 +137,11 @@ function FullMotionOverlay({
     () => <FullContent payload={payload} onClose={onClose} onPrimary={onPrimary} />,
     [payload, onClose, onPrimary],
   );
+
+  // Confetti fills the screen; spawn origin is screen-center which is
+  // close enough to the card center for v0. Tightening the origin to the
+  // card's runtime layout is a Slice 5 motion-polish refinement.
+  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
   return (
     <View
@@ -141,6 +156,16 @@ function FullMotionOverlay({
       <Animated.View style={[styles.card, cardStyle]} pointerEvents="auto">
         {content}
       </Animated.View>
+      {confettiVisible ? (
+        <View style={styles.confettiLayer} pointerEvents="none">
+          <Confetti
+            originX={screenWidth / 2}
+            originY={screenHeight / 2}
+            width={screenWidth}
+            height={screenHeight}
+          />
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -191,6 +216,11 @@ const styles = StyleSheet.create({
     ...(StyleSheet.absoluteFill as object),
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // Confetti layer sits above the card so particles can spill over the
+  // edges. pointerEvents:none on the parent View keeps the CTAs tappable.
+  confettiLayer: {
+    ...(StyleSheet.absoluteFill as object),
   },
   backdrop: {
     ...(StyleSheet.absoluteFill as object),
