@@ -18,10 +18,22 @@ if (-not (Test-Path $RecipeDir)) {
     New-Item -ItemType Directory -Path $RecipeDir -Force | Out-Null
 }
 
-# TODO: rotate this key before public release. Currently allowlisted in .gitleaks.toml.
-$ApiKey = $env:SpoonacularApiKey
+# Resolve the Spoonacular API key from .env first (so cron and interactive shells
+# behave identically), then fall back to $env:SpoonacularApiKey for back-compat
+# with the prior interactive-only setup. Importer reads the same .env via dotenv.
+$ApiKey = $null
+$envFile = Join-Path $RepoRoot '.env'
+if (Test-Path $envFile) {
+    foreach ($line in Get-Content $envFile) {
+        if ($line -match '^\s*SPOONACULAR_API_KEY\s*=\s*(.+?)\s*$') {
+            $ApiKey = $Matches[1].Trim('"').Trim("'")
+            break
+        }
+    }
+}
+if (-not $ApiKey) { $ApiKey = $env:SpoonacularApiKey }
 if (-not $ApiKey) {
-    Write-Host 'Spoonacular API key not set in $env:SpoonacularApiKey'
+    Write-Host 'Spoonacular API key not set. Add SPOONACULAR_API_KEY=... to .env'
     exit 1
 }
 

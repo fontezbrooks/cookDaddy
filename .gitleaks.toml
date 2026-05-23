@@ -4,10 +4,18 @@ title = "cookDaddy gitleaks config"
 useDefault = true
 
 
-[[allowlist]]
+[[allowlists]]
 description = "Spoonacular sample recipe JSON dumps (no secrets)"
 paths = ['''RecipeJson/.*\.json''']
 
-[[allowlist]]
+[[allowlists]]
 description = "Example env file"
 paths = ['''\.env\.example''']
+
+[[allowlists]]
+description = "Edge Function unit-test fixtures use deterministic fake secrets to drive HMAC verification — never real credentials"
+paths = ['''supabase/functions/.*/__tests__/.*''']
+
+[[allowlists]]
+description = "P3 commit that introduced the (since-rotated) hardcoded Spoonacular key — fix lives in 6fe91c8"
+commits = ['3c673625fb6ec4fbf7fa48ad1eea21a8958c8a81']
