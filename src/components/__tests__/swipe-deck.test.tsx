@@ -312,7 +312,7 @@ describe('SwipeDeck', () => {
 
       // Border color flips to green immediately after press.
       expect(screen.getByTestId('swipe-deck-card-current')).toHaveStyle({
-        borderColor: '#16a34a',
+        borderColor: '#16A34A',
       });
 
       await act(async () => {
@@ -343,7 +343,7 @@ describe('SwipeDeck', () => {
       fireEvent.press(screen.getByTestId('swipe-deck-dislike'));
 
       expect(screen.getByTestId('swipe-deck-card-current')).toHaveStyle({
-        borderColor: '#7a1f1f',
+        borderColor: '#7A1F1F',
       });
     } finally {
       jest.useRealTimers();

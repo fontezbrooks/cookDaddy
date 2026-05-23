@@ -26,6 +26,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { haptics } from '@/lib/haptics';
 import { useReducedMotion } from '@/lib/use-reduced-motion';
@@ -193,17 +194,21 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...(StyleSheet.absoluteFill as object),
-    backgroundColor: '#000',
+    // Pure-black backdrop whose opacity is animated 0 → 0.7 separately
+    // (MATCH-UX §4.2). textOnLight is reused for the literal '#000000';
+    // bgOverlayScrim is the pre-alpha'd variant used by the reduced-motion
+    // path below where the opacity isn't animated.
+    backgroundColor: DesignTokens.color.textOnLight,
   },
   // Reduced-motion solid scrim — opacity gradient is replaced by a
   // flat 0.7 backdrop per MATCH-UX §10 row "Reduced transparency".
   backdropSolid: {
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: DesignTokens.color.bgOverlayScrim,
   },
   card: {
     width: '85%',
     borderRadius: 24,
-    backgroundColor: '#fff',
+    backgroundColor: DesignTokens.color.textOnDark,
     padding: Spacing.four,
     gap: Spacing.three,
     alignItems: 'center',
@@ -211,7 +216,7 @@ const styles = StyleSheet.create({
   cardReduced: {
     width: '85%',
     borderRadius: 24,
-    backgroundColor: '#fff',
+    backgroundColor: DesignTokens.color.textOnDark,
     padding: Spacing.four,
     gap: Spacing.three,
     alignItems: 'center',
@@ -226,8 +231,10 @@ const styles = StyleSheet.create({
     minWidth: 130,
     alignItems: 'center',
   },
-  ctaPrimary: { backgroundColor: '#16a34a' },
-  ctaSecondary: { backgroundColor: '#f0f0f3' },
-  ctaPrimaryText: { color: '#fff', fontWeight: '700' },
-  ctaSecondaryText: { color: '#111', fontWeight: '600' },
+  ctaPrimary: { backgroundColor: DesignTokens.color.accentSuccess },
+  // The overlay renders against a black scrim — light-theme elevated
+  // surface is the secondary CTA background regardless of OS theme.
+  ctaSecondary: { backgroundColor: DesignTokens.color.bgElevated.light },
+  ctaPrimaryText: { color: DesignTokens.color.textOnDark, fontWeight: '700' },
+  ctaSecondaryText: { color: DesignTokens.color.bgCard.light, fontWeight: '600' },
 });

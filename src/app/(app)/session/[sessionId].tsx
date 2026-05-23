@@ -22,6 +22,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MatchOverlay, type MatchOverlayPayload } from '@/components/match-overlay';
 import { SwipeDeck, type OnLocalCommitPayload, type OnMatchPayload } from '@/components/swipe-deck';
 import { ThemedText } from '@/components/themed-text';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { markSessionActive, SessionRpcError } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
@@ -252,12 +253,12 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: 12,
-    backgroundColor: '#111',
+    borderRadius: DesignTokens.radius.md,
+    backgroundColor: DesignTokens.color.bgCard.light,
     marginTop: Spacing.three,
   },
   ctaDisabled: { opacity: 0.6 },
-  ctaText: { color: '#fff', fontWeight: '600' },
+  ctaText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
   dotRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -268,13 +269,16 @@ const styles = StyleSheet.create({
   dot: {
     width: 8,
     height: 8,
-    borderRadius: 4,
+    borderRadius: DesignTokens.radius.sm,
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#666',
+    borderColor: DesignTokens.color.dotEmptyBorder,
   },
   // One side swiped: half-tone fill (partial commitment).
-  dotHalf: { backgroundColor: '#666' },
+  dotHalf: { backgroundColor: DesignTokens.color.dotHalfFill },
   // Both swiped: full neutral fill — color-blind safe (no green/red split).
-  dotFull: { backgroundColor: '#fff', borderColor: '#fff' },
+  dotFull: {
+    backgroundColor: DesignTokens.color.dotFullFill,
+    borderColor: DesignTokens.color.dotFullFill,
+  },
 });

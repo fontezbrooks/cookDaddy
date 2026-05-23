@@ -27,6 +27,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { haptics } from '@/lib/haptics';
 import {
@@ -360,26 +361,28 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '90%',
     aspectRatio: 3 / 4,
-    borderRadius: 16,
-    backgroundColor: '#111',
+    borderRadius: DesignTokens.radius.lg,
+    // Card surface — always dark in v1 regardless of OS theme; use the
+    // light-mode value of the themed token explicitly.
+    backgroundColor: DesignTokens.color.bgCard.light,
     padding: Spacing.four,
     justifyContent: 'flex-end',
     // Reserve border space at all times so the flash doesn't shift layout.
     borderWidth: 2,
     borderColor: 'transparent',
   },
-  cardFlashRight: { borderColor: '#16a34a' },
-  cardFlashLeft: { borderColor: '#7a1f1f' },
+  cardFlashRight: { borderColor: DesignTokens.color.accentSuccess },
+  cardFlashLeft: { borderColor: DesignTokens.color.accentDanger },
   cardBehind: { transform: [{ scale: 0.96 }, { translateY: 10 }], opacity: 0.7 },
   actions: { flexDirection: 'row', gap: Spacing.three, justifyContent: 'center' },
   actionBtn: {
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.three,
-    borderRadius: 12,
+    borderRadius: DesignTokens.radius.md,
     minWidth: 120,
     alignItems: 'center',
   },
-  likeBtn: { backgroundColor: '#16a34a' },
-  dislikeBtn: { backgroundColor: '#7a1f1f' },
-  actionText: { color: '#fff', fontWeight: '700' },
+  likeBtn: { backgroundColor: DesignTokens.color.accentSuccess },
+  dislikeBtn: { backgroundColor: DesignTokens.color.accentDanger },
+  actionText: { color: DesignTokens.color.textOnDark, fontWeight: '700' },
 });
