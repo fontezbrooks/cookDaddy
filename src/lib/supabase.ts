@@ -2,15 +2,17 @@
 //
 // Supabase-js v2.45+ accepts `accessToken` — an async function that returns the
 // bearer the client should attach to every REST + Realtime request. We point that
-// at Clerk's `getToken({ template: 'supabase' })`, which mints a JWT signed with
-// the Supabase JWT_SECRET (Clerk JWT template configured to share the same secret).
+// at Clerk's `getToken()` (no template): Clerk signs the default session token
+// with its own keypair and publishes the public JWKS at its issuer domain. Supabase
+// is configured as a third-party-auth consumer that fetches and trusts that JWKS,
+// so no shared secret is exchanged.
 //
 // Spec: docs/DESIGN/README.md §4.
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import Constants from 'expo-constants';
 
-export type ClerkTokenFetcher = (options: { template: string }) => Promise<string | null>;
+export type ClerkTokenFetcher = () => Promise<string | null>;
 
 type Extra = {
   supabaseUrl?: string;
@@ -47,7 +49,7 @@ export function createSupabaseClient(getToken: ClerkTokenFetcher): SupabaseClien
       detectSessionInUrl: false,
     },
     accessToken: async () => {
-      const token = await getToken({ template: 'supabase' });
+      const token = await getToken();
       return token ?? null;
     },
   });

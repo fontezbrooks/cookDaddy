@@ -63,14 +63,14 @@ describe('createSupabaseClient', () => {
     });
   });
 
-  it('wires accessToken to Clerk getToken with template=supabase', async () => {
+  it('wires accessToken to Clerk getToken (default session token, no template)', async () => {
     const getToken = jest.fn().mockResolvedValue('clerk-jwt-12345');
     createSupabaseClient(getToken);
     const opts = mockedCreateClient.mock.calls[0]![2] as {
       accessToken: () => Promise<string | null>;
     };
     const token = await opts.accessToken();
-    expect(getToken).toHaveBeenCalledWith({ template: 'supabase' });
+    expect(getToken).toHaveBeenCalledWith();
     expect(token).toBe('clerk-jwt-12345');
   });
 
