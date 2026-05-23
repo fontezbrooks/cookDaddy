@@ -1,8 +1,9 @@
 # Database Refactor — Spike Requirements
 
-**Status:** requirements discovery complete (2026-05-23). Next step: `/sc:design` for the migration + schema design, then `/sc:workflow` for phasing.
+**Status:** requirements + design complete (2026-05-23). Next step: `/sc:workflow` for phasing, then `/sc:implement`.
 
 **Target schema:** [spoonacular_postgresql_schema.md](./spoonacular_postgresql_schema.md) — the authoritative end-state shape.
+**Design spec:** [DESIGN/README.md](./DESIGN/README.md) — DDL, ER, RLS, the "complete" mechanism, ingestion graph, migration ordering.
 
 ---
 
