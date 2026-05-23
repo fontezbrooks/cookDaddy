@@ -34,6 +34,13 @@ jest.mock('@/lib/haptics', () => ({
   },
 }));
 
+const mockPlayMatchReveal = jest.fn();
+jest.mock('@/lib/audio', () => ({
+  audio: {
+    playMatchReveal: () => mockPlayMatchReveal(),
+  },
+}));
+
 const PAYLOAD: MatchOverlayPayload = {
   matchId: 'm-1',
   recipeId: 'r-1',
@@ -46,6 +53,7 @@ describe('MatchOverlay', () => {
     mockUseReducedMotion.mockReset().mockReturnValue(false);
     mockHapticsImpactLight.mockReset();
     mockHapticsImpactHeavy.mockReset();
+    mockPlayMatchReveal.mockReset();
     jest.useFakeTimers();
   });
   afterEach(() => {
@@ -113,5 +121,23 @@ describe('MatchOverlay', () => {
     jest.advanceTimersByTime(2500);
     expect(mockHapticsImpactLight).not.toHaveBeenCalled();
     expect(mockHapticsImpactHeavy).not.toHaveBeenCalled();
+  });
+
+  it('fires audio.playMatchReveal at t=750ms (MATCH-UX §6 reveal beat)', () => {
+    render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);
+    expect(mockPlayMatchReveal).not.toHaveBeenCalled();
+    // Before the reveal beat — silence.
+    jest.advanceTimersByTime(749);
+    expect(mockPlayMatchReveal).not.toHaveBeenCalled();
+    // Cross the 750ms mark — chime fires once.
+    jest.advanceTimersByTime(1);
+    expect(mockPlayMatchReveal).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips audio playback entirely in the reduced-motion variant', () => {
+    mockUseReducedMotion.mockReturnValue(true);
+    render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);
+    jest.advanceTimersByTime(2500);
+    expect(mockPlayMatchReveal).not.toHaveBeenCalled();
   });
 });

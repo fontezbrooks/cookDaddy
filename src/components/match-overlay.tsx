@@ -29,6 +29,7 @@ import { Confetti } from '@/components/confetti';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
+import { audio } from '@/lib/audio';
 import { haptics } from '@/lib/haptics';
 import { useReducedMotion } from '@/lib/use-reduced-motion';
 
@@ -60,11 +61,17 @@ export function MatchOverlay({ payload, onClose, onPrimary }: MatchOverlayProps)
   // again at t=280ms, heavy at t=750ms (reveal). Reduced-motion skips the
   // entire pattern — the spec ties haptics to the motion sequence and §10
   // collapses motion to a static crossfade, so haptics fall away with it.
+  // §6 audio pairs to the reveal beat at t=750ms; audio's own no-op
+  // happens inside audio.playMatchReveal() if soundsEnabled is false
+  // (default OFF per §6) or no asset is bound.
   useEffect(() => {
     if (reducedMotion) return;
     haptics.impactLight();
     const t280 = setTimeout(() => haptics.impactLight(), 280);
-    const t750 = setTimeout(() => haptics.impactHeavy(), 750);
+    const t750 = setTimeout(() => {
+      haptics.impactHeavy();
+      audio.playMatchReveal();
+    }, DesignTokens.motion.timings.revealFromCommitMs);
     return () => {
       clearTimeout(t280);
       clearTimeout(t750);

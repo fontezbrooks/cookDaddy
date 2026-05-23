@@ -219,6 +219,34 @@ jest.mock('@shopify/react-native-skia', () => {
   };
 });
 
+// expo-audio (P8 Slice 3). Production reads useSettingsStore.soundsEnabled
+// then calls createAudioPlayer() and player.play(). The mock returns a
+// player whose play/seekTo/pause are jest.fn()s so tests can assert call
+// counts. createAudioPlayer is also a jest.fn() so tests can verify that
+// a sound was loaded with the expected source.
+jest.mock('expo-audio', () => {
+  const players = [];
+  const createAudioPlayer = jest.fn((source) => {
+    const player = {
+      source,
+      play: jest.fn(),
+      pause: jest.fn(),
+      seekTo: jest.fn(),
+      release: jest.fn(),
+    };
+    players.push(player);
+    return player;
+  });
+  return {
+    createAudioPlayer,
+    __getCreatedPlayers: () => players,
+    __resetMockPlayers: () => {
+      players.length = 0;
+      createAudioPlayer.mockClear();
+    },
+  };
+});
+
 // expo-secure-store is the backing for Clerk's token cache. Tests don't touch
 // the keychain; provide an in-memory shim.
 jest.mock('expo-secure-store', () => {
