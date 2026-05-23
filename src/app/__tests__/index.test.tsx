@@ -1,15 +1,21 @@
-import { render, screen } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 
-import HomeScreen from '@/app/index';
+import Index from '@/app/index';
 
-describe('HomeScreen', () => {
-  it('renders the cookDaddy title', () => {
-    render(<HomeScreen />);
-    expect(screen.getByTestId('app-title')).toHaveTextContent('cookDaddy');
-  });
+const mockRedirect = jest.fn();
+jest.mock('expo-router', () => {
+  const React = require('react');
+  return {
+    Redirect: (props: { href: string }) => {
+      mockRedirect(props.href);
+      return React.createElement('Redirect', { href: props.href });
+    },
+  };
+});
 
-  it('renders the phase 0 placeholder copy', () => {
-    render(<HomeScreen />);
-    expect(screen.getByText(/Phase 0 — rails up/)).toBeOnTheScreen();
+describe('Index', () => {
+  it('redirects to /home (auth guard happens in (app)/_layout)', () => {
+    render(<Index />);
+    expect(mockRedirect).toHaveBeenCalledWith('/home');
   });
 });

@@ -12,6 +12,10 @@ const config: ExpoConfig = {
     icon: './assets/expo.icon',
     bundleIdentifier: 'app.cookdaddy.mobile',
     supportsTablet: false,
+    // Universal Links — the P5 deep-link handler picks up taps on
+    // https://cookdaddy.app/invite/<token> etc. AASA file must be served
+    // from https://cookdaddy.app/.well-known/apple-app-site-association.
+    associatedDomains: ['applinks:cookdaddy.app'],
   },
   android: {
     package: 'app.cookdaddy.mobile',
@@ -22,6 +26,16 @@ const config: ExpoConfig = {
       monochromeImage: './assets/images/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
+    intentFilters: [
+      {
+        // Universal Links Android counterpart. Verified via
+        // /.well-known/assetlinks.json — see docs/DESIGN §8.4.
+        action: 'VIEW',
+        autoVerify: true,
+        data: [{ scheme: 'https', host: 'cookdaddy.app' }],
+        category: ['BROWSABLE', 'DEFAULT'],
+      },
+    ],
   },
   web: {
     output: 'static',
