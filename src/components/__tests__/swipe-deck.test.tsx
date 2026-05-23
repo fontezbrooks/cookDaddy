@@ -83,8 +83,10 @@ describe('SwipeDeck', () => {
     mockUseSwipeBroadcast.mockReset().mockReturnValue({
       partnerCommit: null,
       partnerProgress: null,
+      partnerMatch: null,
       broadcastCommit: mockBroadcastCommit,
       broadcastProgress: mockBroadcastProgress,
+      broadcastMatch: jest.fn().mockResolvedValue(undefined),
     });
     setSignedIn();
   });
@@ -155,12 +157,21 @@ describe('SwipeDeck', () => {
     });
   });
 
-  it('invokes onMatch(match_id, recipeId) when submit_swipe returns match=true', async () => {
+  it('invokes onMatch with enriched recipe payload AND broadcasts match.created', async () => {
     mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
     mockSubmitSwipe.mockResolvedValueOnce({
       match: true,
       matchId: 'm-1',
       alreadyMatched: false,
+    });
+    const mockBroadcastMatch = jest.fn().mockResolvedValue(undefined);
+    mockUseSwipeBroadcast.mockReturnValue({
+      partnerCommit: null,
+      partnerProgress: null,
+      partnerMatch: null,
+      broadcastCommit: mockBroadcastCommit,
+      broadcastProgress: mockBroadcastProgress,
+      broadcastMatch: mockBroadcastMatch,
     });
 
     const onMatch = jest.fn();
@@ -168,7 +179,18 @@ describe('SwipeDeck', () => {
     fireEvent.press(screen.getByTestId('swipe-deck-like'));
 
     await waitFor(() => {
-      expect(onMatch).toHaveBeenCalledWith({ matchId: 'm-1', recipeId: 'r-1' });
+      expect(onMatch).toHaveBeenCalledWith({
+        matchId: 'm-1',
+        recipeId: 'r-1',
+        recipeTitle: 'Cacio e Pepe',
+        recipeImageUrl: null,
+      });
+    });
+    expect(mockBroadcastMatch).toHaveBeenCalledWith({
+      matchId: 'm-1',
+      recipeId: 'r-1',
+      recipeTitle: 'Cacio e Pepe',
+      recipeImageUrl: null,
     });
   });
 

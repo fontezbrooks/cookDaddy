@@ -29,18 +29,44 @@ jest.mock('@/lib/session-rpcs', () => {
 
 // SwipeDeck is exercised by its own test file. Mock it here to keep the
 // screen test focused on routing between lobby/active/ended branches.
+// The stub exposes a testID button that lets a test fire onMatch
+// synthetically — the match-overlay wiring is the screen's responsibility.
 jest.mock('@/components/swipe-deck', () => {
   const React = require('react');
-  const { View, Text } = require('react-native');
+  const { View, Text, Pressable } = require('react-native');
   return {
-    SwipeDeck: (props: { sessionId: string; recipeIds: string[] }) =>
-      React.createElement(
+    SwipeDeck: (props: {
+      sessionId: string;
+      recipeIds: string[];
+      onMatch?: (p: unknown) => void;
+    }) => {
+      return React.createElement(
         View,
         { testID: 'swipe-deck-stub' },
         React.createElement(Text, null, `deck:${props.recipeIds.length}`),
-      ),
+        React.createElement(
+          Pressable,
+          {
+            testID: 'swipe-deck-fire-match',
+            onPress: () =>
+              props.onMatch?.({
+                matchId: 'm-1',
+                recipeId: 'r-1',
+                recipeTitle: 'Cacio e Pepe',
+                recipeImageUrl: null,
+              }),
+          },
+          React.createElement(Text, null, 'fire-match'),
+        ),
+      );
+    },
   };
 });
+
+const mockUseSwipeBroadcast = jest.fn();
+jest.mock('@/lib/use-swipe-broadcast', () => ({
+  useSwipeBroadcast: () => mockUseSwipeBroadcast(),
+}));
 
 const mockMaybeSingle = jest.fn();
 jest.mock('@/lib/supabase', () => ({
@@ -83,6 +109,14 @@ describe('SessionScreen', () => {
     mockMaybeSingle.mockReset();
     mockReplace.mockClear();
     mockParams.sessionId = 'sess-1';
+    mockUseSwipeBroadcast.mockReset().mockReturnValue({
+      partnerCommit: null,
+      partnerProgress: null,
+      partnerMatch: null,
+      broadcastCommit: jest.fn().mockResolvedValue(undefined),
+      broadcastProgress: jest.fn().mockResolvedValue(undefined),
+      broadcastMatch: jest.fn().mockResolvedValue(undefined),
+    });
     setSignedIn();
   });
 
@@ -183,7 +217,7 @@ describe('SessionScreen', () => {
       expect(screen.getByTestId('session-active')).toBeOnTheScreen();
     });
     expect(screen.getByTestId('swipe-deck-stub')).toBeOnTheScreen();
-    expect(screen.getByTestId('swipe-deck-stub')).toHaveTextContent('deck:2');
+    expect(screen.getByTestId('swipe-deck-stub')).toHaveTextContent(/deck:2/);
   });
 
   it('renders the ended summary when status=ended', async () => {
@@ -203,5 +237,89 @@ describe('SessionScreen', () => {
       expect(screen.getByTestId('session-ended')).toBeOnTheScreen();
     });
     expect(screen.getByTestId('session-ended')).toHaveTextContent(/completed/);
+  });
+
+  it('mounts MatchOverlay when SwipeDeck reports a local match', async () => {
+    mockMaybeSingle.mockResolvedValue({
+      data: {
+        id: 'sess-1',
+        status: 'active',
+        pod_id: 'pod-1',
+        deck_recipe_ids: ['r-1'],
+        ended_reason: null,
+      },
+      error: null,
+    });
+
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('swipe-deck-fire-match')).toBeOnTheScreen();
+    });
+    fireEvent.press(screen.getByTestId('swipe-deck-fire-match'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('match-overlay')).toBeOnTheScreen();
+    });
+    expect(screen.getByTestId('match-overlay')).toHaveTextContent(/Cacio e Pepe/);
+  });
+
+  it('mounts MatchOverlay when a partner broadcast fires (match.created)', async () => {
+    mockMaybeSingle.mockResolvedValue({
+      data: {
+        id: 'sess-1',
+        status: 'active',
+        pod_id: 'pod-1',
+        deck_recipe_ids: ['r-1'],
+        ended_reason: null,
+      },
+      error: null,
+    });
+    mockUseSwipeBroadcast.mockReturnValue({
+      partnerCommit: null,
+      partnerProgress: null,
+      partnerMatch: {
+        matchId: 'm-2',
+        recipeId: 'r-2',
+        recipeTitle: 'Roast Squash',
+        recipeImageUrl: null,
+      },
+      broadcastCommit: jest.fn().mockResolvedValue(undefined),
+      broadcastProgress: jest.fn().mockResolvedValue(undefined),
+      broadcastMatch: jest.fn().mockResolvedValue(undefined),
+    });
+
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('match-overlay')).toBeOnTheScreen();
+    });
+    expect(screen.getByTestId('match-overlay')).toHaveTextContent(/Roast Squash/);
+  });
+
+  it('dismisses MatchOverlay when Keep swiping is tapped', async () => {
+    mockMaybeSingle.mockResolvedValue({
+      data: {
+        id: 'sess-1',
+        status: 'active',
+        pod_id: 'pod-1',
+        deck_recipe_ids: ['r-1'],
+        ended_reason: null,
+      },
+      error: null,
+    });
+
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('swipe-deck-fire-match')).toBeOnTheScreen();
+    });
+    fireEvent.press(screen.getByTestId('swipe-deck-fire-match'));
+    await waitFor(() => {
+      expect(screen.getByTestId('match-overlay')).toBeOnTheScreen();
+    });
+
+    fireEvent.press(screen.getByTestId('match-overlay-secondary'));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('match-overlay')).not.toBeOnTheScreen();
+    });
   });
 });

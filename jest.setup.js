@@ -91,6 +91,9 @@ jest.mock('react-native-reanimated', () => {
   };
   const withSpring = (v) => v;
   const withTiming = (v) => v;
+  const withDelay = (_d, v) => v;
+  const withRepeat = (v) => v;
+  const withSequence = (...vals) => vals[vals.length - 1];
   const runOnJS = (fn) => fn;
   const runOnUI = (fn) => fn;
   const interpolate = (v) => v;
@@ -111,6 +114,9 @@ jest.mock('react-native-reanimated', () => {
     useAnimatedStyle,
     withSpring,
     withTiming,
+    withDelay,
+    withRepeat,
+    withSequence,
     runOnJS,
     runOnUI,
     interpolate,

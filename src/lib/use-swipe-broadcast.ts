@@ -26,15 +26,25 @@ export type PartnerProgress = {
   fraction: number;
 };
 
+export type PartnerMatch = {
+  matchId: string;
+  recipeId: string;
+  recipeTitle: string;
+  recipeImageUrl: string | null;
+};
+
 export type UseSwipeBroadcastResult = {
   partnerCommit: PartnerCommit | null;
   partnerProgress: PartnerProgress | null;
+  partnerMatch: PartnerMatch | null;
   broadcastCommit: (args: { recipeId: string; direction: SwipeDirection }) => Promise<unknown>;
   broadcastProgress: (args: { recipeId: string; fraction: number }) => Promise<unknown>;
+  broadcastMatch: (args: PartnerMatch) => Promise<unknown>;
 };
 
 type RawCommit = PartnerCommit & { userId: string };
 type RawProgress = PartnerProgress & { userId: string };
+type RawMatch = PartnerMatch & { userId: string };
 
 export function useSwipeBroadcast(sessionId: string): UseSwipeBroadcastResult {
   const { getToken, userId } = useAuth();
@@ -42,6 +52,7 @@ export function useSwipeBroadcast(sessionId: string): UseSwipeBroadcastResult {
 
   const [partnerCommit, setPartnerCommit] = useState<PartnerCommit | null>(null);
   const [partnerProgress, setPartnerProgress] = useState<PartnerProgress | null>(null);
+  const [partnerMatch, setPartnerMatch] = useState<PartnerMatch | null>(null);
 
   // userIdRef so the inbound handlers always see the latest value without
   // resubscribing the channel each time Clerk re-renders.
@@ -64,6 +75,16 @@ export function useSwipeBroadcast(sessionId: string): UseSwipeBroadcastResult {
         const raw = evt.payload as RawProgress;
         if (!raw || raw.userId === userIdRef.current) return;
         setPartnerProgress({ recipeId: raw.recipeId, fraction: raw.fraction });
+      })
+      .on('broadcast', { event: 'match.created' }, (evt: { payload: unknown }) => {
+        const raw = evt.payload as RawMatch;
+        if (!raw || raw.userId === userIdRef.current) return;
+        setPartnerMatch({
+          matchId: raw.matchId,
+          recipeId: raw.recipeId,
+          recipeTitle: raw.recipeTitle,
+          recipeImageUrl: raw.recipeImageUrl ?? null,
+        });
       })
       .subscribe();
     channelRef.current = channel;
@@ -99,5 +120,22 @@ export function useSwipeBroadcast(sessionId: string): UseSwipeBroadcastResult {
     [],
   );
 
-  return { partnerCommit, partnerProgress, broadcastCommit, broadcastProgress };
+  const broadcastMatch = useCallback((args: PartnerMatch) => {
+    const channel = channelRef.current;
+    if (!channel) return Promise.resolve(undefined);
+    return channel.send({
+      type: 'broadcast',
+      event: 'match.created',
+      payload: { ...args, userId: userIdRef.current ?? null },
+    });
+  }, []);
+
+  return {
+    partnerCommit,
+    partnerProgress,
+    partnerMatch,
+    broadcastCommit,
+    broadcastProgress,
+    broadcastMatch,
+  };
 }

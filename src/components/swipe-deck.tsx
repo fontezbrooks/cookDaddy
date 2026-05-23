@@ -46,6 +46,8 @@ const COMMIT_DISTANCE = SCREEN_WIDTH * SWIPE_THRESHOLD_RATIO;
 export type OnMatchPayload = {
   matchId: string;
   recipeId: string;
+  recipeTitle: string;
+  recipeImageUrl: string | null;
 };
 
 export type SwipeDeckProps = {
@@ -61,7 +63,7 @@ export function SwipeDeck({ sessionId, recipeIds, onMatch }: SwipeDeckProps) {
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
 
   const { data: deck, isLoading } = useDeck(recipeIds);
-  const { broadcastCommit, broadcastProgress } = useSwipeBroadcast(sessionId);
+  const { broadcastCommit, broadcastProgress, broadcastMatch } = useSwipeBroadcast(sessionId);
 
   const [index, setIndex] = useState(0);
   const [errorVisible, setErrorVisible] = useState(false);
@@ -75,6 +77,13 @@ export function SwipeDeck({ sessionId, recipeIds, onMatch }: SwipeDeckProps) {
   const onMatchRef = useRef(onMatch);
   onMatchRef.current = onMatch;
 
+  // deckByIdRef so the commit closure always has fresh metadata without
+  // needing to recreate the mutation callback when the deck loads.
+  const deckByIdRef = useRef<Map<string, DeckRecipe>>(new Map());
+  useEffect(() => {
+    deckByIdRef.current = new Map((deck ?? []).map((r) => [r.id, r]));
+  }, [deck]);
+
   const commitMutation = useMutation<SubmitSwipeResult, unknown, CommitArgs>({
     mutationFn: async ({ recipeId, direction }) => {
       const result = await submitSwipe(supabase, sessionId, recipeId, direction);
@@ -84,8 +93,19 @@ export function SwipeDeck({ sessionId, recipeIds, onMatch }: SwipeDeckProps) {
     },
     onSuccess: (result, vars) => {
       setErrorVisible(false);
-      if (result.match && result.matchId && onMatchRef.current) {
-        onMatchRef.current({ matchId: result.matchId, recipeId: vars.recipeId });
+      if (result.match && result.matchId) {
+        const recipe = deckByIdRef.current.get(vars.recipeId);
+        const payload: OnMatchPayload = {
+          matchId: result.matchId,
+          recipeId: vars.recipeId,
+          recipeTitle: recipe?.title ?? '',
+          recipeImageUrl: recipe?.imageUrl ?? null,
+        };
+        // Local UI hook for the host screen to mount the overlay.
+        onMatchRef.current?.(payload);
+        // Partner mirror — fire and forget. The partner's overlay opens
+        // off match.created if their submit_swipe hasn't returned yet.
+        void broadcastMatch(payload);
       }
       setIndex((i) => i + 1);
     },

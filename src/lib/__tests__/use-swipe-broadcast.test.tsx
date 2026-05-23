@@ -153,4 +153,69 @@ describe('useSwipeBroadcast', () => {
       fraction: 0.7,
     });
   });
+
+  it('broadcastMatch sends a match.created event with the enriched payload', async () => {
+    const ref = makeRef();
+    render(<Harness captureRef={ref} />);
+    await act(async () => {
+      await ref.current!.broadcastMatch({
+        matchId: 'm-1',
+        recipeId: 'r-1',
+        recipeTitle: 'Cacio e Pepe',
+        recipeImageUrl: 'https://example/img.jpg',
+      });
+    });
+    expect(mockState.send).toHaveBeenCalledWith({
+      type: 'broadcast',
+      event: 'match.created',
+      payload: {
+        matchId: 'm-1',
+        recipeId: 'r-1',
+        recipeTitle: 'Cacio e Pepe',
+        recipeImageUrl: 'https://example/img.jpg',
+        userId: 'user_alice',
+      },
+    });
+  });
+
+  it('exposes partnerMatch when a foreign userId publishes match.created', () => {
+    const ref = makeRef();
+    render(<Harness captureRef={ref} />);
+    act(() => {
+      mockState.handlers.get('match.created')!({
+        event: 'match.created',
+        payload: {
+          matchId: 'm-1',
+          recipeId: 'r-1',
+          recipeTitle: 'Cacio e Pepe',
+          recipeImageUrl: null,
+          userId: 'user_bob',
+        },
+      });
+    });
+    expect(ref.current!.partnerMatch).toEqual({
+      matchId: 'm-1',
+      recipeId: 'r-1',
+      recipeTitle: 'Cacio e Pepe',
+      recipeImageUrl: null,
+    });
+  });
+
+  it('ignores match.created echoes from the caller themselves', () => {
+    const ref = makeRef();
+    render(<Harness captureRef={ref} />);
+    act(() => {
+      mockState.handlers.get('match.created')!({
+        event: 'match.created',
+        payload: {
+          matchId: 'm-1',
+          recipeId: 'r-1',
+          recipeTitle: 'Cacio e Pepe',
+          recipeImageUrl: null,
+          userId: 'user_alice',
+        },
+      });
+    });
+    expect(ref.current!.partnerMatch).toBeNull();
+  });
 });

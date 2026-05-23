@@ -1,9 +1,11 @@
 // Live-sync swipe session screen. Renders one of three states based on
 // sessions.status:
 //   • lobby  → "Start swiping" button calls mark_session_active.
-//   • active → SwipeDeck — two-card stack, gesture + accessibility buttons,
-//              partner mirror via realtime broadcast, end-on-exhaust.
-//   • ended  → summary placeholder (match overlay + cookbook land in P6d/P9).
+//   • active → SwipeDeck + MatchOverlay host. The overlay mounts on
+//              either the local SwipeDeck onMatch callback (this user's
+//              submit_swipe returned match=true) OR a partner broadcast
+//              of match.created — whichever fires first wins.
+//   • ended  → summary placeholder (cookbook surface lands in P9).
 //
 // v0 transitions to active on a single tap from either partner. The
 // presence-driven "both must be ready" UX is a P6b.2 enhancement; the
@@ -13,15 +15,17 @@
 import { useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { SwipeDeck } from '@/components/swipe-deck';
+import { MatchOverlay, type MatchOverlayPayload } from '@/components/match-overlay';
+import { SwipeDeck, type OnMatchPayload } from '@/components/swipe-deck';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { markSessionActive, SessionRpcError } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
+import { useSwipeBroadcast } from '@/lib/use-swipe-broadcast';
 
 type SessionRow = {
   id: string;
@@ -37,6 +41,21 @@ export default function SessionScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
+
+  // Hosted at the screen so the overlay survives card-stack re-renders and
+  // can be fed by either the local SwipeDeck or the partner broadcast.
+  const [matchPayload, setMatchPayload] = useState<MatchOverlayPayload | null>(null);
+  const { partnerMatch } = useSwipeBroadcast(sessionId ?? '');
+
+  useEffect(() => {
+    if (partnerMatch && !matchPayload) {
+      setMatchPayload(partnerMatch);
+    }
+  }, [partnerMatch, matchPayload]);
+
+  const handleLocalMatch = (payload: OnMatchPayload) => {
+    if (!matchPayload) setMatchPayload(payload);
+  };
 
   const query = useQuery({
     queryKey: ['sessions', sessionId],
@@ -136,8 +155,15 @@ export default function SessionScreen() {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.container} testID="session-active">
-          <SwipeDeck sessionId={session.id} recipeIds={session.deck_recipe_ids ?? []} />
+          <SwipeDeck
+            sessionId={session.id}
+            recipeIds={session.deck_recipe_ids ?? []}
+            onMatch={handleLocalMatch}
+          />
         </View>
+        {matchPayload ? (
+          <MatchOverlay payload={matchPayload} onClose={() => setMatchPayload(null)} />
+        ) : null}
       </SafeAreaView>
     );
   }
