@@ -70,6 +70,10 @@ type ConfettiProps = {
   // Total drawable area; Skia Canvas needs explicit width/height.
   width: number;
   height: number;
+  // Override the default particle count (CONFETTI_PARTICLE_COUNT). The
+  // variant catalog (P8 Slice 4 / MATCH-UX §7) bumps firstOfSession by
+  // +20%; other variants leave this undefined and inherit the default.
+  particleCount?: number;
 };
 
 const HEART_PATH =
@@ -93,9 +97,9 @@ function pickShape(roll: number): Shape {
   return 'heart';
 }
 
-function buildParticles(originX: number, originY: number): ParticleSpec[] {
+function buildParticles(originX: number, originY: number, count: number): ParticleSpec[] {
   const particles: ParticleSpec[] = [];
-  for (let i = 0; i < CONFETTI_PARTICLE_COUNT; i += 1) {
+  for (let i = 0; i < count; i += 1) {
     const speed = CONFETTI_VELOCITY_MIN + rng() * (CONFETTI_VELOCITY_MAX - CONFETTI_VELOCITY_MIN);
     // Angle measured from upward (-y). Spread is ±60° → angle in [-60°, +60°].
     const angleDeg = (rng() * 2 - 1) * CONFETTI_SPREAD_DEG;
@@ -119,8 +123,12 @@ function buildParticles(originX: number, originY: number): ParticleSpec[] {
 // One progress shared value runs 0→1 over the maximum particle lifetime;
 // each particle interpolates its own (t, pos, rotation, alpha) against
 // the same clock. Lighter than 60 independent withTiming animations.
-export function Confetti({ originX, originY, width, height }: ConfettiProps) {
-  const particles = useMemo(() => buildParticles(originX, originY), [originX, originY]);
+export function Confetti({ originX, originY, width, height, particleCount }: ConfettiProps) {
+  const count = particleCount ?? CONFETTI_PARTICLE_COUNT;
+  const particles = useMemo(
+    () => buildParticles(originX, originY, count),
+    [originX, originY, count],
+  );
   const progress = useSharedValue(0);
 
   useEffect(() => {

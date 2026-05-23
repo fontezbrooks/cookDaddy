@@ -25,12 +25,17 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { Confetti } from '@/components/confetti';
+import { Confetti, CONFETTI_PARTICLE_COUNT } from '@/components/confetti';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { audio } from '@/lib/audio';
 import { haptics } from '@/lib/haptics';
+import {
+  MATCH_VARIANT_CONFIG,
+  type MatchVariant,
+  type MatchVariantConfig,
+} from '@/lib/match-variant';
 import { useReducedMotion } from '@/lib/use-reduced-motion';
 
 const AUTO_CLOSE_MS = 2500;
@@ -46,9 +51,20 @@ export type MatchOverlayProps = {
   payload: MatchOverlayPayload;
   onClose: () => void;
   onPrimary?: (payload: MatchOverlayPayload) => void;
+  // MATCH-UX §7 variant — caller (session screen) determines which
+  // variant the current match qualifies for via determineMatchVariant().
+  // Defaults to 'standard' when omitted so existing call sites keep
+  // working without change.
+  variant?: MatchVariant;
 };
 
-export function MatchOverlay({ payload, onClose, onPrimary }: MatchOverlayProps) {
+export function MatchOverlay({
+  payload,
+  onClose,
+  onPrimary,
+  variant = 'standard',
+}: MatchOverlayProps) {
+  const config = MATCH_VARIANT_CONFIG[variant];
   const reducedMotion = useReducedMotion();
 
   // Auto-dismiss at the hard cap so a stuck overlay can't block the deck.
@@ -90,7 +106,12 @@ export function MatchOverlay({ payload, onClose, onPrimary }: MatchOverlayProps)
         style={[styles.root, styles.backdropSolid]}
       >
         <View testID="match-overlay-reduced-motion" style={styles.cardReduced}>
-          <ReducedContent payload={payload} onClose={onClose} onPrimary={onPrimary} />
+          <ReducedContent
+            payload={payload}
+            onClose={onClose}
+            onPrimary={onPrimary}
+            config={config}
+          />
         </View>
       </View>
     );
@@ -102,6 +123,7 @@ export function MatchOverlay({ payload, onClose, onPrimary }: MatchOverlayProps)
       onClose={onClose}
       onPrimary={onPrimary}
       a11yLabel={a11yLabel}
+      config={config}
     />
   );
 }
@@ -111,7 +133,8 @@ function FullMotionOverlay({
   onClose,
   onPrimary,
   a11yLabel,
-}: MatchOverlayProps & { a11yLabel: string }) {
+  config,
+}: MatchOverlayProps & { a11yLabel: string; config: MatchVariantConfig }) {
   // Backdrop dim (§4.2): 0 → 0.7 over 280ms. Card scale (§3 t=120ms):
   // 1.0 → 1.15 over 280ms with overshoot.
   const backdropOpacity = useSharedValue(0);
@@ -141,8 +164,8 @@ function FullMotionOverlay({
   }));
 
   const content = useMemo(
-    () => <FullContent payload={payload} onClose={onClose} onPrimary={onPrimary} />,
-    [payload, onClose, onPrimary],
+    () => <FullContent payload={payload} onClose={onClose} onPrimary={onPrimary} config={config} />,
+    [payload, onClose, onPrimary, config],
   );
 
   // Confetti fills the screen; spawn origin is screen-center which is
@@ -170,6 +193,7 @@ function FullMotionOverlay({
             originY={screenHeight / 2}
             width={screenWidth}
             height={screenHeight}
+            particleCount={Math.round(CONFETTI_PARTICLE_COUNT * config.confettiDensity)}
           />
         </View>
       ) : null}
@@ -177,15 +201,25 @@ function FullMotionOverlay({
   );
 }
 
-function FullContent({ payload, onClose, onPrimary }: MatchOverlayProps) {
+function FullContent({
+  payload,
+  onClose,
+  onPrimary,
+  config,
+}: MatchOverlayProps & { config: MatchVariantConfig }) {
   return (
     <>
-      <ThemedText type="title" style={styles.heading}>
-        It’s a match!
+      <ThemedText type="title" style={styles.heading} testID="match-overlay-heading">
+        {config.heading}
       </ThemedText>
       <ThemedText type="subtitle" style={styles.recipeTitle}>
         {payload.recipeTitle}
       </ThemedText>
+      {config.badge ? (
+        <ThemedText type="small" style={styles.badge} testID="match-overlay-badge">
+          {config.badge}
+        </ThemedText>
+      ) : null}
       <View style={styles.ctaRow}>
         <Pressable
           testID="match-overlay-primary"
@@ -214,7 +248,7 @@ function FullContent({ payload, onClose, onPrimary }: MatchOverlayProps) {
   );
 }
 
-function ReducedContent(props: MatchOverlayProps) {
+function ReducedContent(props: MatchOverlayProps & { config: MatchVariantConfig }) {
   return <FullContent {...props} />;
 }
 
@@ -260,6 +294,13 @@ const styles = StyleSheet.create({
   },
   heading: { textAlign: 'center' },
   recipeTitle: { textAlign: 'center' },
+  // Variant badge — small accent text beneath the recipe title (MATCH-UX
+  // §7 row "Same wavelength 🧠" for speedy, future variants too).
+  badge: {
+    textAlign: 'center',
+    color: DesignTokens.color.accentCelebration2,
+    fontWeight: '600',
+  },
   ctaRow: { flexDirection: 'row', gap: Spacing.three, marginTop: Spacing.two },
   cta: {
     paddingHorizontal: Spacing.four,

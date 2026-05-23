@@ -15,7 +15,7 @@
 import { useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -24,6 +24,7 @@ import { SwipeDeck, type OnLocalCommitPayload, type OnMatchPayload } from '@/com
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
+import { determineMatchVariant, type MatchVariant } from '@/lib/match-variant';
 import { markSessionActive, SessionRpcError } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
 import { useSwipeBroadcast } from '@/lib/use-swipe-broadcast';
@@ -46,7 +47,12 @@ export default function SessionScreen() {
   // Hosted at the screen so the overlay survives card-stack re-renders and
   // can be fed by either the local SwipeDeck or the partner broadcast.
   const [matchPayload, setMatchPayload] = useState<MatchOverlayPayload | null>(null);
-  const { partnerMatch, partnerCommittedRecipeIds } = useSwipeBroadcast(sessionId ?? '');
+  // MATCH-UX §7 variant computed at the moment the overlay mounts; held in
+  // state so re-renders of the screen don't re-derive against stale inputs.
+  const [matchVariant, setMatchVariant] = useState<MatchVariant>('standard');
+  const { partnerCommit, partnerMatch, partnerCommittedRecipeIds } = useSwipeBroadcast(
+    sessionId ?? '',
+  );
 
   // MATCH-UX §8.2: track which recipeIds the local user has swiped so the
   // dot row can render (full | half | empty) per card. Lives at this screen
@@ -56,17 +62,67 @@ export default function SessionScreen() {
     () => new Set<string>(),
   );
 
+  // MATCH-UX §7 variant detection inputs. Tracked here so determineMatchVariant
+  // can be called synchronously inside the match handlers.
+  const [matchesInSession, setMatchesInSession] = useState(0);
+  const [lastLocalCommitAt, setLastLocalCommitAt] = useState<number | null>(null);
+  const [lastPartnerCommitAt, setLastPartnerCommitAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (partnerCommit) setLastPartnerCommitAt(Date.now());
+  }, [partnerCommit]);
+
+  // Variant context refs so the synchronous match handlers see the latest
+  // values without resubscribing on every state update.
+  const variantInputsRef = useRef({
+    matchesInSession: 0,
+    lastLocalCommitAt: null as number | null,
+    lastPartnerCommitAt: null as number | null,
+    deckSize: 0,
+    localCommittedRecipeIds: new Set<string>(),
+  });
+  variantInputsRef.current.matchesInSession = matchesInSession;
+  variantInputsRef.current.lastLocalCommitAt = lastLocalCommitAt;
+  variantInputsRef.current.lastPartnerCommitAt = lastPartnerCommitAt;
+  variantInputsRef.current.localCommittedRecipeIds = localCommittedRecipeIds;
+
+  function computeVariantForMatch(recipeId: string): MatchVariant {
+    const inputs = variantInputsRef.current;
+    // cardIndex inferred from how many recipes the local user has
+    // swiped — the match recipe was the most recent so its 0-based
+    // index is (committedCount - 1). If the recipe isn't in the set
+    // yet (partner-only match path), fall back to deckSize so the
+    // lastCard branch isn't accidentally triggered.
+    const committedCount = inputs.localCommittedRecipeIds.has(recipeId)
+      ? inputs.localCommittedRecipeIds.size
+      : inputs.localCommittedRecipeIds.size + 1;
+    return determineMatchVariant({
+      matchesInSessionBeforeThis: inputs.matchesInSession,
+      cardIndex: committedCount - 1,
+      deckSize: inputs.deckSize,
+      lastLocalCommitAt: inputs.lastLocalCommitAt,
+      lastPartnerCommitAt: inputs.lastPartnerCommitAt,
+    });
+  }
+
   useEffect(() => {
     if (partnerMatch && !matchPayload) {
+      setMatchVariant(computeVariantForMatch(partnerMatch.recipeId));
       setMatchPayload(partnerMatch);
+      setMatchesInSession((n) => n + 1);
     }
+    // computeVariantForMatch reads through a ref, so it's stable.
   }, [partnerMatch, matchPayload]);
 
   const handleLocalMatch = (payload: OnMatchPayload) => {
-    if (!matchPayload) setMatchPayload(payload);
+    if (matchPayload) return;
+    setMatchVariant(computeVariantForMatch(payload.recipeId));
+    setMatchPayload(payload);
+    setMatchesInSession((n) => n + 1);
   };
 
   const handleLocalCommit = (payload: OnLocalCommitPayload) => {
+    setLastLocalCommitAt(Date.now());
     setLocalCommittedRecipeIds((prev) => {
       if (prev.has(payload.recipeId)) return prev;
       const next = new Set(prev);
@@ -96,6 +152,11 @@ export default function SessionScreen() {
       queryClient.invalidateQueries({ queryKey: ['sessions', sessionId] });
     },
   });
+
+  // Keep deckSize in the variant ref synced from the loaded session row.
+  // Lives outside `query.data` access so the ref's deckSize is whatever
+  // the most recent successful fetch returned.
+  variantInputsRef.current.deckSize = query.data?.deck_recipe_ids?.length ?? 0;
 
   if (!sessionId) {
     return (
@@ -186,7 +247,11 @@ export default function SessionScreen() {
           />
         </View>
         {matchPayload ? (
-          <MatchOverlay payload={matchPayload} onClose={() => setMatchPayload(null)} />
+          <MatchOverlay
+            payload={matchPayload}
+            variant={matchVariant}
+            onClose={() => setMatchPayload(null)}
+          />
         ) : null}
       </SafeAreaView>
     );
