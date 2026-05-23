@@ -1,8 +1,9 @@
 // Live-sync swipe session screen. Renders one of three states based on
 // sessions.status:
 //   • lobby  → "Start swiping" button calls mark_session_active.
-//   • active → deck placeholder (real deck lands in P6c).
-//   • ended  → summary placeholder (lands later in P6).
+//   • active → SwipeDeck — two-card stack, gesture + accessibility buttons,
+//              partner mirror via realtime broadcast, end-on-exhaust.
+//   • ended  → summary placeholder (match overlay + cookbook land in P6d/P9).
 //
 // v0 transitions to active on a single tap from either partner. The
 // presence-driven "both must be ready" UX is a P6b.2 enhancement; the
@@ -16,6 +17,7 @@ import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { SwipeDeck } from '@/components/swipe-deck';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { markSessionActive, SessionRpcError } from '@/lib/session-rpcs';
@@ -134,10 +136,7 @@ export default function SessionScreen() {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.container} testID="session-active">
-          <ThemedText type="title">Swiping</ThemedText>
-          <ThemedText type="small">
-            {deckSize} recipes in deck. Swipe gestures + match overlay land in P6c.
-          </ThemedText>
+          <SwipeDeck sessionId={session.id} recipeIds={session.deck_recipe_ids ?? []} />
         </View>
       </SafeAreaView>
     );

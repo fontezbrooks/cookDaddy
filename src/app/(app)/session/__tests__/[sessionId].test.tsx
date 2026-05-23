@@ -27,6 +27,21 @@ jest.mock('@/lib/session-rpcs', () => {
   };
 });
 
+// SwipeDeck is exercised by its own test file. Mock it here to keep the
+// screen test focused on routing between lobby/active/ended branches.
+jest.mock('@/components/swipe-deck', () => {
+  const React = require('react');
+  const { View, Text } = require('react-native');
+  return {
+    SwipeDeck: (props: { sessionId: string; recipeIds: string[] }) =>
+      React.createElement(
+        View,
+        { testID: 'swipe-deck-stub' },
+        React.createElement(Text, null, `deck:${props.recipeIds.length}`),
+      ),
+  };
+});
+
 const mockMaybeSingle = jest.fn();
 jest.mock('@/lib/supabase', () => ({
   createSupabaseClient: () => ({
@@ -151,7 +166,7 @@ describe('SessionScreen', () => {
     });
   });
 
-  it('renders the active deck placeholder when status=active', async () => {
+  it('mounts SwipeDeck inside the active branch when status=active', async () => {
     mockMaybeSingle.mockResolvedValue({
       data: {
         id: 'sess-1',
@@ -167,7 +182,8 @@ describe('SessionScreen', () => {
     await waitFor(() => {
       expect(screen.getByTestId('session-active')).toBeOnTheScreen();
     });
-    expect(screen.getByTestId('session-active')).toHaveTextContent(/2 recipes/);
+    expect(screen.getByTestId('swipe-deck-stub')).toBeOnTheScreen();
+    expect(screen.getByTestId('swipe-deck-stub')).toHaveTextContent('deck:2');
   });
 
   it('renders the ended summary when status=ended', async () => {

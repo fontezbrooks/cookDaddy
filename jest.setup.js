@@ -65,6 +65,94 @@ jest.mock('@clerk/clerk-expo', () => {
   };
 });
 
+// react-native-reanimated 4 + react-native-worklets fail to initialize under
+// Jest (native module check on require). Their shipped /mock entry still
+// imports the worklets initializer, so we hand-roll a minimal mock with just
+// the surface SwipeDeck (and any future Animated consumer) needs. Worklets
+// become plain JS functions; shared values are read/write objects; Animated
+// primitives are plain Views.
+jest.mock('react-native-worklets', () => ({
+  WorkletsModule: {},
+  runOnJS: (fn) => fn,
+  runOnUI: (fn) => fn,
+  createWorkletRuntime: () => ({}),
+  isWorkletFunction: () => false,
+}));
+jest.mock('react-native-reanimated', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const useSharedValue = (initial) => ({ value: initial });
+  const useAnimatedStyle = (fn) => {
+    try {
+      return fn() || {};
+    } catch {
+      return {};
+    }
+  };
+  const withSpring = (v) => v;
+  const withTiming = (v) => v;
+  const runOnJS = (fn) => fn;
+  const runOnUI = (fn) => fn;
+  const interpolate = (v) => v;
+  const AnimatedView = React.forwardRef(function AnimatedView(props, ref) {
+    return React.createElement(View, { ref, ...props });
+  });
+  const Animated = {
+    View: AnimatedView,
+    Text: View,
+    ScrollView: View,
+    Image: View,
+    createAnimatedComponent: (Comp) => Comp,
+  };
+  return {
+    __esModule: true,
+    default: Animated,
+    useSharedValue,
+    useAnimatedStyle,
+    withSpring,
+    withTiming,
+    runOnJS,
+    runOnUI,
+    interpolate,
+    Easing: { bezier: () => () => 0, linear: () => 0 },
+    Extrapolate: { CLAMP: 'clamp', EXTEND: 'extend', IDENTITY: 'identity' },
+  };
+});
+
+// react-native-gesture-handler has no Jest preset; stub the surface SwipeDeck
+// touches so GestureDetector renders its children as-is. The gesture commit
+// path is covered indirectly via the accessibility Like/Dislike buttons.
+jest.mock('react-native-gesture-handler', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const makeGesture = () => {
+    const api = {
+      onChange: () => api,
+      onUpdate: () => api,
+      onBegin: () => api,
+      onStart: () => api,
+      onEnd: () => api,
+      onFinalize: () => api,
+      enabled: () => api,
+      activeOffsetX: () => api,
+      failOffsetY: () => api,
+      minDistance: () => api,
+      maxPointers: () => api,
+      simultaneousWithExternalGesture: () => api,
+    };
+    return api;
+  };
+  return {
+    Gesture: { Pan: makeGesture, Tap: makeGesture, LongPress: makeGesture },
+    GestureDetector: ({ children }) => React.createElement(React.Fragment, null, children),
+    GestureHandlerRootView: ({ children }) => React.createElement(View, null, children),
+    PanGestureHandler: ({ children }) => React.createElement(React.Fragment, null, children),
+    TapGestureHandler: ({ children }) => React.createElement(React.Fragment, null, children),
+    State: {},
+    Directions: {},
+  };
+});
+
 // expo-secure-store is the backing for Clerk's token cache. Tests don't touch
 // the keychain; provide an in-memory shim.
 jest.mock('expo-secure-store', () => {
