@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "svix": "npm:svix@^1.94.0"
+  }
+}
