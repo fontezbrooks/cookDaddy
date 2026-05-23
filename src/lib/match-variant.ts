@@ -1,19 +1,17 @@
 // Match-variant detection (P8 Slice 4) per MATCH-UX §7.
 //
 // Five overlay variants in the spec: standard / firstOfSession /
-// firstEver / speedy / lastCard. This module ships four — firstEver
-// requires a one-time supabase count query against the pod's matches
-// history and lands when the rest of the session ergonomics are in.
+// firstEver / speedy / lastCard.
 //
 // The streak indicator from §7 is NOT an overlay variant — it surfaces
 // on the deck (a small "🔥 streak" above the next card), so its detection
 // + rendering will live alongside SwipeDeck, not here.
 //
-// Priority (when multiple variants would match): lastCard > firstOfSession
-// > speedy > standard. The most narrative-impactful variant wins because
-// the overlay can only display one copy line at a time.
+// Priority (when multiple variants would match): firstEver > lastCard >
+// firstOfSession > speedy > standard. The most narrative-impactful
+// variant wins because the overlay can only display one copy line at a time.
 
-export type MatchVariant = 'standard' | 'firstOfSession' | 'lastCard' | 'speedy';
+export type MatchVariant = 'standard' | 'firstOfSession' | 'firstEver' | 'lastCard' | 'speedy';
 
 export type MatchVariantContext = {
   // How many matches have already fired in THIS session before the
@@ -31,12 +29,21 @@ export type MatchVariantContext = {
   // at the moment the broadcast arrived). May be null if the partner
   // hasn't swiped yet or the broadcast hasn't landed.
   lastPartnerCommitAt: number | null;
+  // Whether this pod already had cookbook matches before this session.
+  // Omitted means "yes" so existing callers preserve old behavior.
+  podHasPriorMatches?: boolean;
 };
 
 // Speedy threshold per MATCH-UX §7: both swiped within 1500ms of each other.
 export const SPEEDY_THRESHOLD_MS = 1500;
 
 export function determineMatchVariant(ctx: MatchVariantContext): MatchVariant {
+  // MATCH-UX §7: first-ever is a unique 3.0s takeover for pods with
+  // zero prior matches, and it is the highest-impact celebration.
+  if (!(ctx.podHasPriorMatches ?? true) && ctx.matchesInSessionBeforeThis === 0) {
+    return 'firstEver';
+  }
+
   // lastCard wins — "Came down to the wire!" is the most narrative
   // moment and overrides everything else.
   if (ctx.deckSize > 0 && ctx.cardIndex === ctx.deckSize - 1) return 'lastCard';
@@ -66,6 +73,9 @@ export type MatchVariantConfig = {
   // Confetti particle count multiplier vs CONFETTI_PARTICLE_COUNT
   // (1.0 = default). MATCH-UX §7 specifies +20% for firstOfSession.
   confettiDensity: number;
+  // Optional variant-specific auto-dismiss cap. Omitted uses the overlay
+  // default from MATCH-UX §14.
+  autoCloseMs?: number;
 };
 
 export const MATCH_VARIANT_CONFIG: Record<MatchVariant, MatchVariantConfig> = {
@@ -78,6 +88,12 @@ export const MATCH_VARIANT_CONFIG: Record<MatchVariant, MatchVariantConfig> = {
     heading: 'First match of the night!',
     badge: null,
     confettiDensity: 1.2,
+  },
+  firstEver: {
+    heading: 'Your first match. Welcome to the cookbook.',
+    badge: null,
+    confettiDensity: 1.5,
+    autoCloseMs: 3000,
   },
   lastCard: {
     heading: 'Came down to the wire!',

@@ -109,9 +109,9 @@ export function MatchOverlay({
     const id = setTimeout(() => {
       dismissalReasonRef.current = 'auto';
       onClose();
-    }, AUTO_CLOSE_MS);
+    }, config.autoCloseMs ?? AUTO_CLOSE_MS);
     return () => clearTimeout(id);
-  }, [onClose]);
+  }, [config.autoCloseMs, onClose]);
 
   const handlePrimary = (p: MatchOverlayPayload) => {
     dismissalReasonRef.current = 'primary';

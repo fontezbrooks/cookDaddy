@@ -2,7 +2,7 @@
  * Match-variant detection (P8 Slice 4) per MATCH-UX §7.
  *
  * Pure function so the test surface is deterministic and the variant
- * priority (lastCard > firstOfSession > speedy > standard) is locked in.
+ * priority (firstEver > lastCard > firstOfSession > speedy > standard) is locked in.
  */
 
 import {
@@ -30,6 +30,35 @@ describe('determineMatchVariant', () => {
 
   it('returns "firstOfSession" when this is the first match of the session', () => {
     expect(determineMatchVariant(ctx({ matchesInSessionBeforeThis: 0 }))).toBe('firstOfSession');
+  });
+
+  it('returns "firstEver" when the pod has no prior matches and this is session match #1', () => {
+    expect(
+      determineMatchVariant(ctx({ podHasPriorMatches: false, matchesInSessionBeforeThis: 0 })),
+    ).toBe('firstEver');
+  });
+
+  it('does not return "firstEver" when the pod has prior matches', () => {
+    expect(
+      determineMatchVariant(ctx({ podHasPriorMatches: true, matchesInSessionBeforeThis: 0 })),
+    ).toBe('firstOfSession');
+  });
+
+  it('does not return "firstEver" when podHasPriorMatches is omitted', () => {
+    expect(determineMatchVariant(ctx({ matchesInSessionBeforeThis: 0 }))).toBe('firstOfSession');
+  });
+
+  it('does not return "firstEver" on the second match of a no-prior-match pod session', () => {
+    expect(
+      determineMatchVariant(
+        ctx({
+          podHasPriorMatches: false,
+          matchesInSessionBeforeThis: 1,
+          lastLocalCommitAt: 1_000_000,
+          lastPartnerCommitAt: 1_000_000,
+        }),
+      ),
+    ).toBe('speedy');
   });
 
   it('returns "lastCard" when the match lands on the deck\'s final card', () => {
@@ -86,6 +115,19 @@ describe('determineMatchVariant', () => {
     ).toBe('lastCard');
   });
 
+  it('prioritises firstEver over lastCard and firstOfSession when applicable', () => {
+    expect(
+      determineMatchVariant(
+        ctx({
+          podHasPriorMatches: false,
+          matchesInSessionBeforeThis: 0,
+          cardIndex: 9,
+          deckSize: 10,
+        }),
+      ),
+    ).toBe('firstEver');
+  });
+
   it('prioritises firstOfSession over speedy when both would apply', () => {
     expect(
       determineMatchVariant(
@@ -114,7 +156,7 @@ describe('determineMatchVariant', () => {
 
 describe('MATCH_VARIANT_CONFIG', () => {
   it('exposes a config entry for every MatchVariant value', () => {
-    const variants = ['standard', 'firstOfSession', 'lastCard', 'speedy'] as const;
+    const variants = ['standard', 'firstOfSession', 'firstEver', 'lastCard', 'speedy'] as const;
     for (const v of variants) {
       expect(MATCH_VARIANT_CONFIG[v]).toBeDefined();
       expect(typeof MATCH_VARIANT_CONFIG[v].heading).toBe('string');
@@ -126,11 +168,27 @@ describe('MATCH_VARIANT_CONFIG', () => {
     expect(MATCH_VARIANT_CONFIG.speedy.badge).toMatch(/Same wavelength/i);
     expect(MATCH_VARIANT_CONFIG.standard.badge).toBeNull();
     expect(MATCH_VARIANT_CONFIG.firstOfSession.badge).toBeNull();
+    expect(MATCH_VARIANT_CONFIG.firstEver.badge).toBeNull();
     expect(MATCH_VARIANT_CONFIG.lastCard.badge).toBeNull();
   });
 
   it('firstOfSession bumps confetti density by +20% per MATCH-UX §7', () => {
     expect(MATCH_VARIANT_CONFIG.firstOfSession.confettiDensity).toBeCloseTo(1.2);
     expect(MATCH_VARIANT_CONFIG.standard.confettiDensity).toBe(1.0);
+  });
+
+  it('firstEver uses MATCH-UX §7 copy, density, and 3.0s auto-close', () => {
+    expect(MATCH_VARIANT_CONFIG.firstEver.heading).toBe(
+      'Your first match. Welcome to the cookbook.',
+    );
+    expect(MATCH_VARIANT_CONFIG.firstEver.confettiDensity).toBeCloseTo(1.5);
+    expect(MATCH_VARIANT_CONFIG.firstEver.autoCloseMs).toBe(3000);
+  });
+
+  it('does not set variant auto-close overrides for existing variants', () => {
+    expect(MATCH_VARIANT_CONFIG.standard.autoCloseMs).toBeUndefined();
+    expect(MATCH_VARIANT_CONFIG.firstOfSession.autoCloseMs).toBeUndefined();
+    expect(MATCH_VARIANT_CONFIG.lastCard.autoCloseMs).toBeUndefined();
+    expect(MATCH_VARIANT_CONFIG.speedy.autoCloseMs).toBeUndefined();
   });
 });

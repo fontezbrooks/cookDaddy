@@ -98,6 +98,7 @@ jest.mock('@/components/match-overlay', () => {
         View,
         { testID: 'match-overlay' },
         React.createElement(Text, null, props.payload.recipeTitle),
+        React.createElement(Text, { testID: 'match-overlay-variant' }, props.variant),
         React.createElement(
           Pressable,
           { testID: 'match-overlay-secondary', onPress: props.onClose },
@@ -110,6 +111,11 @@ jest.mock('@/components/match-overlay', () => {
 const mockUseSwipeBroadcast = jest.fn();
 jest.mock('@/lib/use-swipe-broadcast', () => ({
   useSwipeBroadcast: () => mockUseSwipeBroadcast(),
+}));
+
+const mockUsePodMatchCount = jest.fn();
+jest.mock('@/lib/use-pod-matches', () => ({
+  usePodMatchCount: () => mockUsePodMatchCount(),
 }));
 
 const mockMaybeSingle = jest.fn();
@@ -159,6 +165,7 @@ describe('SessionScreen', () => {
     mockMaybeSingle.mockReset();
     mockReplace.mockClear();
     mockParams.sessionId = 'sess-1';
+    mockUsePodMatchCount.mockReset().mockReturnValue({ count: 1, isLoading: false });
     mockUseSwipeBroadcast.mockReset().mockReturnValue({
       partnerCommit: null,
       partnerProgress: null,
@@ -316,6 +323,30 @@ describe('SessionScreen', () => {
       expect(screen.getByTestId('match-overlay')).toBeOnTheScreen();
     });
     expect(screen.getByTestId('match-overlay')).toHaveTextContent(/Cacio e Pepe/);
+  });
+
+  it('passes firstEver to MatchOverlay for a pod with zero prior matches', async () => {
+    mockUsePodMatchCount.mockReturnValue({ count: 0, isLoading: false });
+    mockMaybeSingle.mockResolvedValue({
+      data: {
+        id: 'sess-1',
+        status: 'active',
+        pod_id: 'pod-1',
+        deck_recipe_ids: ['r-1'],
+        ended_reason: null,
+      },
+      error: null,
+    });
+
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('swipe-deck-fire-match')).toBeOnTheScreen();
+    });
+    fireEvent.press(screen.getByTestId('swipe-deck-fire-match'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('match-overlay-variant')).toHaveTextContent('firstEver');
+    });
   });
 
   it('mounts MatchOverlay when a partner broadcast fires (match.created)', async () => {

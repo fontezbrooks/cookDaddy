@@ -100,6 +100,24 @@ describe('MatchOverlay', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps existing variants on the default 2.5s auto-close', () => {
+    const onClose = jest.fn();
+    render(<MatchOverlay payload={PAYLOAD} variant="speedy" onClose={onClose} />);
+    jest.advanceTimersByTime(2499);
+    expect(onClose).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('auto-closes firstEver after its 3.0s MATCH-UX §7 sequence', () => {
+    const onClose = jest.fn();
+    render(<MatchOverlay payload={PAYLOAD} variant="firstEver" onClose={onClose} />);
+    jest.advanceTimersByTime(2500);
+    expect(onClose).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(500);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('renders the reduced-motion variant when the hook reports reduce-motion on', () => {
     mockUseReducedMotion.mockReturnValue(true);
     render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);

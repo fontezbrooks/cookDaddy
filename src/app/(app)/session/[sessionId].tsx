@@ -28,6 +28,7 @@ import { Spacing } from '@/constants/theme';
 import { determineMatchVariant, type MatchVariant } from '@/lib/match-variant';
 import { markSessionActive, SessionRpcError } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
+import { usePodMatchCount } from '@/lib/use-pod-matches';
 import { useSwipeBroadcast } from '@/lib/use-swipe-broadcast';
 
 type SessionRow = {
@@ -51,6 +52,8 @@ export default function SessionScreen() {
   // MATCH-UX §7 variant computed at the moment the overlay mounts; held in
   // state so re-renders of the screen don't re-derive against stale inputs.
   const [matchVariant, setMatchVariant] = useState<MatchVariant>('standard');
+  const podMatchCount = usePodMatchCount();
+  const podHadPriorMatchesRef = useRef<boolean | undefined>(undefined);
   const { partnerCommit, partnerMatch, partnerCommittedRecipeIds } = useSwipeBroadcast(
     sessionId ?? '',
   );
@@ -70,6 +73,12 @@ export default function SessionScreen() {
   const [lastPartnerCommitAt, setLastPartnerCommitAt] = useState<number | null>(null);
 
   useEffect(() => {
+    if (podHadPriorMatchesRef.current !== undefined) return;
+    if (podMatchCount.isLoading || podMatchCount.count == null) return;
+    podHadPriorMatchesRef.current = podMatchCount.count > 0;
+  }, [podMatchCount.count, podMatchCount.isLoading]);
+
+  useEffect(() => {
     if (partnerCommit) setLastPartnerCommitAt(Date.now());
   }, [partnerCommit]);
 
@@ -81,11 +90,13 @@ export default function SessionScreen() {
     lastPartnerCommitAt: null as number | null,
     deckSize: 0,
     localCommittedRecipeIds: new Set<string>(),
+    podHasPriorMatches: false,
   });
   variantInputsRef.current.matchesInSession = matchesInSession;
   variantInputsRef.current.lastLocalCommitAt = lastLocalCommitAt;
   variantInputsRef.current.lastPartnerCommitAt = lastPartnerCommitAt;
   variantInputsRef.current.localCommittedRecipeIds = localCommittedRecipeIds;
+  variantInputsRef.current.podHasPriorMatches = podHadPriorMatchesRef.current ?? true;
 
   function computeVariantForMatch(recipeId: string): MatchVariant {
     const inputs = variantInputsRef.current;
@@ -103,6 +114,7 @@ export default function SessionScreen() {
       deckSize: inputs.deckSize,
       lastLocalCommitAt: inputs.lastLocalCommitAt,
       lastPartnerCommitAt: inputs.lastPartnerCommitAt,
+      podHasPriorMatches: inputs.podHasPriorMatches,
     });
   }
 
