@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+
+pnpm exec lint-staged 2>/dev/null || {
+  pnpm run lint || exit 1
+  pnpm run format:check || {
+    echo "Run 'pnpm format' to fix formatting." >&2
+    exit 1
+  }
+}
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact || {
+    echo "gitleaks found secrets in staged changes." >&2
+    exit 1
+  }
+else
+  echo "[pre-commit] gitleaks not installed locally; relying on CI to enforce. brew install gitleaks to run locally." >&2
+fi

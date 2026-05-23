@@ -1,0 +1,13 @@
+node_modules/
+.expo/
+dist/
+coverage/
+web-build/
+ios/
+android/
+RecipeJson/
+docs/
+supabase/functions/*/index.ts
+supabase/.temp/
+pnpm-lock.yaml
+*.log

@@ -1,0 +1,27 @@
+allowBuilds:
+  '@clerk/shared': false
+  browser-tabs-lock: false
+  bufferutil: false
+  core-js: false
+  esbuild: true
+  msgpackr-extract: false
+  unrs-resolver: false
+  utf-8-validate: false
+minimumReleaseAgeExclude:
+  - '@expo/cli@56.1.10'
+  - '@expo/fingerprint@0.19.1'
+  - '@expo/metro-runtime@56.0.11'
+  - '@expo/prebuild-config@56.0.12'
+  - '@expo/router-server@56.0.11'
+  - '@expo/ui@56.0.11'
+  - babel-preset-expo@56.0.11
+  - expo-asset@56.0.13
+  - expo-constants@56.0.14
+  - expo-image@56.0.8
+  - expo-linking@56.0.11
+  - expo-modules-autolinking@56.0.11
+  - expo-modules-core@56.0.12
+  - expo-router@56.2.5
+  - expo-system-ui@56.0.5
+  - expo-web-browser@56.0.5
+  - expo@56.0.3

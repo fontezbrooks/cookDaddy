@@ -1,0 +1,22 @@
+title = "cookDaddy gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlist]]
+description = "Spoonacular API key in legacy PowerShell ingestion script — pre-MVP; replaced in P3 by env-var-driven TS importer"
+paths = [
+    '''scripts/ingestion/test-spoon.ps1''',
+]
+
+[[allowlist]]
+description = "Spoonacular sample recipe JSON dumps (no secrets)"
+paths = [
+    '''RecipeJson/.*\.json''',
+]
+
+[[allowlist]]
+description = "Example env file"
+paths = [
+    '''\.env\.example''',
+]
