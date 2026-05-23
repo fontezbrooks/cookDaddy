@@ -8,16 +8,17 @@ import { render, screen } from '@testing-library/react-native';
 
 import VibesScreen from '../settings/vibes';
 import NotificationsScreen from '../settings/notifications';
-import InviteScreen from '../invite/[token]';
 import SessionScreen from '../session/[sessionId]';
 import CookbookIndex from '../cookbook';
 import CookbookDetail from '../cookbook/[matchId]';
 import ShoppingScreen from '../shopping';
 import PantryScreen from '../pantry';
 
+// The invite/[token] screen is no longer a stub — it has its own component
+// test at src/app/(app)/invite/__tests__/[token].test.tsx.
+
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({
-    token: 'fixture-token',
     sessionId: 'fixture-session',
     matchId: 'fixture-match',
   }),
@@ -32,11 +33,6 @@ describe('placeholder routes', () => {
   it('notifications settings renders the stub copy', () => {
     render(<NotificationsScreen />);
     expect(screen.getByTestId('notifications-stub')).toBeOnTheScreen();
-  });
-
-  it('invite/[token] surfaces the token from URL params', () => {
-    render(<InviteScreen />);
-    expect(screen.getByTestId('invite-stub')).toHaveTextContent(/fixture-token/);
   });
 
   it('session/[sessionId] surfaces the id from URL params', () => {

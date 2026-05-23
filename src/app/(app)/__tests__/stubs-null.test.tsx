@@ -11,16 +11,13 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({}),
 }));
 
-import InviteScreen from '../invite/[token]';
 import SessionScreen from '../session/[sessionId]';
 import CookbookDetail from '../cookbook/[matchId]';
 
-describe('dynamic route stubs (no params)', () => {
-  it('invite/[token] surfaces "(none)" when no token in URL', () => {
-    render(<InviteScreen />);
-    expect(screen.getByTestId('invite-stub')).toHaveTextContent(/\(none\)/);
-  });
+// invite/[token] used to live here as a stub; it has its own component test
+// at src/app/(app)/invite/__tests__/[token].test.tsx now.
 
+describe('dynamic route stubs (no params)', () => {
   it('session/[sessionId] surfaces "(none)" when no id in URL', () => {
     render(<SessionScreen />);
     expect(screen.getByTestId('session-stub')).toHaveTextContent(/\(none\)/);

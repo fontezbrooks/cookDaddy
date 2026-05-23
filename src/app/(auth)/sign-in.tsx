@@ -5,8 +5,8 @@
 // activate the session and redirect to /home.
 
 import { useOAuth, useSignIn } from '@clerk/clerk-expo';
-import { useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,10 +15,21 @@ import { Spacing } from '@/constants/theme';
 
 export default function SignInScreen() {
   const router = useRouter();
+  const { redirect } = useLocalSearchParams<{ redirect?: string }>();
   const { startOAuthFlow: startApple } = useOAuth({ strategy: 'oauth_apple' });
   const { startOAuthFlow: startGoogle } = useOAuth({ strategy: 'oauth_google' });
   // setActive on the email flow is used after the code-entry step (P5).
   const { signIn } = useSignIn();
+
+  // Only honor in-app paths ("/invite/foo"). Reject empty, schemeful, and
+  // protocol-relative ("//foo") values so a malicious link can't bounce the
+  // user to an external surface dressed up as our app.
+  const postSignInTarget = useMemo<string>(() => {
+    if (typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')) {
+      return redirect;
+    }
+    return '/home';
+  }, [redirect]);
 
   const [email, setEmail] = useState('');
   const [pending, setPending] = useState<'idle' | 'apple' | 'google' | 'email'>('idle');
@@ -38,7 +49,7 @@ export default function SignInScreen() {
         const { createdSessionId, setActive } = await start();
         if (createdSessionId && setActive) {
           await setActive({ session: createdSessionId });
-          router.replace('/home');
+          router.replace(postSignInTarget as never);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Sign-in failed');
@@ -46,7 +57,7 @@ export default function SignInScreen() {
         setPending('idle');
       }
     },
-    [router],
+    [router, postSignInTarget],
   );
 
   const handleEmail = useCallback(async () => {

@@ -11,13 +11,18 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import SignInScreen from '../sign-in';
 
 const mockReplace = jest.fn();
+const mockSearchParams: { redirect?: string } = {};
 jest.mock('expo-router', () => ({
   useRouter: () => ({ replace: mockReplace, push: jest.fn(), back: jest.fn() }),
+  useLocalSearchParams: () => mockSearchParams,
 }));
 
 describe('SignInScreen', () => {
   beforeEach(() => {
     mockReplace.mockClear();
+    Object.keys(mockSearchParams).forEach(
+      (k) => delete (mockSearchParams as Record<string, unknown>)[k],
+    );
     jest.mocked(useOAuth).mockReset();
   });
 
@@ -66,6 +71,45 @@ describe('SignInScreen', () => {
     await waitFor(() => {
       expect(setActive).toHaveBeenCalledWith({ session: 'sess_123' });
       expect(mockReplace).toHaveBeenCalledWith('/home');
+    });
+  });
+
+  it('routes to ?redirect= target after Apple OAuth when an in-app path is supplied', async () => {
+    mockSearchParams.redirect = '/invite/abc123';
+    const setActive = jest.fn().mockResolvedValue(undefined);
+    const startApple = jest.fn().mockResolvedValue({ createdSessionId: 'sess_abc', setActive });
+    jest.mocked(useOAuth).mockImplementation(
+      ({ strategy }: { strategy: string }) =>
+        ({
+          startOAuthFlow: strategy === 'oauth_apple' ? startApple : jest.fn(),
+        }) as never,
+    );
+
+    render(<SignInScreen />);
+    fireEvent.press(screen.getByTestId('sign-in-apple'));
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/invite/abc123');
+    });
+  });
+
+  it('falls back to /home when ?redirect= points outside the app (protocol-relative)', async () => {
+    mockSearchParams.redirect = '//evil.example.com/steal';
+    const setActive = jest.fn().mockResolvedValue(undefined);
+    const startApple = jest.fn().mockResolvedValue({ createdSessionId: 'sess_evil', setActive });
+    jest.mocked(useOAuth).mockImplementation(
+      ({ strategy }: { strategy: string }) =>
+        ({
+          startOAuthFlow: strategy === 'oauth_apple' ? startApple : jest.fn(),
+        }) as never,
+    );
+
+    render(<SignInScreen />);
+    fireEvent.press(screen.getByTestId('sign-in-apple'));
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/home');
+      expect(mockReplace).not.toHaveBeenCalledWith('//evil.example.com/steal');
     });
   });
 
