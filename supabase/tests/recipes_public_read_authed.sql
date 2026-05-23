@@ -9,7 +9,7 @@ select plan(4);
 select tests.seed_recipe('Recipe Alpha') as r1 \gset
 select tests.seed_recipe('Recipe Beta')  as r2 \gset
 select tests.as_service();
-insert into public.recipe_ingredients(recipe_id, name, position)
+insert into public.recipe_ingredients(recipe_id, name, sort_order)
   values (:'r1'::uuid, 'salt', 0), (:'r2'::uuid, 'pepper', 0);
 
 -- Anon: zero rows everywhere.
