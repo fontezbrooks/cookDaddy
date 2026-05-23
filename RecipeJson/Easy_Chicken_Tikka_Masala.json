@@ -1,0 +1,5398 @@
+{
+  "recipes": [
+    {
+      "id": 641908,
+      "image": "https://img.spoonacular.com/recipes/641908-556x370.",
+      "imageType": "",
+      "title": "Easy Chicken Tikka Masala",
+      "readyInMinutes": 45,
+      "servings": 4,
+      "sourceUrl": "https://www.foodista.com/recipe/7Q3RC88N/easy-chicken-tikka-masala",
+      "vegetarian": false,
+      "vegan": false,
+      "glutenFree": true,
+      "dairyFree": false,
+      "veryHealthy": false,
+      "cheap": false,
+      "veryPopular": false,
+      "sustainable": false,
+      "lowFodmap": false,
+      "weightWatcherSmartPoints": 8,
+      "gaps": "no",
+      "preparationMinutes": null,
+      "cookingMinutes": null,
+      "aggregateLikes": 54,
+      "healthScore": 25.0,
+      "creditsText": "Foodista.com – The Cooking Encyclopedia Everyone Can Edit",
+      "license": "CC BY 3.0",
+      "sourceName": "Foodista",
+      "pricePerServing": 219.1,
+      "extendedIngredients": [
+        {
+          "id": 5062,
+          "aisle": "Meat",
+          "image": "chicken-breasts.png",
+          "consistency": "SOLID",
+          "name": "chicken breasts",
+          "nameClean": "chicken breasts",
+          "original": "3 chicken breasts cut into bite size cubes",
+          "originalName": "chicken breasts cut into bite size cubes",
+          "amount": 3.0,
+          "unit": "",
+          "meta": [
+            "cut into bite size cubes"
+          ],
+          "measures": {
+            "us": {
+              "amount": 3.0,
+              "unitShort": "",
+              "unitLong": ""
+            },
+            "metric": {
+              "amount": 3.0,
+              "unitShort": "",
+              "unitLong": ""
+            }
+          }
+        },
+        {
+          "id": 4517,
+          "aisle": "Oil, Vinegar, Salad Dressing",
+          "image": "vegetable-oil.jpg",
+          "consistency": "LIQUID",
+          "name": "grape seed oil",
+          "nameClean": "grape seed oil",
+          "original": "4 tablespoons of vegetable oil or grape seed oil",
+          "originalName": "vegetable oil or grape seed oil",
+          "amount": 4.0,
+          "unit": "tablespoons",
+          "meta": [],
+          "measures": {
+            "us": {
+              "amount": 4.0,
+              "unitShort": "Tbsps",
+              "unitLong": "Tbsps"
+            },
+            "metric": {
+              "amount": 4.0,
+              "unitShort": "Tbsps",
+              "unitLong": "Tbsps"
+            }
+          }
+        },
+        {
+          "id": 11282,
+          "aisle": "Produce",
+          "image": "brown-onion.png",
+          "consistency": "SOLID",
+          "name": "onion",
+          "nameClean": "onion",
+          "original": "1 large onion chopped",
+          "originalName": "onion chopped",
+          "amount": 1.0,
+          "unit": "large",
+          "meta": [
+            "chopped"
+          ],
+          "measures": {
+            "us": {
+              "amount": 1.0,
+              "unitShort": "large",
+              "unitLong": "large"
+            },
+            "metric": {
+              "amount": 1.0,
+              "unitShort": "large",
+              "unitLong": "large"
+            }
+          }
+        },
+        {
+          "id": 11215,
+          "aisle": "Produce",
+          "image": "garlic.png",
+          "consistency": "SOLID",
+          "name": "garlic",
+          "nameClean": "garlic",
+          "original": "2 cloves of garlic finely chopped",
+          "originalName": "garlic finely chopped",
+          "amount": 2.0,
+          "unit": "cloves",
+          "meta": [
+            "finely chopped"
+          ],
+          "measures": {
+            "us": {
+              "amount": 2.0,
+              "unitShort": "cloves",
+              "unitLong": "cloves"
+            },
+            "metric": {
+              "amount": 2.0,
+              "unitShort": "cloves",
+              "unitLong": "cloves"
+            }
+          }
+        },
+        {
+          "id": 93663,
+          "aisle": "Ethnic Foods",
+          "image": "garam-masala.jpg",
+          "consistency": "SOLID",
+          "name": "garam masala",
+          "nameClean": "garam masala",
+          "original": "1 teaspoon garam masala (spice mixture)",
+          "originalName": "garam masala (spice mixture)",
+          "amount": 1.0,
+          "unit": "teaspoon",
+          "meta": [
+            "(spice mixture)"
+          ],
+          "measures": {
+            "us": {
+              "amount": 1.0,
+              "unitShort": "tsp",
+              "unitLong": "teaspoon"
+            },
+            "metric": {
+              "amount": 1.0,
+              "unitShort": "tsp",
+              "unitLong": "teaspoon"
+            }
+          }
+        },
+        {
+          "id": 1002014,
+          "aisle": "Spices and Seasonings",
+          "image": "ground-cumin.jpg",
+          "consistency": "SOLID",
+          "name": "cumin",
+          "nameClean": "cumin",
+          "original": "1 teaspoon cumin",
+          "originalName": "cumin",
+          "amount": 1.0,
+          "unit": "teaspoon",
+          "meta": [],
+          "measures": {
+            "us": {
+              "amount": 1.0,
+              "unitShort": "tsp",
+              "unitLong": "teaspoon"
+            },
+            "metric": {
+              "amount": 1.0,
+              "unitShort": "tsp",
+              "unitLong": "teaspoon"
+            }
+          }
+        },
+        {
+          "id": 11165,
+          "aisle": "Spices and Seasonings",
+          "image": "cilantro.png",
+          "consistency": "SOLID",
+          "name": "coriander",
+          "nameClean": "coriander",
+          "original": "1 teaspoon coriander",
+          "originalName": "coriander",
+          "amount": 1.0,
+          "unit": "teaspoon",
+          "meta": [],
+          "measures": {
+            "us": {
+              "amount": 1.0,
+              "unitShort": "tsp",
+              "unitLong": "teaspoon"
+            },
+            "metric": {
+              "amount": 1.0,
+              "unitShort": "tsp",
+              "unitLong": "teaspoon"
+            }
+          }
+        },
+        {
+          "id": 2043,
+          "aisle": "Spices and Seasonings",
+          "image": "turmeric.jpg",
+          "consistency": "SOLID",
+          "name": "turmeric",
+          "nameClean": "turmeric",
+          "original": "1/4 teaspoon turmeric",
+          "originalName": "turmeric",
+          "amount": 0.25,
+          "unit": "teaspoon",
+          "meta": [],
+          "measures": {
+            "us": {
+              "amount": 0.25,
+              "unitShort": "tsps",
+              "unitLong": "teaspoons"
+            },
+            "metric": {
+              "amount": 0.25,
+              "unitShort": "tsps",
+              "unitLong": "teaspoons"
+            }
+          }
+        },
+        {
+          "id": 2006,
+          "aisle": "Spices and Seasonings",
+          "image": "cardamom.jpg",
+          "consistency": "SOLID",
+          "name": "cardamon",
+          "nameClean": "cardamon",
+          "original": "1/8 teaspoon cardamon",
+          "originalName": "cardamon",
+          "amount": 0.125,
+          "unit": "teaspoon",
+          "meta": [],
+          "measures": {
+            "us": {
+              "amount": 0.125,
+              "unitShort": "tsps",
+              "unitLong": "teaspoons"
+            },
+            "metric": {
+              "amount": 0.125,
+              "unitShort": "tsps",
+              "unitLong": "teaspoons"
+            }
+          }
+        },
+        {
+          "id": 2010,
+          "aisle": "Spices and Seasonings",
+          "image": "cinnamon.jpg",
+          "consistency": "SOLID",
+          "name": "cinnamon",
+          "nameClean": "cinnamon",
+          "original": "1/4 teaspoon cinnamon",
+          "originalName": "cinnamon",
+          "amount": 0.25,
+          "unit": "teaspoon",
+          "meta": [],
+          "measures": {
+            "us": {
+              "amount": 0.25,
+              "unitShort": "tsps",
+              "unitLong": "teaspoons"
+            },
+            "metric": {
+              "amount": 0.25,
+              "unitShort": "tsps",
+              "unitLong": "teaspoons"
+            }
+          }
+        },
+        {
+          "id": 10211216,
+          "aisle": "Produce",
+          "image": "ginger.png",
+          "consistency": "SOLID",
+          "name": "ginger",
+          "nameClean": "ginger",
+          "original": "2 teaspoons fresh ginger, finely chopped",
+          "originalName": "fresh ginger, finely chopped",
+          "amount": 2.0,
+          "unit": "teaspoons",
+          "meta": [
+            "fresh",
+            "finely chopped"
+          ],
+          "measures": {
+            "us": {
+              "amount": 2.0,
+              "unitShort": "tsps",
+              "unitLong": "teaspoons"
+            },
+            "metric": {
+              "amount": 2.0,
+              "unitShort": "tsps",
+              "unitLong": "teaspoons"
+            }
+          }
+        },
+        {
+          "id": 2031,
+          "aisle": "Spices and Seasonings",
+          "image": "chili-powder.jpg",
+          "consistency": "SOLID",
+          "name": "cayenne",
+          "nameClean": "cayenne",
+          "original": "1/2 teaspoon cayenne",
+          "originalName": "cayenne",
+          "amount": 0.5,
+          "unit": "teaspoon",
+          "meta": [],
+          "measures": {
+            "us": {
+              "amount": 0.5,
+              "unitShort": "tsps",
+              "unitLong": "teaspoons"
+            },
+            "metric": {
+              "amount": 0.5,
+              "unitShort": "tsps",
+              "unitLong": "teaspoons"
+            }
+          }
+        },
+        {
+          "id": 2028,
+          "aisle": "Spices and Seasonings",
+          "image": "paprika.jpg",
+          "consistency": "SOLID",
+          "name": "paprika",
+          "nameClean": "paprika",
+          "original": "1 tablespoon paprika",
+          "originalName": "paprika",
+          "amount": 1.0,
+          "unit": "tablespoon",
+          "meta": [],
+          "measures": {
+            "us": {
+              "amount": 1.0,
+              "unitShort": "Tbsp",
+              "unitLong": "Tbsp"
+            },
+            "metric": {
+              "amount": 1.0,
+              "unitShort": "Tbsp",
+              "unitLong": "Tbsp"
+            }
+          }
+        },
+        {
+          "id": 11887,
+          "aisle": "Pasta and Rice",
+          "image": "tomato-paste.jpg",
+          "consistency": "SOLID",
+          "name": "tomato paste",
+          "nameClean": "tomato paste",
+          "original": "1 teaspoon tomato paste",
+          "originalName": "tomato paste",
+          "amount": 1.0,
+          "unit": "teaspoon",
+          "meta": [],
+          "measures": {
+            "us": {
+              "amount": 1.0,
+              "unitShort": "tsp",
+              "unitLong": "teaspoon"
+            },
+            "metric": {
+              "amount": 1.0,
+              "unitShort": "tsp",
+              "unitLong": "teaspoon"
+            }
+          }
+        },
+        {
+          "id": 11529,
+          "aisle": "Produce",
+          "image": "tomato.png",
+          "consistency": "SOLID",
+          "name": "tomato",
+          "nameClean": "tomato",
+          "original": "1 tomato chopped",
+          "originalName": "tomato chopped",
+          "amount": 1.0,
+          "unit": "",
+          "meta": [
+            "chopped"
+          ],
+          "measures": {
+            "us": {
+              "amount": 1.0,
+              "unitShort": "",
+              "unitLong": ""
+            },
+            "metric": {
+              "amount": 1.0,
+              "unitShort": "",
+              "unitLong": ""
+            }
+          }
+        },
+        {
+          "id": 14412,
+          "aisle": "Beverages",
+          "image": "water.png",
+          "consistency": "LIQUID",
+          "name": "water",
+          "nameClean": "water",
+          "original": "1/2 cup water",
+          "originalName": "water",
+          "amount": 0.5,
+          "unit": "cup",
+          "meta": [],
+          "measures": {
+            "us": {
+              "amount": 0.5,
+              "unitShort": "cups",
+              "unitLong": "cups"
+            },
+            "metric": {
+              "amount": 118.294,
+              "unitShort": "ml",
+              "unitLong": "milliliters"
+            }
+          }
+        },
+        {
+          "id": 1001116,
+          "aisle": "Milk, Eggs, Other Dairy",
+          "image": "plain-yogurt.jpg",
+          "consistency": "LIQUID",
+          "name": "yogurt",
+          "nameClean": "yogurt",
+          "original": "1 small container plain yogurt (about ½ cup)",
+          "originalName": "small container plain yogurt (about",
+          "amount": 0.5,
+          "unit": "cup",
+          "meta": [
+            "plain"
+          ],
+          "measures": {
+            "us": {
+              "amount": 0.5,
+              "unitShort": "cups",
+              "unitLong": "cups"
+            },
+            "metric": {
+              "amount": 122.5,
+              "unitShort": "ml",
+              "unitLong": "milliliters"
+            }
+          }
+        },
+        {
+          "id": 11165,
+          "aisle": "Spices and Seasonings",
+          "image": "cilantro.png",
+          "consistency": "SOLID",
+          "name": "coriander",
+          "nameClean": "coriander",
+          "original": "fresh coriander for garnish",
+          "originalName": "fresh coriander for garnish",
+          "amount": 4.0,
+          "unit": "servings",
+          "meta": [
+            "fresh",
+            "for garnish"
+          ],
+          "measures": {
+            "us": {
+              "amount": 4.0,
+              "unitShort": "servings",
+              "unitLong": "servings"
+            },
+            "metric": {
+              "amount": 4.0,
+              "unitShort": "servings",
+              "unitLong": "servings"
+            }
+          }
+        },
+        {
+          "id": 2047,
+          "aisle": "Spices and Seasonings",
+          "image": "salt.jpg",
+          "consistency": "SOLID",
+          "name": "salt",
+          "nameClean": "salt",
+          "original": "Salt to taste",
+          "originalName": "Salt to taste",
+          "amount": 4.0,
+          "unit": "servings",
+          "meta": [
+            "to taste"
+          ],
+          "measures": {
+            "us": {
+              "amount": 4.0,
+              "unitShort": "servings",
+              "unitLong": "servings"
+            },
+            "metric": {
+              "amount": 4.0,
+              "unitShort": "servings",
+              "unitLong": "servings"
+            }
+          }
+        }
+      ],
+      "nutrition": {
+        "nutrients": [
+          {
+            "name": "Calories",
+            "amount": 371.05,
+            "unit": "kcal",
+            "percentOfDailyNeeds": 18.55
+          },
+          {
+            "name": "Fat",
+            "amount": 19.97,
+            "unit": "g",
+            "percentOfDailyNeeds": 30.72
+          },
+          {
+            "name": "Saturated Fat",
+            "amount": 3.03,
+            "unit": "g",
+            "percentOfDailyNeeds": 18.96
+          },
+          {
+            "name": "Carbohydrates",
+            "amount": 8.84,
+            "unit": "g",
+            "percentOfDailyNeeds": 2.95
+          },
+          {
+            "name": "Net Carbohydrates",
+            "amount": 6.78,
+            "unit": "g",
+            "percentOfDailyNeeds": 2.47
+          },
+          {
+            "name": "Sugar",
+            "amount": 4.27,
+            "unit": "g",
+            "percentOfDailyNeeds": 4.74
+          },
+          {
+            "name": "Cholesterol",
+            "amount": 112.46,
+            "unit": "mg",
+            "percentOfDailyNeeds": 37.49
+          },
+          {
+            "name": "Sodium",
+            "amount": 423.83,
+            "unit": "mg",
+            "percentOfDailyNeeds": 18.43
+          },
+          {
+            "name": "Alcohol",
+            "amount": 0.0,
+            "unit": "g",
+            "percentOfDailyNeeds": 100.0
+          },
+          {
+            "name": "Alcohol %",
+            "amount": 0.0,
+            "unit": "%",
+            "percentOfDailyNeeds": 100.0
+          },
+          {
+            "name": "Protein",
+            "amount": 38.39,
+            "unit": "g",
+            "percentOfDailyNeeds": 76.79
+          },
+          {
+            "name": "Vitamin B3",
+            "amount": 18.22,
+            "unit": "mg",
+            "percentOfDailyNeeds": 91.11
+          },
+          {
+            "name": "Selenium",
+            "amount": 55.57,
+            "unit": "µg",
+            "percentOfDailyNeeds": 79.39
+          },
+          {
+            "name": "Vitamin B6",
+            "amount": 1.42,
+            "unit": "mg",
+            "percentOfDailyNeeds": 71.05
+          },
+          {
+            "name": "Phosphorus",
+            "amount": 416.49,
+            "unit": "mg",
+            "percentOfDailyNeeds": 41.65
+          },
+          {
+            "name": "Vitamin E",
+            "amount": 5.22,
+            "unit": "mg",
+            "percentOfDailyNeeds": 34.83
+          },
+          {
+            "name": "Vitamin A",
+            "amount": 1342.2,
+            "unit": "IU",
+            "percentOfDailyNeeds": 26.84
+          },
+          {
+            "name": "Vitamin B5",
+            "amount": 2.67,
+            "unit": "mg",
+            "percentOfDailyNeeds": 26.66
+          },
+          {
+            "name": "Potassium",
+            "amount": 886.58,
+            "unit": "mg",
+            "percentOfDailyNeeds": 25.33
+          },
+          {
+            "name": "Magnesium",
+            "amount": 62.43,
+            "unit": "mg",
+            "percentOfDailyNeeds": 15.61
+          },
+          {
+            "name": "Vitamin B2",
+            "amount": 0.26,
+            "unit": "mg",
+            "percentOfDailyNeeds": 15.26
+          },
+          {
+            "name": "Vitamin C",
+            "amount": 10.35,
+            "unit": "mg",
+            "percentOfDailyNeeds": 12.55
+          },
+          {
+            "name": "Manganese",
+            "amount": 0.24,
+            "unit": "mg",
+            "percentOfDailyNeeds": 12.08
+          },
+          {
+            "name": "Vitamin B1",
+            "amount": 0.16,
+            "unit": "mg",
+            "percentOfDailyNeeds": 10.69
+          },
+          {
+            "name": "Zinc",
+            "amount": 1.43,
+            "unit": "mg",
+            "percentOfDailyNeeds": 9.55
+          },
+          {
+            "name": "Iron",
+            "amount": 1.68,
+            "unit": "mg",
+            "percentOfDailyNeeds": 9.31
+          },
+          {
+            "name": "Fiber",
+            "amount": 2.06,
+            "unit": "g",
+            "percentOfDailyNeeds": 8.23
+          },
+          {
+            "name": "Vitamin B12",
+            "amount": 0.45,
+            "unit": "µg",
+            "percentOfDailyNeeds": 7.54
+          },
+          {
+            "name": "Calcium",
+            "amount": 72.49,
+            "unit": "mg",
+            "percentOfDailyNeeds": 7.25
+          },
+          {
+            "name": "Copper",
+            "amount": 0.12,
+            "unit": "mg",
+            "percentOfDailyNeeds": 5.89
+          },
+          {
+            "name": "Folate",
+            "amount": 22.3,
+            "unit": "µg",
+            "percentOfDailyNeeds": 5.58
+          },
+          {
+            "name": "Vitamin K",
+            "amount": 5.25,
+            "unit": "µg",
+            "percentOfDailyNeeds": 5.0
+          },
+          {
+            "name": "Vitamin D",
+            "amount": 0.2,
+            "unit": "µg",
+            "percentOfDailyNeeds": 1.33
+          }
+        ],
+        "properties": [
+          {
+            "name": "Glycemic Index",
+            "amount": 89.75,
+            "unit": ""
+          },
+          {
+            "name": "Glycemic Load",
+            "amount": 1.71,
+            "unit": ""
+          },
+          {
+            "name": "Inflammation Score",
+            "amount": -9.0,
+            "unit": ""
+          },
+          {
+            "name": "Nutrition Score",
+            "amount": 22.727391559144724,
+            "unit": "%"
+          }
+        ],
+        "flavonoids": [
+          {
+            "name": "Cyanidin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Petunidin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Delphinidin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Malvidin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Pelargonidin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Peonidin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Catechin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Epigallocatechin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Epicatechin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Epicatechin 3-gallate",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Epigallocatechin 3-gallate",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Theaflavin",
+            "amount": 0.0,
+            "unit": ""
+          },
+          {
+            "name": "Thearubigins",
+            "amount": 0.0,
+            "unit": ""
+          },
+          {
+            "name": "Eriodictyol",
+            "amount": 0.0,
+            "unit": ""
+          },
+          {
+            "name": "Hesperetin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Naringenin",
+            "amount": 0.21,
+            "unit": "mg"
+          },
+          {
+            "name": "Apigenin",
+            "amount": 0.0,
+            "unit": "mg"
+          },
+          {
+            "name": "Luteolin",
+            "amount": 0.01,
+            "unit": "mg"
+          },
+          {
+            "name": "Isorhamnetin",
+            "amount": 1.88,
+            "unit": "mg"
+          },
+          {
+            "name": "Kaempferol",
+            "amount": 0.28,
+            "unit": "mg"
+          },
+          {
+            "name": "Myricetin",
+            "amount": 0.08,
+            "unit": "mg"
+          },
+          {
+            "name": "Quercetin",
+            "amount": 7.88,
+            "unit": "mg"
+          },
+          {
+            "name": "Theaflavin-3,3'-digallate",
+            "amount": 0.0,
+            "unit": ""
+          },
+          {
+            "name": "Theaflavin-3'-gallate",
+            "amount": 0.0,
+            "unit": ""
+          },
+          {
+            "name": "Theaflavin-3-gallate",
+            "amount": 0.0,
+            "unit": ""
+          },
+          {
+            "name": "Gallocatechin",
+            "amount": 0.0,
+            "unit": "mg"
+          }
+        ],
+        "ingredients": [
+          {
+            "id": 5062,
+            "name": "chicken breasts",
+            "amount": 0.75,
+            "unit": "",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 627.15,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.34,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 196.62,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 6.78,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 54.24,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 124.41,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 50.85,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Trans Fat",
+                "amount": 0.02,
+                "unit": "g",
+                "percentOfDailyNeeds": 203.4
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.98,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 355.95,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 44.07,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 8.48,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 4.39,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.68,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.11,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 1.27,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 17.68,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 2.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.63,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.96,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.17,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 2.42,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 108.48,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.32,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 193.23,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.17,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.34,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 35.98,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 1.29,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 4517,
+            "name": "grape seed oil",
+            "amount": 1.0,
+            "unit": "tablespoons",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 0.0,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 14.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 9.79,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 1.34,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 4.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 123.76,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Protein",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 2.25,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 11282,
+            "name": "onion",
+            "amount": 0.25,
+            "unit": "large",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 54.75,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 1.5,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 1.59,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 3.5,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 7.13,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.19,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 2.29,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 0.75,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.06,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 10.88,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 3.75,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 8.63,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.64,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.04,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.04,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 2.78,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.08,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.02,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 15.0,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Fluoride",
+                "amount": 0.41,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.15,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.41,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 2.87,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 11215,
+            "name": "garlic",
+            "amount": 0.5,
+            "unit": "cloves",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 6.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.25,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.5,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.05,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.21,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.35,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 0.14,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 2.3,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.38,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 2.71,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.03,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.47,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 2.23,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.03,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.1,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.47,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 93663,
+            "name": "garam masala",
+            "amount": 0.25,
+            "unit": "teaspoon",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.34,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.22,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 0.0,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Trans Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 203.4
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.09,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.06,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Calories",
+                "amount": 2.0,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Fluoride",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.09,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.13,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 1002014,
+            "name": "cumin",
+            "amount": 0.25,
+            "unit": "teaspoon",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 8.94,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.84,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.22,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.05,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.03,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.12,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 6.35,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 2.49,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 1.83,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 4.66,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.05,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.11,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.02,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.04,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.33,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 1.88,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.03,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.09,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.17,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.07,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 11165,
+            "name": "coriander",
+            "amount": 0.25,
+            "unit": "teaspoon",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 0.13,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.02,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 1.69,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 0.01,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.08,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 2043,
+            "name": "turmeric",
+            "amount": 0.06,
+            "unit": "teaspoon",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 3.16,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.08,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.05,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.01,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.06,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 0.0,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.34,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.24,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.23,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.03,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 0.44,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.02,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.05,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 2006,
+            "name": "cardamon",
+            "amount": 0.03,
+            "unit": "teaspoon",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 0.7,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.04,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 0.0,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.11,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.24,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.02,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.14,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Calories",
+                "amount": 0.19,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Protein",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.03,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 2010,
+            "name": "cinnamon",
+            "amount": 0.06,
+            "unit": "teaspoon",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 0.54,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.1,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.01,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 0.37,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Trans Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 203.4
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.08,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.08,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 1.25,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.07,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.02,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 0.31,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.04,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.03,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 10211216,
+            "name": "ginger",
+            "amount": 0.5,
+            "unit": "teaspoons",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 4.15,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.13,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.02,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.18,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.11,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.01,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.29,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 0.0,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.34,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.43,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.16,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.02,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 0.8,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.02,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.16,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 2031,
+            "name": "cayenne",
+            "amount": 0.13,
+            "unit": "teaspoon",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 5.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.08,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.03,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.14,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.26,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.02,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.13,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 104.03,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.73,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.38,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.37,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.07,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.04,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.02,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.19,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.07,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 0.8,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.2,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.03,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.07,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 2028,
+            "name": "paprika",
+            "amount": 0.25,
+            "unit": "tablespoon",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 39.9,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 1.19,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.18,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.94,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.86,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.11,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.9,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 861.95,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Trans Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 203.4
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.08,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 5.49,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 3.12,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 4.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.61,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.23,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.14,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.04,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.18,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.37,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.04,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.04,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.51,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 4.93,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 1.41,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.25,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.33,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.03,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 11887,
+            "name": "tomato paste",
+            "amount": 0.25,
+            "unit": "teaspoon",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 15.21,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 11.85,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.18,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.28,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.18,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.08,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.58,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 22.88,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 1.25,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.63,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.54,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.06,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.33,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.04,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.06,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 431.46,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 1.23,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.17,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.06,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.22,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 11529,
+            "name": "tomato",
+            "amount": 0.25,
+            "unit": "",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 72.88,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 1.54,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.81,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 1.2,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 4.61,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 2.06,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 256.15,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 7.38,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 3.38,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 3.08,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.37,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.06,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.03,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.18,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.04,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 4.21,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.08,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.17,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 790.28,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 5.53,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Fluoride",
+                "amount": 0.71,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 2.43,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.27,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.83,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.01,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 14412,
+            "name": "water",
+            "amount": 0.13,
+            "unit": "cup",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.3,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Sodium",
+                "amount": 1.48,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Iron",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Calories",
+                "amount": 0.0,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Fluoride",
+                "amount": 7.63,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Protein",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.89,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              }
+            ]
+          },
+          {
+            "id": 1001116,
+            "name": "yogurt",
+            "amount": 0.13,
+            "unit": "cup",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 47.47,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.11,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 14.09,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 1.43,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 1.43,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 2.14,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.67,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 4.66,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 30.32,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.18,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 29.09,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 3.67,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 37.06,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 1.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.03,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.15,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.64,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.03,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.12,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 3.98,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.02,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 18.68,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.04,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Fluoride",
+                "amount": 3.67,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.06,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 1.06,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 1.43,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.27,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 11165,
+            "name": "coriander",
+            "amount": 1.0,
+            "unit": "servings",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 0.52,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.06,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 6.75,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.05,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.07,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.03,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 0.02,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.31,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          },
+          {
+            "id": 2047,
+            "name": "salt",
+            "amount": 1.0,
+            "unit": "servings",
+            "nutrients": [
+              {
+                "name": "Potassium",
+                "amount": 0.04,
+                "unit": "mg",
+                "percentOfDailyNeeds": 25.33
+              },
+              {
+                "name": "Vitamin B12",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 7.54
+              },
+              {
+                "name": "Sodium",
+                "amount": 193.79,
+                "unit": "mg",
+                "percentOfDailyNeeds": 18.43
+              },
+              {
+                "name": "Sugar",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 4.74
+              },
+              {
+                "name": "Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.95
+              },
+              {
+                "name": "Folate",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.58
+              },
+              {
+                "name": "Selenium",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 79.39
+              },
+              {
+                "name": "Choline",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin A",
+                "amount": 0.0,
+                "unit": "IU",
+                "percentOfDailyNeeds": 26.84
+              },
+              {
+                "name": "Folic Acid",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Zinc",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.55
+              },
+              {
+                "name": "Phosphorus",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 41.65
+              },
+              {
+                "name": "Magnesium",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.61
+              },
+              {
+                "name": "Calcium",
+                "amount": 0.12,
+                "unit": "mg",
+                "percentOfDailyNeeds": 7.25
+              },
+              {
+                "name": "Fiber",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 8.23
+              },
+              {
+                "name": "Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 30.72
+              },
+              {
+                "name": "Poly Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Caffeine",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin B1",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 10.69
+              },
+              {
+                "name": "Vitamin B6",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 71.05
+              },
+              {
+                "name": "Vitamin B3",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 91.11
+              },
+              {
+                "name": "Manganese",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.08
+              },
+              {
+                "name": "Vitamin C",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 12.55
+              },
+              {
+                "name": "Iron",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 9.31
+              },
+              {
+                "name": "Alcohol",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 100.0
+              },
+              {
+                "name": "Saturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 18.96
+              },
+              {
+                "name": "Copper",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 5.89
+              },
+              {
+                "name": "Vitamin D",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 1.33
+              },
+              {
+                "name": "Vitamin B5",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 26.66
+              },
+              {
+                "name": "Cholesterol",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 37.49
+              },
+              {
+                "name": "Vitamin E",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 34.83
+              },
+              {
+                "name": "Lycopene",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Calories",
+                "amount": 0.0,
+                "unit": "kcal",
+                "percentOfDailyNeeds": 18.55
+              },
+              {
+                "name": "Vitamin B2",
+                "amount": 0.0,
+                "unit": "mg",
+                "percentOfDailyNeeds": 15.26
+              },
+              {
+                "name": "Fluoride",
+                "amount": 0.01,
+                "unit": "mg",
+                "percentOfDailyNeeds": 0.0
+              },
+              {
+                "name": "Vitamin K",
+                "amount": 0.0,
+                "unit": "µg",
+                "percentOfDailyNeeds": 5.0
+              },
+              {
+                "name": "Protein",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 76.79
+              },
+              {
+                "name": "Net Carbohydrates",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 2.47
+              },
+              {
+                "name": "Mono Unsaturated Fat",
+                "amount": 0.0,
+                "unit": "g",
+                "percentOfDailyNeeds": 0.0
+              }
+            ]
+          }
+        ],
+        "caloricBreakdown": {
+          "percentProtein": 41.66,
+          "percentFat": 48.75,
+          "percentCarbs": 9.59
+        },
+        "weightPerServing": {
+          "amount": 320,
+          "unit": "g"
+        }
+      },
+      "summary": "Easy Chicken Tikka Masala might be a good recipe to expand your main course recipe box. One serving contains <b>371 calories</b>, <b>38g of protein</b>, and <b>20g of fat</b>. This gluten free recipe serves 4 and costs <b>$2.19 per serving</b>. 54 people were glad they tried this recipe. If you have salt, water, onion, and a few other ingredients on hand, you can make it. From preparation to the plate, this recipe takes about <b>45 minutes</b>. This recipe is typical of Indian cuisine. It is brought to you by Foodista. All things considered, we decided this recipe <b>deserves a spoonacular score of 84%</b>. This score is excellent. If you like this recipe, take a look at these similar recipes: <a href=\"https://spoonacular.com/recipes/easy-chicken-tikka-masala-1073355\">Easy Chicken Tikka Masala</a>, <a href=\"https://spoonacular.com/recipes/easy-chicken-tikka-masala-671187\">Easy Chicken Tikka Masala</a>, and <a href=\"https://spoonacular.com/recipes/easy-chicken-tikka-masala-1554183\">Easy Chicken Tikka Masala</a>.",
+      "cuisines": [
+        "Indian",
+        "Asian"
+      ],
+      "dishTypes": [
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner"
+      ],
+      "diets": [
+        "gluten free"
+      ],
+      "occasions": [],
+      "instructions": "In a small bowl mix all the spices including the ginger. Set aside.\nIn a large saucepan, heat the oil .\nAdd the onions and cook until golden brown.\nAdd the garlic and continue to cook for a minute.\nStir in the spices and allow the flavours to infuse.\nStir in the tomato paste.\nAdd the chopped tomato and pour in the water. Simmer and season with salt to taste.\nAdd the chicken pieces stirring well to coat the meat with the sauce. Continue to simmer until the chicken is cooked and the sauce has thickened, about 12 minutes.\nStir in the yogurt and continue to simmer 5 minutes.\nGarnish with chopped fresh cilantro\nServe with bismati rice.",
+      "analyzedInstructions": [
+        {
+          "name": "",
+          "steps": [
+            {
+              "number": 1,
+              "step": "In a small bowl mix all the spices including the ginger. Set aside.",
+              "ingredients": [
+                {
+                  "id": 11216,
+                  "name": "ginger",
+                  "localizedName": "ginger",
+                  "image": "ginger.png"
+                },
+                {
+                  "id": 2035,
+                  "name": "spices",
+                  "localizedName": "spices",
+                  "image": "spices.png"
+                }
+              ],
+              "equipment": [
+                {
+                  "id": 404783,
+                  "name": "bowl",
+                  "localizedName": "bowl",
+                  "image": "https://spoonacular.com/cdn/equipment_100x100/bowl.jpg"
+                }
+              ]
+            },
+            {
+              "number": 2,
+              "step": "In a large saucepan, heat the oil .",
+              "ingredients": [
+                {
+                  "id": 4582,
+                  "name": "cooking oil",
+                  "localizedName": "cooking oil",
+                  "image": "vegetable-oil.jpg"
+                }
+              ],
+              "equipment": [
+                {
+                  "id": 404669,
+                  "name": "sauce pan",
+                  "localizedName": "sauce pan",
+                  "image": "https://spoonacular.com/cdn/equipment_100x100/sauce-pan.jpg"
+                }
+              ]
+            },
+            {
+              "number": 3,
+              "step": "Add the onions and cook until golden brown.",
+              "ingredients": [
+                {
+                  "id": 11282,
+                  "name": "onion",
+                  "localizedName": "onion",
+                  "image": "brown-onion.png"
+                }
+              ],
+              "equipment": []
+            },
+            {
+              "number": 4,
+              "step": "Add the garlic and continue to cook for a minute.",
+              "ingredients": [
+                {
+                  "id": 11215,
+                  "name": "garlic",
+                  "localizedName": "garlic",
+                  "image": "garlic.png"
+                }
+              ],
+              "equipment": []
+            },
+            {
+              "number": 5,
+              "step": "Stir in the spices and allow the flavours to infuse.",
+              "ingredients": [
+                {
+                  "id": 2035,
+                  "name": "spices",
+                  "localizedName": "spices",
+                  "image": "spices.png"
+                }
+              ],
+              "equipment": []
+            },
+            {
+              "number": 6,
+              "step": "Stir in the tomato paste.",
+              "ingredients": [
+                {
+                  "id": 11887,
+                  "name": "tomato paste",
+                  "localizedName": "tomato paste",
+                  "image": "tomato-paste.jpg"
+                }
+              ],
+              "equipment": []
+            },
+            {
+              "number": 7,
+              "step": "Add the chopped tomato and pour in the water. Simmer and season with salt to taste.",
+              "ingredients": [
+                {
+                  "id": 11529,
+                  "name": "tomato",
+                  "localizedName": "tomato",
+                  "image": "tomato.png"
+                },
+                {
+                  "id": 14412,
+                  "name": "water",
+                  "localizedName": "water",
+                  "image": "water.png"
+                },
+                {
+                  "id": 2047,
+                  "name": "salt",
+                  "localizedName": "salt",
+                  "image": "salt.jpg"
+                }
+              ],
+              "equipment": []
+            },
+            {
+              "number": 8,
+              "step": "Add the chicken pieces stirring well to coat the meat with the sauce. Continue to simmer until the chicken is cooked and the sauce has thickened, about 12 minutes.",
+              "ingredients": [
+                {
+                  "id": 1005006,
+                  "name": "chicken pieces",
+                  "localizedName": "chicken pieces",
+                  "image": "chicken-parts.jpg"
+                },
+                {
+                  "id": 0,
+                  "name": "chicken",
+                  "localizedName": "chicken",
+                  "image": "https://spoonacular.com/cdn/ingredients_100x100/whole-chicken.jpg"
+                },
+                {
+                  "id": 0,
+                  "name": "sauce",
+                  "localizedName": "sauce",
+                  "image": ""
+                },
+                {
+                  "id": 1065062,
+                  "name": "meat",
+                  "localizedName": "meat",
+                  "image": "whole-chicken.jpg"
+                }
+              ],
+              "equipment": [],
+              "length": {
+                "number": 12,
+                "unit": "minutes"
+              }
+            },
+            {
+              "number": 9,
+              "step": "Stir in the yogurt and continue to simmer 5 minutes.",
+              "ingredients": [
+                {
+                  "id": 1116,
+                  "name": "yogurt",
+                  "localizedName": "yogurt",
+                  "image": "plain-yogurt.jpg"
+                }
+              ],
+              "equipment": [],
+              "length": {
+                "number": 5,
+                "unit": "minutes"
+              }
+            },
+            {
+              "number": 10,
+              "step": "Garnish with chopped fresh cilantro",
+              "ingredients": [
+                {
+                  "id": 11165,
+                  "name": "fresh cilantro",
+                  "localizedName": "fresh cilantro",
+                  "image": "cilantro.png"
+                }
+              ],
+              "equipment": []
+            },
+            {
+              "number": 11,
+              "step": "Serve with bismati rice.",
+              "ingredients": [
+                {
+                  "id": 20444,
+                  "name": "rice",
+                  "localizedName": "rice",
+                  "image": "uncooked-white-rice.png"
+                }
+              ],
+              "equipment": []
+            }
+          ]
+        }
+      ],
+      "language": "en",
+      "originalId": null,
+      "spoonacularScore": 87.76577758789062,
+      "spoonacularSourceUrl": "https://spoonacular.com/easy-chicken-tikka-masala-641908"
+    }
+  ]
+}
