@@ -201,6 +201,52 @@ describe('useSwipeBroadcast', () => {
     });
   });
 
+  it('accumulates partnerCommittedRecipeIds from foreign swipe.commit events (MATCH-UX §8.2)', () => {
+    const ref = makeRef();
+    render(<Harness captureRef={ref} />);
+    act(() => {
+      mockState.handlers.get('swipe.commit')!({
+        event: 'swipe.commit',
+        payload: { recipeId: 'r-1', direction: 'right', userId: 'user_bob' },
+      });
+      mockState.handlers.get('swipe.commit')!({
+        event: 'swipe.commit',
+        payload: { recipeId: 'r-2', direction: 'left', userId: 'user_bob' },
+      });
+    });
+    expect(ref.current!.partnerCommittedRecipeIds.has('r-1')).toBe(true);
+    expect(ref.current!.partnerCommittedRecipeIds.has('r-2')).toBe(true);
+    expect(ref.current!.partnerCommittedRecipeIds.size).toBe(2);
+  });
+
+  it('does not add self-echo commits to partnerCommittedRecipeIds', () => {
+    const ref = makeRef();
+    render(<Harness captureRef={ref} />);
+    act(() => {
+      mockState.handlers.get('swipe.commit')!({
+        event: 'swipe.commit',
+        payload: { recipeId: 'r-1', direction: 'right', userId: 'user_alice' },
+      });
+    });
+    expect(ref.current!.partnerCommittedRecipeIds.size).toBe(0);
+  });
+
+  it('dedupes repeated partner commits on the same recipeId', () => {
+    const ref = makeRef();
+    render(<Harness captureRef={ref} />);
+    act(() => {
+      mockState.handlers.get('swipe.commit')!({
+        event: 'swipe.commit',
+        payload: { recipeId: 'r-1', direction: 'right', userId: 'user_bob' },
+      });
+      mockState.handlers.get('swipe.commit')!({
+        event: 'swipe.commit',
+        payload: { recipeId: 'r-1', direction: 'left', userId: 'user_bob' },
+      });
+    });
+    expect(ref.current!.partnerCommittedRecipeIds.size).toBe(1);
+  });
+
   it('ignores match.created echoes from the caller themselves', () => {
     const ref = makeRef();
     render(<Harness captureRef={ref} />);

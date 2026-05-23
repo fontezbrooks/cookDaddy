@@ -39,6 +39,7 @@ jest.mock('@/components/swipe-deck', () => {
       sessionId: string;
       recipeIds: string[];
       onMatch?: (p: unknown) => void;
+      onLocalCommit?: (p: { recipeId: string; direction: 'left' | 'right' }) => void;
     }) => {
       return React.createElement(
         View,
@@ -57,6 +58,14 @@ jest.mock('@/components/swipe-deck', () => {
               }),
           },
           React.createElement(Text, null, 'fire-match'),
+        ),
+        React.createElement(
+          Pressable,
+          {
+            testID: 'swipe-deck-fire-local-commit-r1',
+            onPress: () => props.onLocalCommit?.({ recipeId: 'r1', direction: 'right' }),
+          },
+          React.createElement(Text, null, 'fire-local-commit-r1'),
         ),
       );
     },
@@ -113,6 +122,7 @@ describe('SessionScreen', () => {
       partnerCommit: null,
       partnerProgress: null,
       partnerMatch: null,
+      partnerCommittedRecipeIds: new Set<string>(),
       broadcastCommit: jest.fn().mockResolvedValue(undefined),
       broadcastProgress: jest.fn().mockResolvedValue(undefined),
       broadcastMatch: jest.fn().mockResolvedValue(undefined),
@@ -283,6 +293,7 @@ describe('SessionScreen', () => {
         recipeTitle: 'Roast Squash',
         recipeImageUrl: null,
       },
+      partnerCommittedRecipeIds: new Set<string>(),
       broadcastCommit: jest.fn().mockResolvedValue(undefined),
       broadcastProgress: jest.fn().mockResolvedValue(undefined),
       broadcastMatch: jest.fn().mockResolvedValue(undefined),
@@ -293,6 +304,135 @@ describe('SessionScreen', () => {
       expect(screen.getByTestId('match-overlay')).toBeOnTheScreen();
     });
     expect(screen.getByTestId('match-overlay')).toHaveTextContent(/Roast Squash/);
+  });
+
+  it('renders one progress dot per recipe with empty default state (MATCH-UX §8.2)', async () => {
+    mockMaybeSingle.mockResolvedValue({
+      data: {
+        id: 'sess-1',
+        status: 'active',
+        pod_id: 'pod-1',
+        deck_recipe_ids: ['r1', 'r2', 'r3'],
+        ended_reason: null,
+      },
+      error: null,
+    });
+
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('session-progress-dots')).toBeOnTheScreen();
+    });
+    expect(screen.getByTestId('session-progress-dot-r1')).toHaveProp(
+      'accessibilityLabel',
+      'Progress: empty',
+    );
+    expect(screen.getByTestId('session-progress-dot-r2')).toHaveProp(
+      'accessibilityLabel',
+      'Progress: empty',
+    );
+    expect(screen.getByTestId('session-progress-dot-r3')).toHaveProp(
+      'accessibilityLabel',
+      'Progress: empty',
+    );
+  });
+
+  it('marks the dot half when only the local user committed (MATCH-UX §8.2)', async () => {
+    mockMaybeSingle.mockResolvedValue({
+      data: {
+        id: 'sess-1',
+        status: 'active',
+        pod_id: 'pod-1',
+        deck_recipe_ids: ['r1', 'r2'],
+        ended_reason: null,
+      },
+      error: null,
+    });
+
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('swipe-deck-fire-local-commit-r1')).toBeOnTheScreen();
+    });
+    fireEvent.press(screen.getByTestId('swipe-deck-fire-local-commit-r1'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('session-progress-dot-r1')).toHaveProp(
+        'accessibilityLabel',
+        'Progress: half',
+      );
+    });
+    expect(screen.getByTestId('session-progress-dot-r2')).toHaveProp(
+      'accessibilityLabel',
+      'Progress: empty',
+    );
+  });
+
+  it('marks the dot half when only the partner committed (MATCH-UX §8.2)', async () => {
+    mockMaybeSingle.mockResolvedValue({
+      data: {
+        id: 'sess-1',
+        status: 'active',
+        pod_id: 'pod-1',
+        deck_recipe_ids: ['r1', 'r2'],
+        ended_reason: null,
+      },
+      error: null,
+    });
+    mockUseSwipeBroadcast.mockReturnValue({
+      partnerCommit: null,
+      partnerProgress: null,
+      partnerMatch: null,
+      partnerCommittedRecipeIds: new Set(['r2']),
+      broadcastCommit: jest.fn().mockResolvedValue(undefined),
+      broadcastProgress: jest.fn().mockResolvedValue(undefined),
+      broadcastMatch: jest.fn().mockResolvedValue(undefined),
+    });
+
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('session-progress-dot-r2')).toHaveProp(
+        'accessibilityLabel',
+        'Progress: half',
+      );
+    });
+    expect(screen.getByTestId('session-progress-dot-r1')).toHaveProp(
+      'accessibilityLabel',
+      'Progress: empty',
+    );
+  });
+
+  it('marks the dot full when BOTH partners committed (MATCH-UX §8.2)', async () => {
+    mockMaybeSingle.mockResolvedValue({
+      data: {
+        id: 'sess-1',
+        status: 'active',
+        pod_id: 'pod-1',
+        deck_recipe_ids: ['r1', 'r2'],
+        ended_reason: null,
+      },
+      error: null,
+    });
+    mockUseSwipeBroadcast.mockReturnValue({
+      partnerCommit: null,
+      partnerProgress: null,
+      partnerMatch: null,
+      partnerCommittedRecipeIds: new Set(['r1']),
+      broadcastCommit: jest.fn().mockResolvedValue(undefined),
+      broadcastProgress: jest.fn().mockResolvedValue(undefined),
+      broadcastMatch: jest.fn().mockResolvedValue(undefined),
+    });
+
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('swipe-deck-fire-local-commit-r1')).toBeOnTheScreen();
+    });
+    fireEvent.press(screen.getByTestId('swipe-deck-fire-local-commit-r1'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('session-progress-dot-r1')).toHaveProp(
+        'accessibilityLabel',
+        'Progress: full',
+      );
+    });
   });
 
   it('dismisses MatchOverlay when Keep swiping is tapped', async () => {

@@ -20,7 +20,7 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { MatchOverlay, type MatchOverlayPayload } from '@/components/match-overlay';
-import { SwipeDeck, type OnMatchPayload } from '@/components/swipe-deck';
+import { SwipeDeck, type OnLocalCommitPayload, type OnMatchPayload } from '@/components/swipe-deck';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { markSessionActive, SessionRpcError } from '@/lib/session-rpcs';
@@ -45,7 +45,15 @@ export default function SessionScreen() {
   // Hosted at the screen so the overlay survives card-stack re-renders and
   // can be fed by either the local SwipeDeck or the partner broadcast.
   const [matchPayload, setMatchPayload] = useState<MatchOverlayPayload | null>(null);
-  const { partnerMatch } = useSwipeBroadcast(sessionId ?? '');
+  const { partnerMatch, partnerCommittedRecipeIds } = useSwipeBroadcast(sessionId ?? '');
+
+  // MATCH-UX §8.2: track which recipeIds the local user has swiped so the
+  // dot row can render (full | half | empty) per card. Lives at this screen
+  // because the partner's set lives in the broadcast hook; both must be
+  // adjacent to compute the per-dot state.
+  const [localCommittedRecipeIds, setLocalCommittedRecipeIds] = useState<Set<string>>(
+    () => new Set<string>(),
+  );
 
   useEffect(() => {
     if (partnerMatch && !matchPayload) {
@@ -55,6 +63,15 @@ export default function SessionScreen() {
 
   const handleLocalMatch = (payload: OnMatchPayload) => {
     if (!matchPayload) setMatchPayload(payload);
+  };
+
+  const handleLocalCommit = (payload: OnLocalCommitPayload) => {
+    setLocalCommittedRecipeIds((prev) => {
+      if (prev.has(payload.recipeId)) return prev;
+      const next = new Set(prev);
+      next.add(payload.recipeId);
+      return next;
+    });
   };
 
   const query = useQuery({
@@ -155,10 +172,16 @@ export default function SessionScreen() {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.container} testID="session-active">
+          <PartnerProgressDots
+            recipeIds={session.deck_recipe_ids ?? []}
+            localSet={localCommittedRecipeIds}
+            partnerSet={partnerCommittedRecipeIds}
+          />
           <SwipeDeck
             sessionId={session.id}
             recipeIds={session.deck_recipe_ids ?? []}
             onMatch={handleLocalMatch}
+            onLocalCommit={handleLocalCommit}
           />
         </View>
         {matchPayload ? (
@@ -186,6 +209,41 @@ export default function SessionScreen() {
   );
 }
 
+type DotState = 'full' | 'half' | 'empty';
+
+function PartnerProgressDots({
+  recipeIds,
+  localSet,
+  partnerSet,
+}: {
+  recipeIds: string[];
+  localSet: Set<string>;
+  partnerSet: Set<string>;
+}) {
+  if (recipeIds.length === 0) return null;
+  return (
+    <View testID="session-progress-dots" style={styles.dotRow} accessibilityRole="progressbar">
+      {recipeIds.map((id) => {
+        const local = localSet.has(id);
+        const partner = partnerSet.has(id);
+        const state: DotState = local && partner ? 'full' : local || partner ? 'half' : 'empty';
+        return (
+          <View
+            key={id}
+            testID={`session-progress-dot-${id}`}
+            accessibilityLabel={`Progress: ${state}`}
+            style={[
+              styles.dot,
+              state === 'full' && styles.dotFull,
+              state === 'half' && styles.dotHalf,
+            ]}
+          />
+        );
+      })}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
@@ -200,4 +258,23 @@ const styles = StyleSheet.create({
   },
   ctaDisabled: { opacity: 0.6 },
   ctaText: { color: '#fff', fontWeight: '600' },
+  dotRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    paddingHorizontal: Spacing.one,
+    paddingVertical: Spacing.two,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#666',
+  },
+  // One side swiped: half-tone fill (partial commitment).
+  dotHalf: { backgroundColor: '#666' },
+  // Both swiped: full neutral fill — color-blind safe (no green/red split).
+  dotFull: { backgroundColor: '#fff', borderColor: '#fff' },
 });

@@ -37,6 +37,10 @@ export type UseSwipeBroadcastResult = {
   partnerCommit: PartnerCommit | null;
   partnerProgress: PartnerProgress | null;
   partnerMatch: PartnerMatch | null;
+  // MATCH-UX §8.2: cumulative set of recipeIds the partner has committed
+  // on during this session. Empty until the first partner commit arrives;
+  // accumulates monotonically while the channel is subscribed.
+  partnerCommittedRecipeIds: Set<string>;
   broadcastCommit: (args: { recipeId: string; direction: SwipeDirection }) => Promise<unknown>;
   broadcastProgress: (args: { recipeId: string; fraction: number }) => Promise<unknown>;
   broadcastMatch: (args: PartnerMatch) => Promise<unknown>;
@@ -53,6 +57,9 @@ export function useSwipeBroadcast(sessionId: string): UseSwipeBroadcastResult {
   const [partnerCommit, setPartnerCommit] = useState<PartnerCommit | null>(null);
   const [partnerProgress, setPartnerProgress] = useState<PartnerProgress | null>(null);
   const [partnerMatch, setPartnerMatch] = useState<PartnerMatch | null>(null);
+  const [partnerCommittedRecipeIds, setPartnerCommittedRecipeIds] = useState<Set<string>>(
+    () => new Set<string>(),
+  );
 
   // userIdRef so the inbound handlers always see the latest value without
   // resubscribing the channel each time Clerk re-renders.
@@ -70,6 +77,12 @@ export function useSwipeBroadcast(sessionId: string): UseSwipeBroadcastResult {
         const raw = evt.payload as RawCommit;
         if (!raw || raw.userId === userIdRef.current) return;
         setPartnerCommit({ recipeId: raw.recipeId, direction: raw.direction });
+        setPartnerCommittedRecipeIds((prev) => {
+          if (prev.has(raw.recipeId)) return prev;
+          const next = new Set(prev);
+          next.add(raw.recipeId);
+          return next;
+        });
       })
       .on('broadcast', { event: 'swipe.progress' }, (evt: { payload: unknown }) => {
         const raw = evt.payload as RawProgress;
@@ -134,6 +147,7 @@ export function useSwipeBroadcast(sessionId: string): UseSwipeBroadcastResult {
     partnerCommit,
     partnerProgress,
     partnerMatch,
+    partnerCommittedRecipeIds,
     broadcastCommit,
     broadcastProgress,
     broadcastMatch,

@@ -14,7 +14,7 @@
 
 import { useAuth } from '@clerk/clerk-expo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
 import { SessionRpcError } from '@/lib/session-rpcs';
@@ -35,6 +35,15 @@ jest.mock('@/lib/session-rpcs', () => {
 const mockUseDeck = jest.fn();
 jest.mock('@/lib/use-deck', () => ({
   useDeck: (...args: unknown[]) => mockUseDeck(...args),
+}));
+
+const mockEnqueueSwipe = jest.fn();
+const mockPeekSwipeQueue = jest.fn();
+const mockRemoveFromSwipeQueue = jest.fn();
+jest.mock('@/lib/swipe-queue', () => ({
+  enqueueSwipe: (...args: unknown[]) => mockEnqueueSwipe(...args),
+  peekSwipeQueue: (...args: unknown[]) => mockPeekSwipeQueue(...args),
+  removeFromSwipeQueue: (...args: unknown[]) => mockRemoveFromSwipeQueue(...args),
 }));
 
 const mockBroadcastCommit = jest.fn();
@@ -101,6 +110,9 @@ describe('SwipeDeck', () => {
     });
     mockHapticsImpactLight.mockReset();
     mockHapticsSelection.mockReset();
+    mockEnqueueSwipe.mockReset();
+    mockPeekSwipeQueue.mockReset().mockReturnValue([]);
+    mockRemoveFromSwipeQueue.mockReset();
     setSignedIn();
   });
 
@@ -250,6 +262,94 @@ describe('SwipeDeck', () => {
     expect(screen.getByTestId('swipe-deck-empty')).toBeOnTheScreen();
   });
 
+  it('invokes onLocalCommit after a successful submit_swipe (MATCH-UX §8.2)', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    mockSubmitSwipe.mockResolvedValueOnce({
+      match: false,
+      matchId: null,
+      alreadyMatched: false,
+    });
+    const onLocalCommit = jest.fn();
+
+    render(
+      wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} onLocalCommit={onLocalCommit} />),
+    );
+    fireEvent.press(screen.getByTestId('swipe-deck-like'));
+
+    await waitFor(() => {
+      expect(onLocalCommit).toHaveBeenCalledWith({ recipeId: 'r-1', direction: 'right' });
+    });
+  });
+
+  it('does not invoke onLocalCommit when submit_swipe rejects (MATCH-UX §8.2)', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    mockSubmitSwipe.mockRejectedValueOnce(new SessionRpcError('session_not_active'));
+    const onLocalCommit = jest.fn();
+
+    render(
+      wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} onLocalCommit={onLocalCommit} />),
+    );
+    fireEvent.press(screen.getByTestId('swipe-deck-like'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('swipe-deck-error')).toBeOnTheScreen();
+    });
+    expect(onLocalCommit).not.toHaveBeenCalled();
+  });
+
+  it('flashes green edge on right-swipe commit and clears after 200ms (MATCH-UX §8.1)', async () => {
+    jest.useFakeTimers();
+    try {
+      mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+      mockSubmitSwipe.mockResolvedValue({
+        match: false,
+        matchId: null,
+        alreadyMatched: false,
+      });
+
+      render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+      fireEvent.press(screen.getByTestId('swipe-deck-like'));
+
+      // Border color flips to green immediately after press.
+      expect(screen.getByTestId('swipe-deck-card-current')).toHaveStyle({
+        borderColor: '#16a34a',
+      });
+
+      await act(async () => {
+        jest.advanceTimersByTime(201);
+      });
+
+      // After 200ms the flash clears (top card may now be the next recipe,
+      // but the *current* one carries transparent border again).
+      expect(screen.getByTestId('swipe-deck-card-current')).toHaveStyle({
+        borderColor: 'transparent',
+      });
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('flashes red edge on left-swipe commit (MATCH-UX §8.1)', () => {
+    jest.useFakeTimers();
+    try {
+      mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+      mockSubmitSwipe.mockResolvedValue({
+        match: false,
+        matchId: null,
+        alreadyMatched: false,
+      });
+
+      render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+      fireEvent.press(screen.getByTestId('swipe-deck-dislike'));
+
+      expect(screen.getByTestId('swipe-deck-card-current')).toHaveStyle({
+        borderColor: '#7a1f1f',
+      });
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('keeps the card visible and shows a retry banner when submitSwipe rejects', async () => {
     mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
     mockSubmitSwipe.mockRejectedValueOnce(new SessionRpcError('session_not_active'));
@@ -262,5 +362,106 @@ describe('SwipeDeck', () => {
     });
     // Still on r-1 — no advance on error.
     expect(screen.getByTestId('swipe-deck-card-current')).toHaveTextContent('Cacio e Pepe');
+  });
+
+  it('enqueues the swipe in MMKV when submitSwipe fails transiently (NFR-R1)', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    // Raw network error — not a SessionRpcError — counts as retryable.
+    mockSubmitSwipe.mockRejectedValueOnce(new Error('network down'));
+
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+    fireEvent.press(screen.getByTestId('swipe-deck-like'));
+
+    await waitFor(() => {
+      expect(mockEnqueueSwipe).toHaveBeenCalledWith('sess-1', {
+        recipeId: 'r-1',
+        direction: 'right',
+      });
+    });
+    expect(screen.getByTestId('swipe-deck-error')).toHaveTextContent(/retry when you’re back/i);
+  });
+
+  it('does NOT enqueue when submitSwipe fails with a non-retryable code (NFR-R1)', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    mockSubmitSwipe.mockRejectedValueOnce(new SessionRpcError('session_not_active'));
+
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+    fireEvent.press(screen.getByTestId('swipe-deck-like'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('swipe-deck-error')).toBeOnTheScreen();
+    });
+    expect(mockEnqueueSwipe).not.toHaveBeenCalled();
+  });
+
+  it('drains the queue on mount (NFR-R1)', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    mockPeekSwipeQueue.mockReturnValue([{ recipeId: 'r-old', direction: 'right', enqueuedAt: 1 }]);
+    mockSubmitSwipe.mockResolvedValue({
+      match: false,
+      matchId: null,
+      alreadyMatched: false,
+    });
+
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+
+    await waitFor(() => {
+      expect(mockSubmitSwipe).toHaveBeenCalledWith(expect.anything(), 'sess-1', 'r-old', 'right');
+    });
+    expect(mockRemoveFromSwipeQueue).toHaveBeenCalledWith('sess-1', {
+      recipeId: 'r-old',
+      direction: 'right',
+      enqueuedAt: 1,
+    });
+  });
+
+  it('drains the queue on the next successful commit (NFR-R1)', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    // First call: live commit succeeds. Second call (during drain): queued
+    // r-old succeeds too.
+    mockPeekSwipeQueue
+      .mockReturnValueOnce([]) // mount-time drain → empty
+      .mockReturnValueOnce([{ recipeId: 'r-old', direction: 'left', enqueuedAt: 1 }]); // post-success drain
+    mockSubmitSwipe.mockResolvedValue({
+      match: false,
+      matchId: null,
+      alreadyMatched: false,
+    });
+
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+    fireEvent.press(screen.getByTestId('swipe-deck-like'));
+
+    await waitFor(() => {
+      expect(mockSubmitSwipe).toHaveBeenCalledWith(expect.anything(), 'sess-1', 'r-old', 'left');
+    });
+  });
+
+  it('drops non-retryable queued items without retrying further (NFR-R1)', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    mockPeekSwipeQueue.mockReturnValue([{ recipeId: 'r-old', direction: 'right', enqueuedAt: 1 }]);
+    mockSubmitSwipe.mockRejectedValueOnce(new SessionRpcError('session_not_active'));
+
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+
+    await waitFor(() => {
+      expect(mockRemoveFromSwipeQueue).toHaveBeenCalledWith('sess-1', {
+        recipeId: 'r-old',
+        direction: 'right',
+        enqueuedAt: 1,
+      });
+    });
+  });
+
+  it('keeps queued items in place when drain hits a transient failure (NFR-R1)', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    mockPeekSwipeQueue.mockReturnValue([{ recipeId: 'r-old', direction: 'right', enqueuedAt: 1 }]);
+    mockSubmitSwipe.mockRejectedValueOnce(new Error('network down'));
+
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+
+    await waitFor(() => {
+      expect(mockSubmitSwipe).toHaveBeenCalledWith(expect.anything(), 'sess-1', 'r-old', 'right');
+    });
+    expect(mockRemoveFromSwipeQueue).not.toHaveBeenCalled();
   });
 });
