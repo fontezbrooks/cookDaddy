@@ -6,9 +6,11 @@
 
 import { useAuth } from '@clerk/clerk-expo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
+import { Share } from 'react-native';
 
+import { PodRpcError } from '@/lib/pod-rpcs';
 import { __resetPodStoreForTests } from '@/state/usePodStore';
 
 import HomeScreen from '../home';
@@ -38,8 +40,19 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
 }));
 
+const mockCreateInvite = jest.fn();
+jest.mock('@/lib/pod-rpcs', () => {
+  const actual = jest.requireActual('@/lib/pod-rpcs');
+  return {
+    ...actual,
+    createPodInvite: (...args: unknown[]) => mockCreateInvite(...args),
+  };
+});
+
 function wrap(children: ReactNode) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 
@@ -49,6 +62,7 @@ describe('HomeScreen', () => {
     mockSelect.mockClear();
     mockEq.mockClear();
     mockSingle.mockClear();
+    mockCreateInvite.mockReset();
     jest.mocked(useAuth).mockReturnValue({
       isLoaded: true,
       isSignedIn: true,
@@ -105,6 +119,88 @@ describe('HomeScreen', () => {
       expect(screen.getByTestId('home-greeting')).toHaveTextContent(/Paired User/);
     });
     expect(screen.queryByTestId('home-empty-state')).toBeNull();
+  });
+
+  it('renders the partner-removed banner when the store flag is raised, and clears it on ack', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().notePartnerRemoved();
+
+    render(wrap(<HomeScreen />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('partner-removed-banner')).toBeOnTheScreen();
+    });
+    fireEvent.press(screen.getByTestId('partner-removed-ack'));
+    await waitFor(() => {
+      expect(screen.queryByTestId('partner-removed-banner')).toBeNull();
+    });
+  });
+
+  it('renders the Create invite link CTA in the empty state', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+
+    render(wrap(<HomeScreen />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-create-invite')).toBeOnTheScreen();
+    });
+  });
+
+  it('mints a token via create_pod_invite and opens the Share sheet on tap', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+    mockCreateInvite.mockResolvedValueOnce({
+      token: 'tok-xyz',
+      expiresAt: '2099-01-01T00:00:00Z',
+      podId: 'pod-123',
+    });
+    const shareSpy = jest
+      .spyOn(Share, 'share')
+      .mockResolvedValue({ action: 'sharedAction' } as never);
+
+    render(wrap(<HomeScreen />));
+    await waitFor(() => expect(screen.getByTestId('home-create-invite')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-create-invite'));
+
+    await waitFor(() => {
+      expect(mockCreateInvite).toHaveBeenCalledTimes(1);
+      expect(shareSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: 'https://cookdaddy.app/invite/tok-xyz',
+          message: expect.stringContaining('https://cookdaddy.app/invite/tok-xyz'),
+        }),
+      );
+      expect(screen.getByTestId('home-invite-hint')).toHaveTextContent(/Waiting for your partner/);
+    });
+
+    shareSpy.mockRestore();
+  });
+
+  it('shows a guarded hint when create_pod_invite rejects with already_in_a_pod', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+    mockCreateInvite.mockRejectedValueOnce(new PodRpcError('already_in_a_pod', 'already_in_a_pod'));
+    const shareSpy = jest.spyOn(Share, 'share');
+
+    render(wrap(<HomeScreen />));
+    await waitFor(() => expect(screen.getByTestId('home-create-invite')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-create-invite'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-invite-hint')).toHaveTextContent(/already paired/i);
+    });
+    expect(shareSpy).not.toHaveBeenCalled();
   });
 
   it('falls back to "there" when display_name is missing on the row', async () => {

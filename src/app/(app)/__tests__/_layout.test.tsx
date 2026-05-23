@@ -12,6 +12,12 @@ import { render } from '@testing-library/react-native';
 
 import ProtectedLayout from '../_layout';
 
+// usePodSync touches TanStack Query + Supabase; here we just need it to be a
+// no-op so the layout's render contract stays the unit under test.
+jest.mock('@/lib/use-pod-sync', () => ({
+  usePodSync: jest.fn(),
+}));
+
 // Capture <Redirect /> targets so the test can assert the route.
 const mockRedirect = jest.fn();
 jest.mock('expo-router', () => {

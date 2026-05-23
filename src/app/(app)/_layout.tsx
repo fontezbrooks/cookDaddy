@@ -8,8 +8,16 @@ import { useAuth } from '@clerk/clerk-expo';
 import { Redirect, Stack } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
+import { usePodSync } from '@/lib/use-pod-sync';
+
 export default function ProtectedLayout() {
   const { isLoaded, isSignedIn } = useAuth();
+
+  // Keep usePodStore reconciled with the server's pod_members truth so
+  // partner-removed-me transitions surface on foreground (DESIGN §16.1).
+  // Safe to call before the early returns because the hook is a no-op when
+  // there's no session.
+  usePodSync();
 
   if (!isLoaded) {
     return (
