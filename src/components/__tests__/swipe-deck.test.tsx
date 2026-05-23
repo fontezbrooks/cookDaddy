@@ -86,12 +86,24 @@ function setSignedIn() {
 }
 
 const DECK_IDS = ['r-1', 'r-2', 'r-3'];
+const STREAK_DECK_IDS = ['r-1', 'r-2', 'r-3', 'r-4'];
 
 const RECIPE_DATA = [
   { id: 'r-1', title: 'Cacio e Pepe', imageUrl: null },
   { id: 'r-2', title: 'Roast Squash', imageUrl: null },
   { id: 'r-3', title: 'Bibimbap', imageUrl: null },
 ];
+
+const STREAK_RECIPE_DATA = [...RECIPE_DATA, { id: 'r-4', title: 'Tomato Risotto', imageUrl: null }];
+
+async function pressLikeAndWaitForTitle(title: string) {
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('swipe-deck-like'));
+  });
+  await waitFor(() => {
+    expect(screen.getByTestId('swipe-deck-card-current')).toHaveTextContent(title);
+  });
+}
 
 describe('SwipeDeck', () => {
   beforeEach(() => {
@@ -136,7 +148,9 @@ describe('SwipeDeck', () => {
       alreadyMatched: false,
     });
     render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
-    fireEvent.press(screen.getByTestId('swipe-deck-dislike'));
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('swipe-deck-dislike'));
+    });
     expect(mockHapticsSelection).toHaveBeenCalledTimes(1);
   });
 
@@ -463,5 +477,85 @@ describe('SwipeDeck', () => {
       expect(mockSubmitSwipe).toHaveBeenCalledWith(expect.anything(), 'sess-1', 'r-old', 'right');
     });
     expect(mockRemoveFromSwipeQueue).not.toHaveBeenCalled();
+  });
+
+  it('renders the streak pill after 3 consecutive both-right swipes (MATCH-UX §7)', async () => {
+    mockUseDeck.mockReturnValue({ data: STREAK_RECIPE_DATA, isLoading: false });
+    mockSubmitSwipe.mockResolvedValue({
+      match: false,
+      matchId: null,
+      alreadyMatched: false,
+    });
+
+    render(
+      wrap(
+        <SwipeDeck
+          sessionId="sess-1"
+          recipeIds={STREAK_DECK_IDS}
+          partnerRightCommittedRecipeIds={new Set(['r-1', 'r-2', 'r-3'])}
+        />,
+      ),
+    );
+
+    await pressLikeAndWaitForTitle('Roast Squash');
+    await pressLikeAndWaitForTitle('Bibimbap');
+    await pressLikeAndWaitForTitle('Tomato Risotto');
+
+    expect(screen.getByTestId('swipe-deck-streak')).toHaveTextContent('🔥 streak');
+    expect(screen.getByTestId('swipe-deck-streak')).toHaveProp('accessibilityLabel', 'On a streak');
+  });
+
+  it('does not render the streak pill after only 2 both-right swipes (MATCH-UX §7)', async () => {
+    mockUseDeck.mockReturnValue({ data: STREAK_RECIPE_DATA, isLoading: false });
+    mockSubmitSwipe.mockResolvedValue({
+      match: false,
+      matchId: null,
+      alreadyMatched: false,
+    });
+
+    render(
+      wrap(
+        <SwipeDeck
+          sessionId="sess-1"
+          recipeIds={STREAK_DECK_IDS}
+          partnerRightCommittedRecipeIds={new Set(['r-1', 'r-2'])}
+        />,
+      ),
+    );
+
+    await pressLikeAndWaitForTitle('Roast Squash');
+    await pressLikeAndWaitForTitle('Bibimbap');
+
+    expect(screen.queryByTestId('swipe-deck-streak')).not.toBeOnTheScreen();
+  });
+
+  it('keeps the streak pill hidden when a left swipe breaks the run (MATCH-UX §7)', async () => {
+    mockUseDeck.mockReturnValue({ data: STREAK_RECIPE_DATA, isLoading: false });
+    mockSubmitSwipe.mockResolvedValue({
+      match: false,
+      matchId: null,
+      alreadyMatched: false,
+    });
+
+    render(
+      wrap(
+        <SwipeDeck
+          sessionId="sess-1"
+          recipeIds={STREAK_DECK_IDS}
+          partnerRightCommittedRecipeIds={new Set(['r-1', 'r-2', 'r-3'])}
+        />,
+      ),
+    );
+
+    await pressLikeAndWaitForTitle('Roast Squash');
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('swipe-deck-dislike'));
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('swipe-deck-card-current')).toHaveTextContent('Bibimbap');
+    });
+    await pressLikeAndWaitForTitle('Tomato Risotto');
+
+    expect(screen.queryByTestId('swipe-deck-streak')).not.toBeOnTheScreen();
   });
 });

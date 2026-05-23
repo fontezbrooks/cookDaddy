@@ -247,6 +247,24 @@ describe('useSwipeBroadcast', () => {
     expect(ref.current!.partnerCommittedRecipeIds.size).toBe(1);
   });
 
+  it('accumulates only right commits in partnerRightCommittedRecipeIds (MATCH-UX §7)', () => {
+    const ref = makeRef();
+    render(<Harness captureRef={ref} />);
+    act(() => {
+      mockState.handlers.get('swipe.commit')!({
+        event: 'swipe.commit',
+        payload: { recipeId: 'r-1', direction: 'right', userId: 'user_bob' },
+      });
+      mockState.handlers.get('swipe.commit')!({
+        event: 'swipe.commit',
+        payload: { recipeId: 'r-2', direction: 'left', userId: 'user_bob' },
+      });
+    });
+    expect(ref.current!.partnerRightCommittedRecipeIds.has('r-1')).toBe(true);
+    expect(ref.current!.partnerRightCommittedRecipeIds.has('r-2')).toBe(false);
+    expect(ref.current!.partnerRightCommittedRecipeIds.size).toBe(1);
+  });
+
   it('ignores match.created echoes from the caller themselves', () => {
     const ref = makeRef();
     render(<Harness captureRef={ref} />);

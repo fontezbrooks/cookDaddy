@@ -40,6 +40,7 @@ jest.mock('@/components/swipe-deck', () => {
       recipeIds: string[];
       onMatch?: (p: unknown) => void;
       onLocalCommit?: (p: { recipeId: string; direction: 'left' | 'right' }) => void;
+      partnerRightCommittedRecipeIds?: ReadonlySet<string>;
     }) => {
       return React.createElement(
         View,
@@ -171,6 +172,7 @@ describe('SessionScreen', () => {
       partnerProgress: null,
       partnerMatch: null,
       partnerCommittedRecipeIds: new Set<string>(),
+      partnerRightCommittedRecipeIds: new Set<string>(),
       broadcastCommit: jest.fn().mockResolvedValue(undefined),
       broadcastProgress: jest.fn().mockResolvedValue(undefined),
       broadcastMatch: jest.fn().mockResolvedValue(undefined),
@@ -370,6 +372,7 @@ describe('SessionScreen', () => {
         recipeImageUrl: null,
       },
       partnerCommittedRecipeIds: new Set<string>(),
+      partnerRightCommittedRecipeIds: new Set<string>(),
       broadcastCommit: jest.fn().mockResolvedValue(undefined),
       broadcastProgress: jest.fn().mockResolvedValue(undefined),
       broadcastMatch: jest.fn().mockResolvedValue(undefined),
@@ -458,6 +461,7 @@ describe('SessionScreen', () => {
       partnerProgress: null,
       partnerMatch: null,
       partnerCommittedRecipeIds: new Set(['r2']),
+      partnerRightCommittedRecipeIds: new Set<string>(),
       broadcastCommit: jest.fn().mockResolvedValue(undefined),
       broadcastProgress: jest.fn().mockResolvedValue(undefined),
       broadcastMatch: jest.fn().mockResolvedValue(undefined),
@@ -492,6 +496,7 @@ describe('SessionScreen', () => {
       partnerProgress: null,
       partnerMatch: null,
       partnerCommittedRecipeIds: new Set(['r1']),
+      partnerRightCommittedRecipeIds: new Set(['r1']),
       broadcastCommit: jest.fn().mockResolvedValue(undefined),
       broadcastProgress: jest.fn().mockResolvedValue(undefined),
       broadcastMatch: jest.fn().mockResolvedValue(undefined),

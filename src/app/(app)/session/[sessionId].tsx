@@ -54,9 +54,8 @@ export default function SessionScreen() {
   const [matchVariant, setMatchVariant] = useState<MatchVariant>('standard');
   const podMatchCount = usePodMatchCount();
   const podHadPriorMatchesRef = useRef<boolean | undefined>(undefined);
-  const { partnerCommit, partnerMatch, partnerCommittedRecipeIds } = useSwipeBroadcast(
-    sessionId ?? '',
-  );
+  const { partnerCommit, partnerMatch, partnerCommittedRecipeIds, partnerRightCommittedRecipeIds } =
+    useSwipeBroadcast(sessionId ?? '');
 
   // MATCH-UX §8.2: track which recipeIds the local user has swiped so the
   // dot row can render (full | half | empty) per card. Lives at this screen
@@ -257,6 +256,7 @@ export default function SessionScreen() {
             recipeIds={session.deck_recipe_ids ?? []}
             onMatch={handleLocalMatch}
             onLocalCommit={handleLocalCommit}
+            partnerRightCommittedRecipeIds={partnerRightCommittedRecipeIds}
           />
         </View>
         {matchPayload ? (

@@ -41,6 +41,9 @@ export type UseSwipeBroadcastResult = {
   // on during this session. Empty until the first partner commit arrives;
   // accumulates monotonically while the channel is subscribed.
   partnerCommittedRecipeIds: Set<string>;
+  // MATCH-UX §7: cumulative subset of partner commits that were right swipes,
+  // used with the local right set to derive the quiet streak indicator.
+  partnerRightCommittedRecipeIds: Set<string>;
   broadcastCommit: (args: { recipeId: string; direction: SwipeDirection }) => Promise<unknown>;
   broadcastProgress: (args: { recipeId: string; fraction: number }) => Promise<unknown>;
   broadcastMatch: (args: PartnerMatch) => Promise<unknown>;
@@ -58,6 +61,9 @@ export function useSwipeBroadcast(sessionId: string): UseSwipeBroadcastResult {
   const [partnerProgress, setPartnerProgress] = useState<PartnerProgress | null>(null);
   const [partnerMatch, setPartnerMatch] = useState<PartnerMatch | null>(null);
   const [partnerCommittedRecipeIds, setPartnerCommittedRecipeIds] = useState<Set<string>>(
+    () => new Set<string>(),
+  );
+  const [partnerRightCommittedRecipeIds, setPartnerRightCommittedRecipeIds] = useState<Set<string>>(
     () => new Set<string>(),
   );
 
@@ -83,6 +89,14 @@ export function useSwipeBroadcast(sessionId: string): UseSwipeBroadcastResult {
           next.add(raw.recipeId);
           return next;
         });
+        if (raw.direction === 'right') {
+          setPartnerRightCommittedRecipeIds((prev) => {
+            if (prev.has(raw.recipeId)) return prev;
+            const next = new Set(prev);
+            next.add(raw.recipeId);
+            return next;
+          });
+        }
       })
       .on('broadcast', { event: 'swipe.progress' }, (evt: { payload: unknown }) => {
         const raw = evt.payload as RawProgress;
@@ -148,6 +162,7 @@ export function useSwipeBroadcast(sessionId: string): UseSwipeBroadcastResult {
     partnerProgress,
     partnerMatch,
     partnerCommittedRecipeIds,
+    partnerRightCommittedRecipeIds,
     broadcastCommit,
     broadcastProgress,
     broadcastMatch,

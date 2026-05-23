@@ -37,6 +37,7 @@ import {
   type SubmitSwipeResult,
   type SwipeDirection,
 } from '@/lib/session-rpcs';
+import { isStreakActive } from '@/lib/streak';
 import { createSupabaseClient } from '@/lib/supabase';
 import { enqueueSwipe, peekSwipeQueue, removeFromSwipeQueue } from '@/lib/swipe-queue';
 import { useDeck, type DeckRecipe } from '@/lib/use-deck';
@@ -64,6 +65,7 @@ function isRetryable(err: unknown): boolean {
 const SWIPE_THRESHOLD_RATIO = 0.4;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const COMMIT_DISTANCE = SCREEN_WIDTH * SWIPE_THRESHOLD_RATIO;
+const EMPTY_RECIPE_ID_SET = new Set<string>();
 
 export type OnMatchPayload = {
   matchId: string;
@@ -82,11 +84,18 @@ export type SwipeDeckProps = {
   // session screen can accumulate which recipeIds the local user has
   // swiped, for the partner-progress dot row.
   onLocalCommit?: (payload: OnLocalCommitPayload) => void;
+  partnerRightCommittedRecipeIds?: ReadonlySet<string>;
 };
 
 type CommitArgs = { recipeId: string; direction: SwipeDirection };
 
-export function SwipeDeck({ sessionId, recipeIds, onMatch, onLocalCommit }: SwipeDeckProps) {
+export function SwipeDeck({
+  sessionId,
+  recipeIds,
+  onMatch,
+  onLocalCommit,
+  partnerRightCommittedRecipeIds = EMPTY_RECIPE_ID_SET,
+}: SwipeDeckProps) {
   const { getToken } = useAuth();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
 
@@ -94,6 +103,9 @@ export function SwipeDeck({ sessionId, recipeIds, onMatch, onLocalCommit }: Swip
   const { broadcastCommit, broadcastProgress, broadcastMatch } = useSwipeBroadcast(sessionId);
 
   const [index, setIndex] = useState(0);
+  const [localRightCommittedRecipeIds, setLocalRightCommittedRecipeIds] = useState<Set<string>>(
+    () => new Set<string>(),
+  );
   const [errorVisible, setErrorVisible] = useState(false);
   // MATCH-UX §8.1: 200ms green/red edge flash on commit. Plain React state
   // + setTimeout is sufficient — the card already carries borderWidth:2 with
@@ -213,6 +225,14 @@ export function SwipeDeck({ sessionId, recipeIds, onMatch, onLocalCommit }: Swip
       // wrapper no-ops when settings.hapticsEnabled is false.
       if (direction === 'right') haptics.impactLight();
       else haptics.selection();
+      if (direction === 'right') {
+        setLocalRightCommittedRecipeIds((prev) => {
+          if (prev.has(recipeId)) return prev;
+          const next = new Set(prev);
+          next.add(recipeId);
+          return next;
+        });
+      }
       commitMutation.mutate({ recipeId, direction });
     },
     [commitMutation],
@@ -285,10 +305,27 @@ export function SwipeDeck({ sessionId, recipeIds, onMatch, onLocalCommit }: Swip
   const errorCode =
     commitMutation.error instanceof SessionRpcError ? commitMutation.error.code : 'unknown';
   const errorIsRetryable = isRetryable(commitMutation.error);
+  const streakActive = isStreakActive(
+    recipeIds,
+    index,
+    localRightCommittedRecipeIds,
+    partnerRightCommittedRecipeIds,
+  );
 
   return (
     <View style={styles.container} testID="swipe-deck">
       <View style={styles.stack}>
+        {streakActive ? (
+          <View
+            testID="swipe-deck-streak"
+            accessibilityLabel="On a streak"
+            style={styles.streakPill}
+          >
+            <ThemedText type="small" style={styles.streakText}>
+              🔥 streak
+            </ThemedText>
+          </View>
+        ) : null}
         {next ? <CardBack recipe={next} /> : null}
         <GestureDetector gesture={pan}>
           <Animated.View
@@ -357,6 +394,22 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.two },
   stack: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  streakPill: {
+    position: 'absolute',
+    top: Spacing.two,
+    zIndex: 2,
+    elevation: 2,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+    borderRadius: DesignTokens.radius.pill,
+    backgroundColor: DesignTokens.color.bgElevated.light,
+    borderWidth: 1,
+    borderColor: DesignTokens.color.borderMuted.light,
+  },
+  streakText: {
+    color: DesignTokens.color.textPrimary.light,
+    fontWeight: '700',
+  },
   card: {
     position: 'absolute',
     width: '90%',
