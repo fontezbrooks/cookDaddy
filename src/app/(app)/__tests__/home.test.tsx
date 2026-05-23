@@ -32,12 +32,13 @@ jest.mock('@/lib/supabase', () => ({
   ensureSelfUserRow: jest.fn().mockResolvedValue(undefined),
 }));
 
+const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
   Link: ({ children, href, testID }: { children: ReactNode; href: string; testID?: string }) => {
     const React = require('react');
     return React.createElement('Link', { href, testID }, children);
   },
-  useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
+  useRouter: () => ({ push: mockPush, replace: jest.fn(), back: jest.fn() }),
 }));
 
 const mockCreateInvite = jest.fn();
@@ -46,6 +47,15 @@ jest.mock('@/lib/pod-rpcs', () => {
   return {
     ...actual,
     createPodInvite: (...args: unknown[]) => mockCreateInvite(...args),
+  };
+});
+
+const mockStartSession = jest.fn();
+jest.mock('@/lib/session-rpcs', () => {
+  const actual = jest.requireActual('@/lib/session-rpcs');
+  return {
+    ...actual,
+    startSession: (...args: unknown[]) => mockStartSession(...args),
   };
 });
 
@@ -63,6 +73,8 @@ describe('HomeScreen', () => {
     mockEq.mockClear();
     mockSingle.mockClear();
     mockCreateInvite.mockReset();
+    mockStartSession.mockReset();
+    mockPush.mockReset();
     jest.mocked(useAuth).mockReturnValue({
       isLoaded: true,
       isSignedIn: true,
@@ -97,6 +109,55 @@ describe('HomeScreen', () => {
       expect(screen.getByTestId('home-empty-state')).toBeOnTheScreen();
     });
     expect(screen.getByTestId('home-empty-state')).toHaveTextContent(/No pod yet/);
+  });
+
+  it('starts a session and routes to /session/<id> from the paired view', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Paired User', avatar_url: null },
+      error: null,
+    });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().setActivePod({
+      podId: 'pod_abc',
+      partnerId: 'partner_xyz',
+      partnerDisplayName: 'Partner',
+    });
+    mockStartSession.mockResolvedValueOnce({
+      sessionId: 'sess_new',
+      deckRecipeIds: ['r1', 'r2'],
+    });
+
+    render(wrap(<HomeScreen />));
+    await waitFor(() => expect(screen.getByTestId('home-start-session')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-start-session'));
+
+    await waitFor(() => {
+      expect(mockStartSession).toHaveBeenCalledWith(expect.anything(), 'pod_abc');
+      expect(mockPush).toHaveBeenCalledWith('/session/sess_new');
+    });
+  });
+
+  it('surfaces an error hint when start_session rejects', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Paired User', avatar_url: null },
+      error: null,
+    });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().setActivePod({
+      podId: 'pod_abc',
+      partnerId: 'partner_xyz',
+      partnerDisplayName: 'Partner',
+    });
+    mockStartSession.mockRejectedValueOnce(new Error('boom'));
+
+    render(wrap(<HomeScreen />));
+    await waitFor(() => expect(screen.getByTestId('home-start-session')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-start-session'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-start-session-error')).toBeOnTheScreen();
+    });
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it('surfaces a Manage pod link when an active pod is set', async () => {

@@ -5,7 +5,7 @@
 
 import { useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { createPodInvite, PodRpcError } from '@/lib/pod-rpcs';
+import { startSession } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
 import { usePodStore } from '@/state/usePodStore';
 
@@ -20,6 +21,7 @@ const INVITE_BASE_URL = 'https://cookdaddy.app/invite/';
 
 export default function HomeScreen() {
   const { userId, getToken } = useAuth();
+  const router = useRouter();
   const activePodId = usePodStore((s) => s.activePodId);
   const partnerRemoved = usePodStore((s) => s.partnerRemoved);
   const acknowledgePartnerRemoved = usePodStore((s) => s.acknowledgePartnerRemoved);
@@ -39,6 +41,16 @@ export default function HomeScreen() {
         .single();
       if (error) throw new Error(error.message);
       return row as { display_name: string; avatar_url: string | null };
+    },
+  });
+
+  const startSessionMutation = useMutation({
+    mutationFn: () => {
+      if (!activePodId) throw new Error('no active pod');
+      return startSession(supabase, activePodId);
+    },
+    onSuccess: ({ sessionId }) => {
+      router.push(`/session/${sessionId}` as never);
     },
   });
 
@@ -89,7 +101,25 @@ export default function HomeScreen() {
 
         {activePodId ? (
           <View style={styles.paired} testID="home-paired">
-            <ThemedText type="small">Pod active. Swipe deck lands in P6.</ThemedText>
+            <ThemedText type="small">Pod active. Ready to swipe?</ThemedText>
+
+            <Pressable
+              testID="home-start-session"
+              style={[styles.cta, startSessionMutation.isPending && styles.ctaDisabled]}
+              disabled={startSessionMutation.isPending}
+              onPress={() => startSessionMutation.mutate()}
+            >
+              <ThemedText type="small" style={styles.ctaText}>
+                {startSessionMutation.isPending ? 'Starting…' : 'Start a session'}
+              </ThemedText>
+            </Pressable>
+
+            {startSessionMutation.isError ? (
+              <ThemedText type="small" testID="home-start-session-error">
+                Couldn’t start a session. Please try again.
+              </ThemedText>
+            ) : null}
+
             <Link href="/settings/pod" testID="home-manage-pod">
               <ThemedText type="small">→ Manage pod</ThemedText>
             </Link>
