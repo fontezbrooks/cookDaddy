@@ -15,12 +15,17 @@
 // "Cook this!" + "Keep swiping" CTAs, reduced-motion crossfade fallback,
 // 2.5s auto-close hard cap (§14), a11y label per §10.
 
-import { useEffect, useMemo, useState } from 'react';
+import * as Sentry from '@sentry/react-native';
+import { usePostHog } from 'posthog-react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
+  withRepeat,
+  withSequence,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -66,12 +71,57 @@ export function MatchOverlay({
 }: MatchOverlayProps) {
   const config = MATCH_VARIANT_CONFIG[variant];
   const reducedMotion = useReducedMotion();
+  const posthog = usePostHog();
+
+  // Analytics dismissal-reason — captured on whichever path closes the
+  // overlay (auto-close timer / primary CTA / secondary CTA). Mutated
+  // in handlers, read in the cleanup effect so we only fire once per
+  // overlay lifecycle. Default 'auto' covers the timer path.
+  const dismissalReasonRef = useRef<'auto' | 'primary' | 'secondary'>('auto');
+
+  // MATCH-UX §11: overlay first frame ≤100ms from broadcast event.
+  // Wrap the mount → first-paint window in a Sentry span so it shows
+  // up in the perf dashboard. PostHog mirrors the variant + payload IDs
+  // so we can correlate engagement against §13 metrics.
+  useEffect(() => {
+    const span = Sentry.startInactiveSpan({
+      name: 'match-overlay.mount',
+      op: 'ui.render',
+      attributes: { variant, matchId: payload.matchId, recipeId: payload.recipeId },
+    });
+    posthog?.capture('match_revealed', {
+      variant,
+      match_id: payload.matchId,
+      recipe_id: payload.recipeId,
+    });
+    return () => {
+      span?.end();
+      posthog?.capture('match_dismissed', {
+        variant,
+        match_id: payload.matchId,
+        dismissed_via: dismissalReasonRef.current,
+      });
+    };
+  }, [posthog, variant, payload.matchId, payload.recipeId]);
 
   // Auto-dismiss at the hard cap so a stuck overlay can't block the deck.
   useEffect(() => {
-    const id = setTimeout(onClose, AUTO_CLOSE_MS);
+    const id = setTimeout(() => {
+      dismissalReasonRef.current = 'auto';
+      onClose();
+    }, AUTO_CLOSE_MS);
     return () => clearTimeout(id);
   }, [onClose]);
+
+  const handlePrimary = (p: MatchOverlayPayload) => {
+    dismissalReasonRef.current = 'primary';
+    onPrimary?.(p);
+  };
+
+  const handleSecondaryClose = () => {
+    dismissalReasonRef.current = 'secondary';
+    onClose();
+  };
 
   // MATCH-UX §5 haptic pattern: light at t=0 (mount + heartbeat), light
   // again at t=280ms, heavy at t=750ms (reveal). Reduced-motion skips the
@@ -108,8 +158,8 @@ export function MatchOverlay({
         <View testID="match-overlay-reduced-motion" style={styles.cardReduced}>
           <ReducedContent
             payload={payload}
-            onClose={onClose}
-            onPrimary={onPrimary}
+            onClose={handleSecondaryClose}
+            onPrimary={handlePrimary}
             config={config}
           />
         </View>
@@ -120,8 +170,8 @@ export function MatchOverlay({
   return (
     <FullMotionOverlay
       payload={payload}
-      onClose={onClose}
-      onPrimary={onPrimary}
+      onClose={handleSecondaryClose}
+      onPrimary={handlePrimary}
       a11yLabel={a11yLabel}
       config={config}
     />
@@ -135,11 +185,23 @@ function FullMotionOverlay({
   a11yLabel,
   config,
 }: MatchOverlayProps & { a11yLabel: string; config: MatchVariantConfig }) {
-  // Backdrop dim (§4.2): 0 → 0.7 over 280ms. Card scale (§3 t=120ms):
-  // 1.0 → 1.15 over 280ms with overshoot.
+  // MATCH-UX §3 frame timeline:
+  //   t=0     backdrop fade-in begins (280ms)
+  //   t=120   card scale-up via spring (cardScale)
+  //   t=400   card flips along Y-axis 180°→0° (cardFlipMs = 350ms)
+  //   t=750   confetti fires (gated by confettiVisible)
+  //   t=1100  ken-burns idle begins on the recipe image (6s/8s cycles)
   const backdropOpacity = useSharedValue(0);
   const cardScale = useSharedValue(0.85);
   const cardOpacity = useSharedValue(0);
+  // 180° = card is facing away (we see the back); 0° = facing the
+  // viewer. We start flipped away so the t=400ms animation reveals the
+  // "back face" content (which is the match overlay itself).
+  const cardRotateY = useSharedValue(180);
+  // Ken-burns: drives scale and translateX on the recipe image. Both
+  // run withRepeat(-1, true) so they reverse instead of jumping.
+  const kbScale = useSharedValue(1);
+  const kbTranslateX = useSharedValue(0);
   // Confetti is gated behind a state toggle that flips at t=750ms per
   // MATCH-UX §3 (`revealFromCommitMs`). Mounting only at that moment
   // means React doesn't pay for 60 particles + 240 derived values during
@@ -147,20 +209,58 @@ function FullMotionOverlay({
   const [confettiVisible, setConfettiVisible] = useState(false);
 
   useEffect(() => {
-    backdropOpacity.value = withTiming(0.7, { duration: DesignTokens.motion.timings.backdropMs });
+    const timings = DesignTokens.motion.timings;
+    backdropOpacity.value = withTiming(0.7, { duration: timings.backdropMs });
     cardOpacity.value = withTiming(1, { duration: 120 });
     cardScale.value = withDelay(120, withSpring(1, DesignTokens.motion.springs.card));
-    const confettiTimer = setTimeout(
-      () => setConfettiVisible(true),
-      DesignTokens.motion.timings.revealFromCommitMs,
+    cardRotateY.value = withDelay(
+      400,
+      withTiming(0, {
+        duration: timings.cardFlipMs,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      }),
     );
+    // Ken-burns kicks in at t=1100ms (350ms after reveal at t=750ms).
+    // 6s / 8s cycles per §4.4 — keeps the still image alive while the
+    // user reads.
+    kbScale.value = withDelay(
+      1100,
+      withRepeat(
+        withSequence(
+          withTiming(1.05, { duration: 6000, easing: Easing.inOut(Easing.quad) }),
+          withTiming(1, { duration: 6000, easing: Easing.inOut(Easing.quad) }),
+        ),
+        -1,
+        false,
+      ),
+    );
+    kbTranslateX.value = withDelay(
+      1100,
+      withRepeat(
+        withSequence(
+          withTiming(4, { duration: 8000, easing: Easing.inOut(Easing.quad) }),
+          withTiming(-4, { duration: 8000, easing: Easing.inOut(Easing.quad) }),
+        ),
+        -1,
+        false,
+      ),
+    );
+    const confettiTimer = setTimeout(() => setConfettiVisible(true), timings.revealFromCommitMs);
     return () => clearTimeout(confettiTimer);
-  }, [backdropOpacity, cardOpacity, cardScale]);
+  }, [backdropOpacity, cardOpacity, cardScale, cardRotateY, kbScale, kbTranslateX]);
 
   const backdropStyle = useAnimatedStyle(() => ({ opacity: backdropOpacity.value }));
   const cardStyle = useAnimatedStyle(() => ({
     opacity: cardOpacity.value,
-    transform: [{ scale: cardScale.value }],
+    transform: [
+      // Perspective MUST come before rotateY so the rotation has depth.
+      { perspective: 1200 },
+      { scale: cardScale.value },
+      { rotateY: `${cardRotateY.value}deg` },
+    ],
+  }));
+  const kenBurnsStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: kbScale.value }, { translateX: kbTranslateX.value }],
   }));
 
   const content = useMemo(
@@ -184,6 +284,16 @@ function FullMotionOverlay({
     >
       <Animated.View style={[styles.backdrop, backdropStyle]} pointerEvents="auto" />
       <Animated.View style={[styles.card, cardStyle]} pointerEvents="auto">
+        {payload.recipeImageUrl ? (
+          <View style={styles.heroFrame}>
+            <Animated.Image
+              testID="match-overlay-hero"
+              source={{ uri: payload.recipeImageUrl }}
+              style={[styles.hero, kenBurnsStyle]}
+              resizeMode="cover"
+            />
+          </View>
+        ) : null}
         {content}
       </Animated.View>
       {confettiVisible ? (
@@ -291,6 +401,18 @@ const styles = StyleSheet.create({
     padding: Spacing.four,
     gap: Spacing.three,
     alignItems: 'center',
+  },
+  // Recipe hero clipped to a fixed-aspect frame so the ken-burns
+  // scale + translate (1.0 → 1.05, ±4px) doesn't leak past the card edge.
+  heroFrame: {
+    width: '100%',
+    aspectRatio: 4 / 3,
+    borderRadius: DesignTokens.radius.md,
+    overflow: 'hidden',
+  },
+  hero: {
+    width: '100%',
+    height: '100%',
   },
   heading: { textAlign: 'center' },
   recipeTitle: { textAlign: 'center' },

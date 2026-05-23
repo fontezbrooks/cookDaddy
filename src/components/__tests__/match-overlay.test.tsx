@@ -41,6 +41,16 @@ jest.mock('@/lib/audio', () => ({
   },
 }));
 
+const mockPosthogCapture = jest.fn();
+jest.mock('posthog-react-native', () => {
+  const React = require('react');
+  return {
+    PostHogProvider: ({ children }: { children: unknown }) =>
+      React.createElement(React.Fragment, null, children),
+    usePostHog: () => ({ capture: mockPosthogCapture, identify: jest.fn(), reset: jest.fn() }),
+  };
+});
+
 const PAYLOAD: MatchOverlayPayload = {
   matchId: 'm-1',
   recipeId: 'r-1',
@@ -54,6 +64,7 @@ describe('MatchOverlay', () => {
     mockHapticsImpactLight.mockReset();
     mockHapticsImpactHeavy.mockReset();
     mockPlayMatchReveal.mockReset();
+    mockPosthogCapture.mockReset();
     jest.useFakeTimers();
   });
   afterEach(() => {
@@ -139,5 +150,63 @@ describe('MatchOverlay', () => {
     render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);
     jest.advanceTimersByTime(2500);
     expect(mockPlayMatchReveal).not.toHaveBeenCalled();
+  });
+
+  it('renders the recipe hero image when recipeImageUrl is provided (MATCH-UX §4.4)', () => {
+    render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);
+    expect(screen.getByTestId('match-overlay-hero')).toBeOnTheScreen();
+  });
+
+  it('does not render the hero frame when recipeImageUrl is null', () => {
+    const payload: MatchOverlayPayload = { ...PAYLOAD, recipeImageUrl: null };
+    render(<MatchOverlay payload={payload} onClose={jest.fn()} />);
+    expect(screen.queryByTestId('match-overlay-hero')).not.toBeOnTheScreen();
+  });
+
+  it('fires PostHog "match_revealed" on mount with the variant + ids (MATCH-UX §13)', () => {
+    render(<MatchOverlay payload={PAYLOAD} variant="speedy" onClose={jest.fn()} />);
+    expect(mockPosthogCapture).toHaveBeenCalledWith('match_revealed', {
+      variant: 'speedy',
+      match_id: 'm-1',
+      recipe_id: 'r-1',
+    });
+  });
+
+  it('fires PostHog "match_dismissed" with dismissed_via="auto" when the hard-cap timer fires', () => {
+    const onClose = jest.fn();
+    const { unmount } = render(<MatchOverlay payload={PAYLOAD} onClose={onClose} />);
+    jest.advanceTimersByTime(2500);
+    unmount();
+    expect(mockPosthogCapture).toHaveBeenCalledWith('match_dismissed', {
+      variant: 'standard',
+      match_id: 'm-1',
+      dismissed_via: 'auto',
+    });
+  });
+
+  it('fires PostHog "match_dismissed" with dismissed_via="primary" when Cook this! is tapped', () => {
+    const onPrimary = jest.fn();
+    const { unmount } = render(
+      <MatchOverlay payload={PAYLOAD} onClose={jest.fn()} onPrimary={onPrimary} />,
+    );
+    fireEvent.press(screen.getByTestId('match-overlay-primary'));
+    unmount();
+    expect(mockPosthogCapture).toHaveBeenCalledWith('match_dismissed', {
+      variant: 'standard',
+      match_id: 'm-1',
+      dismissed_via: 'primary',
+    });
+  });
+
+  it('fires PostHog "match_dismissed" with dismissed_via="secondary" when Keep swiping is tapped', () => {
+    const onClose = jest.fn();
+    const { unmount } = render(<MatchOverlay payload={PAYLOAD} onClose={onClose} />);
+    fireEvent.press(screen.getByTestId('match-overlay-secondary'));
+    unmount();
+    expect(mockPosthogCapture).toHaveBeenCalledWith('match_dismissed', {
+      variant: 'standard',
+      match_id: 'm-1',
+      dismissed_via: 'secondary',
+    });
   });
 });

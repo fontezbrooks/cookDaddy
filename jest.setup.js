@@ -9,6 +9,12 @@ jest.mock('@sentry/react-native', () => ({
   captureException: jest.fn(),
   captureMessage: jest.fn(),
   setUser: jest.fn(),
+  // P8 Slice 6: MatchOverlay uses startInactiveSpan to mark its mount
+  // window for the §11 ≤100ms first-frame perf budget. The mock returns
+  // an object whose .end() is a jest.fn() so tests can assert that the
+  // span is closed when the overlay unmounts.
+  startInactiveSpan: jest.fn(() => ({ end: jest.fn() })),
+  startSpan: jest.fn((_ctx, fn) => fn({ end: jest.fn() })),
 }));
 
 // PostHog requires Async/storage and event flushing — stub the provider so
@@ -131,7 +137,18 @@ jest.mock('react-native-reanimated', () => {
     runOnJS,
     runOnUI,
     interpolate,
-    Easing: { bezier: () => () => 0, linear: () => 0 },
+    Easing: {
+      bezier: () => () => 0,
+      linear: () => 0,
+      // Slice 5 ken-burns: easing curves drive the 6s/8s scale + translate
+      // cycles. The mock only needs the API surface — Reanimated under
+      // Jest never actually paints — so each curve is a stub function.
+      inOut: () => () => 0,
+      in: () => () => 0,
+      out: () => () => 0,
+      quad: () => 0,
+      ease: () => 0,
+    },
     Extrapolate: { CLAMP: 'clamp', EXTEND: 'extend', IDENTITY: 'identity' },
   };
 });
