@@ -23,6 +23,17 @@ jest.mock('@/lib/use-reduced-motion', () => ({
   useReducedMotion: () => mockUseReducedMotion(),
 }));
 
+const mockHapticsImpactLight = jest.fn();
+const mockHapticsImpactHeavy = jest.fn();
+jest.mock('@/lib/haptics', () => ({
+  haptics: {
+    impactLight: () => mockHapticsImpactLight(),
+    impactHeavy: () => mockHapticsImpactHeavy(),
+    selection: jest.fn(),
+    notificationSuccess: jest.fn(),
+  },
+}));
+
 const PAYLOAD: MatchOverlayPayload = {
   matchId: 'm-1',
   recipeId: 'r-1',
@@ -33,6 +44,8 @@ const PAYLOAD: MatchOverlayPayload = {
 describe('MatchOverlay', () => {
   beforeEach(() => {
     mockUseReducedMotion.mockReset().mockReturnValue(false);
+    mockHapticsImpactLight.mockReset();
+    mockHapticsImpactHeavy.mockReset();
     jest.useFakeTimers();
   });
   afterEach(() => {
@@ -78,5 +91,27 @@ describe('MatchOverlay', () => {
     render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);
     const overlay = screen.getByTestId('match-overlay');
     expect(overlay.props.accessibilityLabel).toMatch(/match.*Cacio e Pepe/i);
+  });
+
+  it('fires the MATCH-UX §5 haptic pattern on mount (light at t=0/280ms, heavy at reveal)', () => {
+    render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);
+    // Soft impact at t=0 (mount).
+    expect(mockHapticsImpactLight).toHaveBeenCalledTimes(1);
+
+    // Heartbeat double-tap at t=280ms.
+    jest.advanceTimersByTime(280);
+    expect(mockHapticsImpactLight).toHaveBeenCalledTimes(2);
+
+    // Heavy payoff hit at t=750ms (reveal).
+    jest.advanceTimersByTime(750 - 280);
+    expect(mockHapticsImpactHeavy).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips the haptic pattern entirely in the reduced-motion variant', () => {
+    mockUseReducedMotion.mockReturnValue(true);
+    render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);
+    jest.advanceTimersByTime(2500);
+    expect(mockHapticsImpactLight).not.toHaveBeenCalled();
+    expect(mockHapticsImpactHeavy).not.toHaveBeenCalled();
   });
 });

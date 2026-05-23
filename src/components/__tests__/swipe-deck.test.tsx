@@ -48,6 +48,17 @@ jest.mock('@/lib/supabase', () => ({
   createSupabaseClient: () => ({}) as unknown,
 }));
 
+const mockHapticsImpactLight = jest.fn();
+const mockHapticsSelection = jest.fn();
+jest.mock('@/lib/haptics', () => ({
+  haptics: {
+    impactLight: () => mockHapticsImpactLight(),
+    impactHeavy: jest.fn(),
+    selection: () => mockHapticsSelection(),
+    notificationSuccess: jest.fn(),
+  },
+}));
+
 function wrap(children: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -88,7 +99,33 @@ describe('SwipeDeck', () => {
       broadcastProgress: mockBroadcastProgress,
       broadcastMatch: jest.fn().mockResolvedValue(undefined),
     });
+    mockHapticsImpactLight.mockReset();
+    mockHapticsSelection.mockReset();
     setSignedIn();
+  });
+
+  it('fires haptics.impactLight on right-swipe commit', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    mockSubmitSwipe.mockResolvedValueOnce({
+      match: false,
+      matchId: null,
+      alreadyMatched: false,
+    });
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+    fireEvent.press(screen.getByTestId('swipe-deck-like'));
+    expect(mockHapticsImpactLight).toHaveBeenCalledTimes(1);
+  });
+
+  it('fires haptics.selection on left-swipe commit', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    mockSubmitSwipe.mockResolvedValueOnce({
+      match: false,
+      matchId: null,
+      alreadyMatched: false,
+    });
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+    fireEvent.press(screen.getByTestId('swipe-deck-dislike'));
+    expect(mockHapticsSelection).toHaveBeenCalledTimes(1);
   });
 
   it('renders a loading placeholder while the deck metadata is loading', () => {

@@ -23,9 +23,12 @@ jest.mock('expo-router', () => ({
 }));
 
 describe('placeholder routes', () => {
-  it('vibes settings renders the stub copy', () => {
+  it('vibes settings renders the three toggle rows', () => {
+    // No longer a stub as of P6e — the full Vibes screen has its own test
+    // file. This entry just ensures the route module still mounts inside
+    // the broader stubs sweep so a future regression on imports surfaces.
     render(<VibesScreen />);
-    expect(screen.getByTestId('vibes-stub')).toBeOnTheScreen();
+    expect(screen.getByTestId('vibes-haptics')).toBeOnTheScreen();
   });
 
   it('notifications settings renders the stub copy', () => {

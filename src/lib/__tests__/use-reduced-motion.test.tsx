@@ -15,6 +15,7 @@ import { act, render } from '@testing-library/react-native';
 import { AccessibilityInfo, Text } from 'react-native';
 
 import { useReducedMotion } from '@/lib/use-reduced-motion';
+import { __resetSettingsStoreForTests, useSettingsStore } from '@/state/useSettingsStore';
 
 type Listener = (enabled: boolean) => void;
 
@@ -81,5 +82,17 @@ describe('useReducedMotion', () => {
     const view = render(<Harness />);
     view.unmount();
     expect(removeSpy).toHaveBeenCalled();
+  });
+
+  it('returns true when animationsEnabled=false even if the OS toggle is off', async () => {
+    await __resetSettingsStoreForTests();
+    useSettingsStore.getState().setAnimationsEnabled(false);
+    const view = render(<Harness />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(view.getByTestId('reduced')).toHaveTextContent('on');
+    // Restore for any subsequent tests in the same suite run.
+    await __resetSettingsStoreForTests();
   });
 });

@@ -28,6 +28,7 @@ import Animated, {
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { haptics } from '@/lib/haptics';
 import {
   endSession,
   SessionRpcError,
@@ -119,6 +120,10 @@ export function SwipeDeck({ sessionId, recipeIds, onMatch }: SwipeDeckProps) {
   const commit = useCallback(
     ({ recipeId, direction }: CommitArgs) => {
       if (commitMutation.isPending) return;
+      // MATCH-UX §5: light impact on right, selection on left. The
+      // wrapper no-ops when settings.hapticsEnabled is false.
+      if (direction === 'right') haptics.impactLight();
+      else haptics.selection();
       commitMutation.mutate({ recipeId, direction });
     },
     [commitMutation],

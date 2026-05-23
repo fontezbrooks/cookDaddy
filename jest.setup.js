@@ -159,6 +159,18 @@ jest.mock('react-native-gesture-handler', () => {
   };
 });
 
+// expo-haptics ships an in-process JS surface but its native module check
+// will throw under Jest. Stub the few API surfaces SwipeDeck + MatchOverlay
+// touch. Tests assert these are CALLED — the wrapper at @/lib/haptics owns
+// the should-fire-or-not decision based on useSettingsStore.
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn().mockResolvedValue(undefined),
+  selectionAsync: jest.fn().mockResolvedValue(undefined),
+  notificationAsync: jest.fn().mockResolvedValue(undefined),
+  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
+  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+}));
+
 // expo-secure-store is the backing for Clerk's token cache. Tests don't touch
 // the keychain; provide an in-memory shim.
 jest.mock('expo-secure-store', () => {

@@ -27,6 +27,7 @@ import Animated, {
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { haptics } from '@/lib/haptics';
 import { useReducedMotion } from '@/lib/use-reduced-motion';
 
 const AUTO_CLOSE_MS = 2500;
@@ -52,6 +53,21 @@ export function MatchOverlay({ payload, onClose, onPrimary }: MatchOverlayProps)
     const id = setTimeout(onClose, AUTO_CLOSE_MS);
     return () => clearTimeout(id);
   }, [onClose]);
+
+  // MATCH-UX §5 haptic pattern: light at t=0 (mount + heartbeat), light
+  // again at t=280ms, heavy at t=750ms (reveal). Reduced-motion skips the
+  // entire pattern — the spec ties haptics to the motion sequence and §10
+  // collapses motion to a static crossfade, so haptics fall away with it.
+  useEffect(() => {
+    if (reducedMotion) return;
+    haptics.impactLight();
+    const t280 = setTimeout(() => haptics.impactLight(), 280);
+    const t750 = setTimeout(() => haptics.impactHeavy(), 750);
+    return () => {
+      clearTimeout(t280);
+      clearTimeout(t750);
+    };
+  }, [reducedMotion]);
 
   const a11yLabel = `It's a match! Both of you liked ${payload.recipeTitle}. Cook this, or keep swiping.`;
 
