@@ -33,9 +33,9 @@ jest.mock('@/lib/supabase', () => ({
 }));
 
 jest.mock('expo-router', () => ({
-  Link: ({ children, href }: { children: ReactNode; href: string }) => {
+  Link: ({ children, href, testID }: { children: ReactNode; href: string; testID?: string }) => {
     const React = require('react');
-    return React.createElement('Link', { href }, children);
+    return React.createElement('Link', { href, testID }, children);
   },
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
 }));
@@ -97,6 +97,25 @@ describe('HomeScreen', () => {
       expect(screen.getByTestId('home-empty-state')).toBeOnTheScreen();
     });
     expect(screen.getByTestId('home-empty-state')).toHaveTextContent(/No pod yet/);
+  });
+
+  it('surfaces a Manage pod link when an active pod is set', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Paired User', avatar_url: null },
+      error: null,
+    });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().setActivePod({
+      podId: 'pod_abc',
+      partnerId: 'partner_xyz',
+      partnerDisplayName: 'Partner',
+    });
+
+    render(wrap(<HomeScreen />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-manage-pod')).toBeOnTheScreen();
+    });
   });
 
   it('hides the empty state when an active pod is set', async () => {

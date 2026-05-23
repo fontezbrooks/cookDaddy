@@ -88,7 +88,12 @@ export default function HomeScreen() {
         ) : null}
 
         {activePodId ? (
-          <ThemedText type="small">Pod active. Swipe deck lands in P6.</ThemedText>
+          <View style={styles.paired} testID="home-paired">
+            <ThemedText type="small">Pod active. Swipe deck lands in P6.</ThemedText>
+            <Link href="/settings/pod" testID="home-manage-pod">
+              <ThemedText type="small">→ Manage pod</ThemedText>
+            </Link>
+          </View>
         ) : (
           <View style={styles.emptyState} testID="home-empty-state">
             <ThemedText type="small">No pod yet.</ThemedText>
@@ -129,6 +134,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: Spacing.four,
     gap: Spacing.three,
+  },
+  paired: {
+    marginTop: Spacing.three,
+    gap: Spacing.two,
   },
   emptyState: {
     marginTop: Spacing.four,
