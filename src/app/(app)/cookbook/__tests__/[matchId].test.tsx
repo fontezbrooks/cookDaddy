@@ -2,16 +2,20 @@ import { useAuth } from '@clerk/clerk-expo';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 import type { MatchDetail } from '@/lib/use-match-detail';
+import { __resetPodStoreForTests, usePodStore } from '@/state/usePodStore';
 
 import CookbookDetailScreen from '../[matchId]';
 
 const mockInvalidateQueries = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
   useQueryClient: () => ({ invalidateQueries: mockInvalidateQueries }),
-  useMutation: (config: { mutationFn: () => Promise<void>; onSuccess?: () => void }) => ({
+  useMutation: (config: {
+    mutationFn: () => Promise<unknown>;
+    onSuccess?: (data: unknown) => void;
+  }) => ({
     isPending: false,
     mutate: () => {
-      void config.mutationFn().then(() => config.onSuccess?.());
+      void config.mutationFn().then((data) => config.onSuccess?.(data));
     },
   }),
 }));
@@ -26,6 +30,11 @@ const mockRemoveFromCookbook = jest.fn();
 jest.mock('@/lib/use-pod-matches', () => ({
   markCooked: (...args: unknown[]) => mockMarkCooked(...args),
   removeFromCookbook: (...args: unknown[]) => mockRemoveFromCookbook(...args),
+}));
+
+const mockAddShopping = jest.fn();
+jest.mock('@/lib/use-shopping-list', () => ({
+  addShoppingItemsFromRecipe: (...args: unknown[]) => mockAddShopping(...args),
 }));
 
 const mockNotificationSuccess = jest.fn();
@@ -61,6 +70,14 @@ function setSignedIn(): void {
     getToken: jest.fn().mockResolvedValue('jwt'),
     signOut: jest.fn(),
   } as never);
+}
+
+function setActivePod(): void {
+  usePodStore.getState().setActivePod({
+    podId: 'pod-1',
+    partnerId: 'user_bob',
+    partnerDisplayName: 'Bob',
+  });
 }
 
 const detail: MatchDetail = {
@@ -103,9 +120,11 @@ const detail: MatchDetail = {
 
 describe('CookbookDetailScreen', () => {
   beforeEach(() => {
+    __resetPodStoreForTests();
     mockUseMatchDetail.mockReset();
     mockMarkCooked.mockReset().mockResolvedValue(undefined);
     mockRemoveFromCookbook.mockReset().mockResolvedValue(undefined);
+    mockAddShopping.mockReset().mockResolvedValue({ insertedCount: 2, pantryConflicts: [] });
     mockNotificationSuccess.mockReset();
     mockInvalidateQueries.mockReset();
     mockBack.mockClear();
@@ -239,14 +258,48 @@ describe('CookbookDetailScreen', () => {
     });
   });
 
-  it('renders the shopping list button disabled', () => {
+  it('enables the shopping list button when a pod is active', () => {
+    setActivePod();
     mockUseMatchDetail.mockReturnValue({ data: detail, isLoading: false, error: null });
 
     render(<CookbookDetailScreen />);
 
     expect(screen.getByTestId('cookbook-add-shopping').props.accessibilityState.disabled).toBe(
-      true,
+      false,
     );
-    expect(screen.getByText('Coming soon')).toBeOnTheScreen();
+    expect(screen.queryByText('Coming soon')).toBeNull();
+  });
+
+  it('adds recipe ingredients to the shopping list', async () => {
+    setActivePod();
+    mockUseMatchDetail.mockReturnValue({ data: detail, isLoading: false, error: null });
+
+    render(<CookbookDetailScreen />);
+    fireEvent.press(screen.getByTestId('cookbook-add-shopping'));
+
+    await waitFor(() => {
+      expect(mockAddShopping).toHaveBeenCalledWith(mockClient, {
+        podId: 'pod-1',
+        recipeId: 'r1',
+        ingredientIds: ['ing-1', 'ing-2'],
+      });
+      expect(mockNotificationSuccess).toHaveBeenCalled();
+      expect(screen.getByTestId('cookbook-shopping-status')).toHaveTextContent(/Added 2/);
+    });
+  });
+
+  it('surfaces pantry conflicts', async () => {
+    setActivePod();
+    mockAddShopping.mockResolvedValue({ insertedCount: 2, pantryConflicts: ['Yellow Onion'] });
+    mockUseMatchDetail.mockReturnValue({ data: detail, isLoading: false, error: null });
+
+    render(<CookbookDetailScreen />);
+    fireEvent.press(screen.getByTestId('cookbook-add-shopping'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('cookbook-shopping-status')).toHaveTextContent(
+        /already in pantry: Yellow Onion/,
+      );
+    });
   });
 });

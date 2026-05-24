@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import { __resetPodStoreForTests, usePodStore } from '@/state/usePodStore';
 
 import {
+  addShoppingItemsFromRecipe,
   addShoppingItem,
   clearChecked,
   moveToPantry,
@@ -47,6 +48,7 @@ const mockOn = jest.fn();
 const mockSubscribe = jest.fn();
 const mockChannel = jest.fn();
 const mockRemoveChannel = jest.fn();
+const mockRpc = jest.fn();
 
 const mockRealtimeChannel = {
   on: mockOn,
@@ -57,6 +59,7 @@ const mockClient = {
   from: mockFrom,
   channel: mockChannel,
   removeChannel: mockRemoveChannel,
+  rpc: mockRpc,
 };
 
 jest.mock('@/lib/supabase', () => ({
@@ -97,6 +100,9 @@ function resetSupabaseMock(): void {
   mockSubscribe.mockReset().mockReturnValue(mockRealtimeChannel);
   mockChannel.mockReset().mockReturnValue(mockRealtimeChannel);
   mockRemoveChannel.mockReset();
+  mockRpc
+    .mockReset()
+    .mockResolvedValue({ data: { inserted_count: 0, pantry_conflicts: [] }, error: null });
 }
 
 function setSignedIn(): void {
@@ -312,5 +318,55 @@ describe('shopping list mutation helpers', () => {
     expect(mockFrom).toHaveBeenCalledWith('shopping_list_items');
     expect(mockDelete).toHaveBeenCalled();
     expect(mockEq).toHaveBeenCalledWith('id', 'item-1');
+  });
+});
+
+describe('addShoppingItemsFromRecipe', () => {
+  beforeEach(() => {
+    resetSupabaseMock();
+  });
+
+  it('calls the rpc and maps the result', async () => {
+    mockRpc.mockResolvedValue({
+      data: { inserted_count: 2, pantry_conflicts: ['Yellow Onion'] },
+      error: null,
+    });
+
+    const result = await addShoppingItemsFromRecipe(mockClient as unknown as SupabaseClient, {
+      podId: 'pod-1',
+      recipeId: 'r1',
+      ingredientIds: ['ing-1', 'ing-2'],
+    });
+
+    expect(mockRpc).toHaveBeenCalledWith('add_shopping_items_from_recipe', {
+      p_pod_id: 'pod-1',
+      p_recipe_id: 'r1',
+      p_ingredient_ids: ['ing-1', 'ing-2'],
+    });
+    expect(result).toEqual({ insertedCount: 2, pantryConflicts: ['Yellow Onion'] });
+  });
+
+  it('defaults missing fields to 0/[]', async () => {
+    mockRpc.mockResolvedValue({ data: {}, error: null });
+
+    await expect(
+      addShoppingItemsFromRecipe(mockClient as unknown as SupabaseClient, {
+        podId: 'pod-1',
+        recipeId: 'r1',
+        ingredientIds: ['ing-1'],
+      }),
+    ).resolves.toEqual({ insertedCount: 0, pantryConflicts: [] });
+  });
+
+  it('throws on rpc error', async () => {
+    mockRpc.mockResolvedValue({ data: null, error: { message: 'boom' } });
+
+    await expect(
+      addShoppingItemsFromRecipe(mockClient as unknown as SupabaseClient, {
+        podId: 'pod-1',
+        recipeId: 'r1',
+        ingredientIds: ['ing-1'],
+      }),
+    ).rejects.toThrow('boom');
   });
 });

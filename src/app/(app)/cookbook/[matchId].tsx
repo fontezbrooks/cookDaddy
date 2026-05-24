@@ -2,7 +2,7 @@ import { useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,11 +13,18 @@ import { haptics } from '@/lib/haptics';
 import { createSupabaseClient } from '@/lib/supabase';
 import { useMatchDetail } from '@/lib/use-match-detail';
 import { markCooked, removeFromCookbook } from '@/lib/use-pod-matches';
+import { addShoppingItemsFromRecipe } from '@/lib/use-shopping-list';
+import { usePodStore } from '@/state/usePodStore';
 
 export default function CookbookDetailScreen() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const podId = usePodStore((s) => s.activePodId);
+  const [shoppingResult, setShoppingResult] = useState<{
+    inserted: number;
+    conflicts: string[];
+  } | null>(null);
   const { getToken } = useAuth();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
   const { data, isLoading, error } = useMatchDetail(matchId);
@@ -36,6 +43,22 @@ export default function CookbookDetailScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pod-matches'] });
       router.back();
+    },
+  });
+
+  const addShoppingMutation = useMutation({
+    mutationFn: async () => {
+      if (!podId || !data) throw new Error('Missing pod or recipe');
+      return addShoppingItemsFromRecipe(supabase, {
+        podId,
+        recipeId: data.recipeId,
+        ingredientIds: data.ingredients.map((ingredient) => ingredient.id),
+      });
+    },
+    onSuccess: (result) => {
+      setShoppingResult({ inserted: result.insertedCount, conflicts: result.pantryConflicts });
+      queryClient.invalidateQueries({ queryKey: ['shopping-list', podId] });
+      haptics.notificationSuccess();
     },
   });
 
@@ -176,14 +199,25 @@ export default function CookbookDetailScreen() {
             <View style={styles.shoppingGroup}>
               <Pressable
                 testID="cookbook-add-shopping"
-                style={[styles.secondaryCta, styles.ctaDisabled]}
-                disabled
+                style={[
+                  styles.secondaryCta,
+                  (!podId || addShoppingMutation.isPending || shoppingResult !== null) &&
+                    styles.ctaDisabled,
+                ]}
+                disabled={!podId || addShoppingMutation.isPending || shoppingResult !== null}
+                onPress={() => addShoppingMutation.mutate()}
               >
                 <ThemedText type="small" style={styles.secondaryCtaText}>
-                  Add to shopping list
+                  {shoppingResult === null ? 'Add to shopping list' : 'Added ✓'}
                 </ThemedText>
               </Pressable>
-              <ThemedText type="small">Coming soon</ThemedText>
+              {shoppingResult === null ? null : (
+                <ThemedText type="small" testID="cookbook-shopping-status">
+                  {shoppingResult.conflicts.length > 0
+                    ? `Added ${shoppingResult.inserted} · already in pantry: ${shoppingResult.conflicts.join(', ')}`
+                    : `Added ${shoppingResult.inserted} to shopping list`}
+                </ThemedText>
+              )}
             </View>
           </View>
         </View>

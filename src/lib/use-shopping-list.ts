@@ -49,6 +49,11 @@ type MoveToPantryInput = {
   shoppingItemId: string;
 };
 
+export type AddFromRecipeResult = {
+  insertedCount: number;
+  pantryConflicts: string[];
+};
+
 function mapShoppingItem(row: ShoppingItemRow): ShoppingItem {
   return {
     id: row.id,
@@ -128,6 +133,23 @@ export async function addShoppingItem(
     category: input.category ?? null,
   });
   if (error) throw new Error(error.message);
+}
+
+export async function addShoppingItemsFromRecipe(
+  supabase: SupabaseClient,
+  input: { podId: string; recipeId: string; ingredientIds: string[] },
+): Promise<AddFromRecipeResult> {
+  const { data, error } = await supabase.rpc('add_shopping_items_from_recipe', {
+    p_pod_id: input.podId,
+    p_recipe_id: input.recipeId,
+    p_ingredient_ids: input.ingredientIds,
+  });
+  if (error) throw new Error(error.message);
+  const row = (data ?? {}) as { inserted_count?: number; pantry_conflicts?: string[] };
+  return {
+    insertedCount: row.inserted_count ?? 0,
+    pantryConflicts: row.pantry_conflicts ?? [],
+  };
 }
 
 export async function toggleChecked(
