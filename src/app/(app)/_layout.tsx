@@ -8,6 +8,7 @@ import { useAuth } from '@clerk/clerk-expo';
 import { Redirect, Stack } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
+import { PushPrimingSheet } from '@/components/push-priming-sheet';
 import { usePodSync } from '@/lib/use-pod-sync';
 import { usePushForeground } from '@/lib/use-push-foreground';
 
@@ -33,7 +34,12 @@ export default function ProtectedLayout() {
     return <Redirect href="/(auth)/sign-in" />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }} />
+      <PushPrimingSheet />
+    </>
+  );
 }
 
 const styles = StyleSheet.create({

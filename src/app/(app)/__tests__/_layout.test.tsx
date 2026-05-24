@@ -22,6 +22,10 @@ jest.mock('@/lib/use-push-foreground', () => ({
   usePushForeground: jest.fn(),
 }));
 
+jest.mock('@/components/push-priming-sheet', () => ({
+  PushPrimingSheet: () => null,
+}));
+
 // Capture <Redirect /> targets so the test can assert the route.
 const mockRedirect = jest.fn();
 jest.mock('expo-router', () => {

@@ -9,7 +9,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 
 import VibesScreen from '../settings/vibes';
-import NotificationsScreen from '../settings/notifications';
 import ShoppingScreen from '../shopping';
 import PantryScreen from '../pantry';
 
@@ -35,11 +34,6 @@ describe('placeholder routes', () => {
     // the broader stubs sweep so a future regression on imports surfaces.
     render(<VibesScreen />);
     expect(screen.getByTestId('vibes-haptics')).toBeOnTheScreen();
-  });
-
-  it('notifications settings renders the stub copy', () => {
-    render(<NotificationsScreen />);
-    expect(screen.getByTestId('notifications-stub')).toBeOnTheScreen();
   });
 
   it('shopping list route renders', () => {
