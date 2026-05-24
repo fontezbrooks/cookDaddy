@@ -28,8 +28,6 @@ import {
   NormalizationError,
   normalizeSpoonPayload,
   titleSimilarity,
-  type NormalizedIngredient,
-  type NormalizedRecipe,
   type NormalizationResult,
 } from './normalize';
 
@@ -48,6 +46,11 @@ type ImportSummary = {
   duplicateSignals: number;
 };
 
+type ImportRecipeGraphResult = {
+  recipe_id?: string;
+  inserted?: boolean;
+};
+
 /* istanbul ignore next -- CLI orchestration; logic is in runImport, which is the unit-tested surface. */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -63,10 +66,10 @@ async function main(): Promise<void> {
 
   if (posthog) await posthog.shutdown();
 
-  console.log(
+  process.stdout.write(
     `[ingest] attempted=${summary.attempted} inserted=${summary.inserted} ` +
       `upserted=${summary.upserted} skipped=${summary.skipped} failed=${summary.failed} ` +
-      `duplicate_signals=${summary.duplicateSignals}`,
+      `duplicate_signals=${summary.duplicateSignals}\n`,
   );
 }
 
@@ -214,74 +217,88 @@ async function upsertRecipe(
   supabase: SupabaseClient,
   result: NormalizationResult,
 ): Promise<boolean> {
-  // Returning '*' so we can tell insert from update via created_at.
-  const { data: upserted, error: upErr } = await supabase
-    .from('recipes')
-    .upsert(toRecipeRow(result.recipe), { onConflict: 'external_id' })
-    .select('id, created_at')
-    .single();
-  if (upErr || !upserted) {
-    throw new Error(`recipes upsert failed: ${upErr?.message ?? 'no row returned'}`);
+  const { data, error } = await supabase.rpc('import_recipe_graph', {
+    payload: buildGraphPayload(result),
+  });
+  const rpcResult = data as ImportRecipeGraphResult | null;
+  if (error || !rpcResult) {
+    throw new Error(`import_recipe_graph failed: ${error?.message ?? 'no row returned'}`);
   }
-  const recipeId = upserted.id as string;
-
-  // Replace ingredients in source order. The uniqueness on (recipe_id, position) makes
-  // upsert-on-conflict messy; delete + insert is simpler and idempotent at the row level.
-  const { error: delErr } = await supabase
-    .from('recipe_ingredients')
-    .delete()
-    .eq('recipe_id', recipeId);
-  if (delErr) {
-    throw new Error(`recipe_ingredients delete failed: ${delErr.message}`);
-  }
-
-  if (result.ingredients.length > 0) {
-    const rows = result.ingredients.map((ing) => toIngredientRow(recipeId, ing));
-    const { error: insErr } = await supabase.from('recipe_ingredients').insert(rows);
-    if (insErr) {
-      throw new Error(`recipe_ingredients insert failed: ${insErr.message}`);
-    }
-  }
-
-  const ageMs = Date.now() - new Date(upserted.created_at as string).getTime();
-  return ageMs < 60_000; // heuristic: row was created in the last minute = fresh insert
+  return rpcResult.inserted === true;
 }
 
-function toRecipeRow(r: NormalizedRecipe) {
+function buildGraphPayload(result: NormalizationResult): Record<string, unknown> {
+  const r = result.recipe;
   return {
-    external_id: r.external_id,
-    title: r.title,
-    image_url: r.image_url,
-    source_url: r.source_url,
-    source_name: r.source_name,
-    credits_text: r.credits_text,
-    license: r.license,
-    ready_in_minutes: r.ready_in_minutes,
-    servings: r.servings,
-    health_score: r.health_score,
-    dietary_flags: r.dietary_flags,
-    raw_payload: r.raw_payload,
-    is_complete: r.is_complete,
-  };
-}
-
-function toIngredientRow(recipeId: string, ing: NormalizedIngredient) {
-  return {
-    recipe_id: recipeId,
-    ext_ingredient_id: ing.ext_ingredient_id,
-    name: ing.name,
-    name_clean: ing.name_clean,
-    original_text: ing.original_text,
-    amount: ing.amount,
-    unit: ing.unit,
-    aisle: ing.aisle,
-    image_url: ing.image_url,
-    position: ing.position,
+    recipe: {
+      external_id: r.external_id,
+      title: r.title,
+      image_url: r.image_url,
+      source_url: r.source_url,
+      source_name: r.source_name,
+      credits_text: r.credits_text,
+      license: r.license,
+      ready_in_minutes: r.ready_in_minutes,
+      servings: r.servings,
+      health_score: r.health_score,
+      image_type: r.image_type,
+      spoonacular_source_url: r.spoonacular_source_url,
+      preparation_minutes: r.preparation_minutes,
+      cooking_minutes: r.cooking_minutes,
+      summary: r.summary,
+      instructions: r.instructions,
+      language: r.language,
+      original_id: r.original_id,
+      gaps: r.gaps,
+      aggregate_likes: r.aggregate_likes,
+      spoonacular_score: r.spoonacular_score,
+      price_per_serving_cents: r.price_per_serving_cents,
+      weight_watcher_smart_points: r.weight_watcher_smart_points,
+      caloric_percent_protein: r.caloric_percent_protein,
+      caloric_percent_fat: r.caloric_percent_fat,
+      caloric_percent_carbs: r.caloric_percent_carbs,
+      weight_per_serving_amount: r.weight_per_serving_amount,
+      weight_per_serving_unit: r.weight_per_serving_unit,
+      vegetarian: r.vegetarian,
+      vegan: r.vegan,
+      gluten_free: r.gluten_free,
+      dairy_free: r.dairy_free,
+      very_healthy: r.very_healthy,
+      cheap: r.cheap,
+      very_popular: r.very_popular,
+      sustainable: r.sustainable,
+      low_fodmap: r.low_fodmap,
+      ketogenic: r.ketogenic,
+      whole30: r.whole30,
+      raw_payload: r.raw_payload,
+      is_complete: r.is_complete,
+    },
+    ingredients: result.ingredients.map((ing) => ({
+      spoonacular_ingredient_id: ing.ext_ingredient_id,
+      name: ing.name,
+      name_clean: ing.name_clean,
+      original: ing.original_text,
+      amount: ing.amount,
+      unit: ing.unit,
+      aisle: ing.aisle,
+      image: ing.image_url,
+      sort_order: ing.position,
+      consistency: ing.consistency,
+      original_name: ing.original_name,
+      meta: ing.meta,
+      measures: ing.measures,
+    })),
+    nutrients: result.nutrients,
+    nutrition_properties: result.nutritionProperties,
+    flavonoids: result.flavonoids,
+    nutrition_ingredients: result.nutritionIngredients,
+    instruction_groups: result.instructionGroups,
+    tags: result.tags,
   };
 }
 
 // Re-export for tests
-export { findApparentDuplicate };
+export { buildGraphPayload, findApparentDuplicate };
 export type { ImportSummary };
 
 /* istanbul ignore if -- CLI bootstrap; only runs when the file is invoked directly. */
