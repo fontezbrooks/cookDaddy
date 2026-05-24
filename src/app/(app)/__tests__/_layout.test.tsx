@@ -18,6 +18,10 @@ jest.mock('@/lib/use-pod-sync', () => ({
   usePodSync: jest.fn(),
 }));
 
+jest.mock('@/lib/use-push-foreground', () => ({
+  usePushForeground: jest.fn(),
+}));
+
 // Capture <Redirect /> targets so the test can assert the route.
 const mockRedirect = jest.fn();
 jest.mock('expo-router', () => {
