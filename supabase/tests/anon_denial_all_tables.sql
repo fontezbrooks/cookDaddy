@@ -5,14 +5,15 @@
 --
 -- Tables under test: pods, pod_members, pod_invites, sessions, swipes, matches,
 --   recipe_ratings, recipe_notes, shopping_list_items, pantry_items, push_tokens,
---   dietary_profiles, users, recipe_ingredient_measures, recipe_nutrients,
---   recipe_nutrition_properties, recipe_flavonoids, recipe_nutrition_ingredients,
---   recipe_nutrition_ingredient_nutrients, recipe_instruction_groups,
---   recipe_instruction_steps, recipe_instruction_step_ingredients,
---   recipe_instruction_step_equipment, recipe_tags.
+--   notification_prefs, dietary_profiles, users, recipe_ingredient_measures,
+--   recipe_nutrients, recipe_nutrition_properties, recipe_flavonoids,
+--   recipe_nutrition_ingredients, recipe_nutrition_ingredient_nutrients,
+--   recipe_instruction_groups, recipe_instruction_steps,
+--   recipe_instruction_step_ingredients, recipe_instruction_step_equipment,
+--   recipe_tags.
 
 begin;
-select plan(25);
+select plan(26);
 
 -- Seed fixtures as service_role: a paired pod with a session and one of every kind of row.
 select tests.seed_paired_pod() as pod_id \gset
@@ -50,6 +51,8 @@ insert into public.pod_invites(pod_id, inviter_user_id, token_hash, expires_at)
 
 insert into public.push_tokens(user_id, expo_token, platform)
   values ('user_alice', 'ExponentPushToken[abc]', 'ios');
+
+insert into public.notification_prefs(user_id) values ('user_alice');
 
 insert into public.recipe_ingredients(recipe_id, name, sort_order)
   values (:'recipe_id', 'salt', 0)
@@ -109,6 +112,7 @@ select is_empty($$ select pod_id from public.recipe_notes      $$, 'anon: zero r
 select is_empty($$ select id from public.shopping_list_items   $$, 'anon: zero shopping_list_items');
 select is_empty($$ select id from public.pantry_items          $$, 'anon: zero pantry_items');
 select is_empty($$ select expo_token from public.push_tokens   $$, 'anon: zero push_tokens');
+select is_empty($$ select user_id from public.notification_prefs $$, 'anon: zero notification_prefs');
 select is_empty($$ select id from public.recipe_ingredient_measures             $$, 'anon: zero recipe_ingredient_measures');
 select is_empty($$ select id from public.recipe_nutrients                       $$, 'anon: zero recipe_nutrients');
 select is_empty($$ select id from public.recipe_nutrition_properties            $$, 'anon: zero recipe_nutrition_properties');
