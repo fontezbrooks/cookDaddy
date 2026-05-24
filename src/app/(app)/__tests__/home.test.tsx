@@ -179,6 +179,19 @@ describe('HomeScreen', () => {
     });
   });
 
+  it('renders a Shopping list link', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+
+    render(wrap(<HomeScreen />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-cta-shopping')).toBeOnTheScreen();
+    });
+  });
+
   it('hides the empty state when an active pod is set', async () => {
     mockSingle.mockResolvedValue({
       data: { display_name: 'Paired User', avatar_url: null },

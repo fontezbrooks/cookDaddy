@@ -5,6 +5,8 @@
  */
 
 import { render, screen } from '@testing-library/react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
 
 import VibesScreen from '../settings/vibes';
 import NotificationsScreen from '../settings/notifications';
@@ -14,6 +16,17 @@ import PantryScreen from '../pantry';
 // The invite/[token], session/[sessionId], and cookbook (index + [matchId])
 // screens are no longer stubs — each has its own component test under their
 // respective __tests__ dirs (P9 wired the cookbook surfaces).
+
+jest.mock('@/lib/supabase', () => ({
+  createSupabaseClient: () => ({ from: jest.fn() }),
+}));
+
+function wrap(children: ReactNode) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+}
 
 describe('placeholder routes', () => {
   it('vibes settings renders the three toggle rows', () => {
@@ -29,13 +42,13 @@ describe('placeholder routes', () => {
     expect(screen.getByTestId('notifications-stub')).toBeOnTheScreen();
   });
 
-  it('shopping list stub renders', () => {
-    render(<ShoppingScreen />);
-    expect(screen.getByTestId('shopping-stub')).toBeOnTheScreen();
+  it('shopping list route renders', () => {
+    render(wrap(<ShoppingScreen />));
+    expect(screen.getByTestId('shopping-empty')).toBeOnTheScreen();
   });
 
-  it('pantry stub renders', () => {
-    render(<PantryScreen />);
-    expect(screen.getByTestId('pantry-stub')).toBeOnTheScreen();
+  it('pantry route renders', () => {
+    render(wrap(<PantryScreen />));
+    expect(screen.getByTestId('pantry-empty')).toBeOnTheScreen();
   });
 });

@@ -153,6 +153,10 @@ export default function HomeScreen() {
             </Link>
           </View>
         )}
+
+        <Link href="/shopping" testID="home-cta-shopping">
+          <ThemedText type="small">→ Shopping list</ThemedText>
+        </Link>
       </View>
     </SafeAreaView>
   );
