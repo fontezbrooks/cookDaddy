@@ -89,6 +89,7 @@
     "db:test": "supabase test db --local",
     "ingest": "tsx scripts/ingestion/import-spoon.ts",
     "ingest:backfill": "tsx scripts/ingestion/import-spoon.ts",
+    "backfill:graph": "tsx scripts/ingestion/backfill-graph.ts",
     "cron:install": "bash scripts/ingestion/setup-spoon-cron.sh",
     "cron:tick": "bash scripts/ingestion/cron-step.sh",
     "cron:health": "tail -200 \"$HOME/spoonacular-cron.log\" | grep -E 'tick (start|end)' | tail -50",
