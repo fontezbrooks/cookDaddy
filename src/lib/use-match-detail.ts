@@ -22,15 +22,47 @@ export type MatchDetail = {
     amount: number | null;
     unit: string | null;
   }[];
+  nutrients?: {
+    name: string;
+    amount: number | null;
+    unit: string | null;
+    percentOfDailyNeeds: number | null;
+  }[];
+  instructionSteps?: {
+    stepNumber: number;
+    text: string;
+    lengthNumber: number | null;
+    lengthUnit: string | null;
+  }[];
 };
 
 type IngredientJoinRow = {
   id: string;
   name: string;
-  original_text: string | null;
+  original: string | null;
   amount: number | null;
   unit: string | null;
-  position: number | null;
+  sort_order: number | null;
+};
+
+type NutrientJoinRow = {
+  name: string;
+  amount: number | null;
+  unit: string | null;
+  percent_of_daily_needs: number | null;
+};
+
+type InstructionStepJoinRow = {
+  step_number: number;
+  step_text: string;
+  length_number: number | null;
+  length_unit: string | null;
+  sort_order: number | null;
+};
+
+type InstructionGroupJoinRow = {
+  sort_order: number | null;
+  recipe_instruction_steps: InstructionStepJoinRow[] | null;
 };
 
 type RecipeJoinRow = {
@@ -41,6 +73,8 @@ type RecipeJoinRow = {
   source_url: string | null;
   source_name: string | null;
   recipe_ingredients: IngredientJoinRow[] | null;
+  recipe_nutrients: NutrientJoinRow[] | null;
+  recipe_instruction_groups: InstructionGroupJoinRow[] | null;
 };
 
 type MatchDetailRow = {
@@ -56,12 +90,25 @@ function recipeFromJoin(row: MatchDetailRow): RecipeJoinRow | undefined {
   return recipe ?? undefined;
 }
 
+function orderedInstructionSteps(
+  groups: InstructionGroupJoinRow[] | null,
+): InstructionStepJoinRow[] {
+  return [...(groups ?? [])]
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .flatMap((group) =>
+      [...(group.recipe_instruction_steps ?? [])].sort(
+        (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+      ),
+    );
+}
+
 function mapMatchDetail(row: MatchDetailRow): MatchDetail | undefined {
   const recipe = recipeFromJoin(row);
   if (!recipe) return undefined;
   const ingredients = [...(recipe.recipe_ingredients ?? [])].sort(
-    (a, b) => (a.position ?? 0) - (b.position ?? 0),
+    (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
   );
+  const instructionSteps = orderedInstructionSteps(recipe.recipe_instruction_groups);
 
   return {
     matchId: row.id,
@@ -77,9 +124,21 @@ function mapMatchDetail(row: MatchDetailRow): MatchDetail | undefined {
     ingredients: ingredients.map((ingredient) => ({
       id: ingredient.id,
       name: ingredient.name,
-      originalText: ingredient.original_text,
+      originalText: ingredient.original,
       amount: ingredient.amount,
       unit: ingredient.unit,
+    })),
+    nutrients: (recipe.recipe_nutrients ?? []).map((nutrient) => ({
+      name: nutrient.name,
+      amount: nutrient.amount,
+      unit: nutrient.unit,
+      percentOfDailyNeeds: nutrient.percent_of_daily_needs,
+    })),
+    instructionSteps: instructionSteps.map((step) => ({
+      stepNumber: step.step_number,
+      text: step.step_text,
+      lengthNumber: step.length_number,
+      lengthUnit: step.length_unit,
     })),
   };
 }
@@ -99,7 +158,7 @@ export function useMatchDetail(matchId: string): {
       const { data, error } = await supabase
         .from('matches')
         .select(
-          'id, recipe_id, cooked_at, removed_at, recipes(title, image_url, ready_in_minutes, servings, source_url, source_name, recipe_ingredients(id, name, original_text, amount, unit, position))',
+          'id, recipe_id, cooked_at, removed_at, recipes(title, image_url, ready_in_minutes, servings, source_url, source_name, recipe_ingredients(id, name, original, amount, unit, sort_order), recipe_nutrients(name, amount, unit, percent_of_daily_needs), recipe_instruction_groups(sort_order, recipe_instruction_steps(step_number, step_text, length_number, length_unit, sort_order)))',
         )
         .eq('id', matchId)
         .maybeSingle();

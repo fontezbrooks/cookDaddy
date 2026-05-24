@@ -8,10 +8,30 @@ import { useMatchDetail } from '@/lib/use-match-detail';
 type IngredientRow = {
   id: string;
   name: string;
-  original_text: string | null;
+  original: string | null;
   amount: number | null;
   unit: string | null;
-  position: number | null;
+  sort_order: number | null;
+};
+
+type NutrientRow = {
+  name: string;
+  amount: number | null;
+  unit: string | null;
+  percent_of_daily_needs: number | null;
+};
+
+type InstructionStepRow = {
+  step_number: number;
+  step_text: string;
+  length_number: number | null;
+  length_unit: string | null;
+  sort_order: number | null;
+};
+
+type InstructionGroupRow = {
+  sort_order: number | null;
+  recipe_instruction_steps: InstructionStepRow[] | null;
 };
 
 type RecipeRow = {
@@ -22,6 +42,8 @@ type RecipeRow = {
   source_url: string | null;
   source_name: string | null;
   recipe_ingredients: IngredientRow[] | null;
+  recipe_nutrients: NutrientRow[] | null;
+  recipe_instruction_groups: InstructionGroupRow[] | null;
 };
 
 type MatchRow = {
@@ -88,18 +110,72 @@ const recipe: RecipeRow = {
     {
       id: 'ing-2',
       name: 'lemon',
-      original_text: '1 lemon, zested',
+      original: '1 lemon, zested',
       amount: 1,
       unit: null,
-      position: 2,
+      sort_order: 2,
     },
     {
       id: 'ing-1',
       name: 'spaghetti',
-      original_text: '8 oz spaghetti',
+      original: '8 oz spaghetti',
       amount: 8,
       unit: 'oz',
-      position: 1,
+      sort_order: 1,
+    },
+  ],
+  recipe_nutrients: [
+    {
+      name: 'Calories',
+      amount: 410,
+      unit: 'kcal',
+      percent_of_daily_needs: 20.5,
+    },
+    {
+      name: 'Protein',
+      amount: 14,
+      unit: 'g',
+      percent_of_daily_needs: 28,
+    },
+  ],
+  recipe_instruction_groups: [
+    {
+      sort_order: 1,
+      recipe_instruction_steps: [
+        {
+          step_number: 4,
+          step_text: 'Serve with lemon zest.',
+          length_number: null,
+          length_unit: null,
+          sort_order: 1,
+        },
+        {
+          step_number: 3,
+          step_text: 'Toss pasta with sauce.',
+          length_number: 2,
+          length_unit: 'minutes',
+          sort_order: 0,
+        },
+      ],
+    },
+    {
+      sort_order: 0,
+      recipe_instruction_steps: [
+        {
+          step_number: 2,
+          step_text: 'Cook spaghetti until al dente.',
+          length_number: 10,
+          length_unit: 'minutes',
+          sort_order: 1,
+        },
+        {
+          step_number: 1,
+          step_text: 'Bring salted water to a boil.',
+          length_number: 5,
+          length_unit: 'minutes',
+          sort_order: 0,
+        },
+      ],
     },
   ],
 };
@@ -120,7 +196,7 @@ describe('useMatchDetail', () => {
     setSignedIn();
   });
 
-  it('maps a nested recipe and sorts ingredients by position', async () => {
+  it('maps a nested recipe and sorts ingredients by sort order', async () => {
     mockQueryState.row = matchRow();
 
     const { result } = renderHook(() => useMatchDetail('match-1'), {
@@ -156,11 +232,76 @@ describe('useMatchDetail', () => {
           unit: null,
         },
       ],
+      nutrients: [
+        {
+          name: 'Calories',
+          amount: 410,
+          unit: 'kcal',
+          percentOfDailyNeeds: 20.5,
+        },
+        {
+          name: 'Protein',
+          amount: 14,
+          unit: 'g',
+          percentOfDailyNeeds: 28,
+        },
+      ],
+      instructionSteps: [
+        {
+          stepNumber: 1,
+          text: 'Bring salted water to a boil.',
+          lengthNumber: 5,
+          lengthUnit: 'minutes',
+        },
+        {
+          stepNumber: 2,
+          text: 'Cook spaghetti until al dente.',
+          lengthNumber: 10,
+          lengthUnit: 'minutes',
+        },
+        {
+          stepNumber: 3,
+          text: 'Toss pasta with sauce.',
+          lengthNumber: 2,
+          lengthUnit: 'minutes',
+        },
+        {
+          stepNumber: 4,
+          text: 'Serve with lemon zest.',
+          lengthNumber: null,
+          lengthUnit: null,
+        },
+      ],
     });
+    expect(result.current.data?.instructionSteps?.map((step) => step.text)).toEqual([
+      'Bring salted water to a boil.',
+      'Cook spaghetti until al dente.',
+      'Toss pasta with sauce.',
+      'Serve with lemon zest.',
+    ]);
+    expect(result.current.data?.nutrients?.map((nutrient) => nutrient.percentOfDailyNeeds)).toEqual(
+      [20.5, 28],
+    );
     expect(mockSelect).toHaveBeenCalledWith(
-      'id, recipe_id, cooked_at, removed_at, recipes(title, image_url, ready_in_minutes, servings, source_url, source_name, recipe_ingredients(id, name, original_text, amount, unit, position))',
+      'id, recipe_id, cooked_at, removed_at, recipes(title, image_url, ready_in_minutes, servings, source_url, source_name, recipe_ingredients(id, name, original, amount, unit, sort_order), recipe_nutrients(name, amount, unit, percent_of_daily_needs), recipe_instruction_groups(sort_order, recipe_instruction_steps(step_number, step_text, length_number, length_unit, sort_order)))',
     );
     expect(mockEq).toHaveBeenCalledWith('id', 'match-1');
+  });
+
+  it('maps null nutrient and instruction embeds to empty arrays', async () => {
+    mockQueryState.row = matchRow({
+      ...recipe,
+      recipe_nutrients: null,
+      recipe_instruction_groups: null,
+    });
+
+    const { result } = renderHook(() => useMatchDetail('match-1'), {
+      wrapper: ({ children }) => wrap(children),
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.data?.nutrients).toEqual([]);
+    expect(result.current.data?.instructionSteps).toEqual([]);
   });
 
   it('maps recipe joins returned as either objects or single-element arrays', async () => {
