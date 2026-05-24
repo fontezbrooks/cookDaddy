@@ -10,6 +10,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { PushPrimingSheet } from '@/components/push-priming-sheet';
 import { usePodSync } from '@/lib/use-pod-sync';
+import { usePushDeepLink } from '@/lib/use-push-deep-link';
 import { usePushForeground } from '@/lib/use-push-foreground';
 
 export default function ProtectedLayout() {
@@ -21,6 +22,7 @@ export default function ProtectedLayout() {
   // there's no session.
   usePodSync();
   usePushForeground();
+  usePushDeepLink();
 
   if (!isLoaded) {
     return (

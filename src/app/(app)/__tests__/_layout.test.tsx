@@ -22,6 +22,10 @@ jest.mock('@/lib/use-push-foreground', () => ({
   usePushForeground: jest.fn(),
 }));
 
+jest.mock('@/lib/use-push-deep-link', () => ({
+  usePushDeepLink: jest.fn(),
+}));
+
 jest.mock('@/components/push-priming-sheet', () => ({
   PushPrimingSheet: () => null,
 }));
