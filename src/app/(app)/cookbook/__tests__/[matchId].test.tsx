@@ -90,6 +90,15 @@ const detail: MatchDetail = {
       unit: null,
     },
   ],
+  nutrients: [
+    { name: 'Calories', amount: 330.4, unit: 'kcal', percentOfDailyNeeds: 16.5 },
+    { name: 'Protein', amount: 24, unit: 'g', percentOfDailyNeeds: 48 },
+    { name: 'Sodium', amount: 410, unit: 'mg', percentOfDailyNeeds: null },
+  ],
+  instructionSteps: [
+    { stepNumber: 1, text: 'Boil the pasta.', lengthNumber: 10, lengthUnit: 'minutes' },
+    { stepNumber: 2, text: 'Zest the lemon.', lengthNumber: null, lengthUnit: null },
+  ],
 };
 
 describe('CookbookDetailScreen', () => {
@@ -143,6 +152,54 @@ describe('CookbookDetailScreen', () => {
     expect(screen.getByText('25 min · 3 servings')).toBeOnTheScreen();
     expect(screen.getByTestId('ingredient-ing-1')).toHaveTextContent('8 oz spaghetti');
     expect(screen.getByTestId('ingredient-ing-2')).toHaveTextContent('lemon');
+  });
+
+  it('renders the nutrition panel', () => {
+    mockUseMatchDetail.mockReturnValue({ data: detail, isLoading: false, error: null });
+
+    render(<CookbookDetailScreen />);
+
+    expect(screen.getByTestId('nutrition-panel')).toBeOnTheScreen();
+    expect(screen.getByText('Calories')).toBeOnTheScreen();
+    expect(screen.getByTestId('nutrient-0')).toHaveTextContent(/330\.4 kcal/);
+    expect(screen.getByTestId('nutrient-0')).toHaveTextContent(/17%/);
+    expect(screen.getByTestId('nutrient-2')).not.toHaveTextContent('%');
+  });
+
+  it('renders ordered numbered steps', () => {
+    mockUseMatchDetail.mockReturnValue({ data: detail, isLoading: false, error: null });
+
+    render(<CookbookDetailScreen />);
+
+    const stepRows = screen.getAllByTestId(/^step-/);
+    expect(screen.getByTestId('cooking-steps')).toBeOnTheScreen();
+    expect(stepRows).toHaveLength(2);
+    expect(stepRows[0]).toHaveTextContent('1. Boil the pasta. (10 minutes)');
+    expect(stepRows[1]).toHaveTextContent('2. Zest the lemon.');
+    expect(stepRows[1]).not.toHaveTextContent('(');
+  });
+
+  it('hides steps and nutrition when absent', () => {
+    mockUseMatchDetail.mockReturnValue({
+      data: { ...detail, nutrients: [], instructionSteps: [] },
+      isLoading: false,
+      error: null,
+    });
+
+    const { rerender } = render(<CookbookDetailScreen />);
+
+    expect(screen.queryByTestId('nutrition-panel')).toBeNull();
+    expect(screen.queryByTestId('cooking-steps')).toBeNull();
+
+    mockUseMatchDetail.mockReturnValue({
+      data: { ...detail, nutrients: undefined, instructionSteps: undefined },
+      isLoading: false,
+      error: null,
+    });
+
+    expect(() => rerender(<CookbookDetailScreen />)).not.toThrow();
+    expect(screen.queryByTestId('nutrition-panel')).toBeNull();
+    expect(screen.queryByTestId('cooking-steps')).toBeNull();
   });
 
   it('marks a recipe cooked and fires success haptics', async () => {

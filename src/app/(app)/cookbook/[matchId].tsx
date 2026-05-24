@@ -86,6 +86,8 @@ export default function CookbookDetailScreen() {
     .filter((part): part is string => part !== null)
     .join(' · ');
   const cooked = data.cookedAt !== null;
+  const steps = data.instructionSteps ?? [];
+  const nutrients = data.nutrients ?? [];
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -112,6 +114,41 @@ export default function CookbookDetailScreen() {
               ))}
             </View>
           </View>
+
+          {steps.length > 0 ? (
+            <View style={styles.section} testID="cooking-steps">
+              <ThemedText type="subtitle">Steps</ThemedText>
+              <View style={styles.steps}>
+                {steps.map((step, index) => (
+                  <ThemedText
+                    key={`${step.stepNumber}-${index}`}
+                    type="small"
+                    testID={`step-${index}`}
+                  >
+                    {formatStep(step)}
+                  </ThemedText>
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          {nutrients.length > 0 ? (
+            <View style={styles.section} testID="nutrition-panel">
+              <ThemedText type="subtitle">Nutrition</ThemedText>
+              <View style={styles.nutrients}>
+                {nutrients.map((nutrient, index) => (
+                  <View
+                    key={`${nutrient.name}-${index}`}
+                    style={styles.nutrientRow}
+                    testID={`nutrient-${index}`}
+                  >
+                    <ThemedText type="small">{nutrient.name}</ThemedText>
+                    <ThemedText type="small">{formatNutrientValue(nutrient)}</ThemedText>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
 
           <View style={styles.actions}>
             <Pressable
@@ -160,6 +197,34 @@ function servingsLabel(data: { servings: number | null }): string | null {
   return `${data.servings} ${data.servings === 1 ? 'serving' : 'servings'}`;
 }
 
+function formatAmount(n: number | null): string {
+  if (n === null) return '—';
+  return String(Math.round(n * 10) / 10);
+}
+
+function formatStep(step: {
+  stepNumber: number;
+  text: string;
+  lengthNumber: number | null;
+  lengthUnit: string | null;
+}): string {
+  const length =
+    step.lengthNumber !== null && step.lengthUnit
+      ? ` (${step.lengthNumber} ${step.lengthUnit})`
+      : '';
+  return `${step.stepNumber}. ${step.text}${length}`;
+}
+
+function formatNutrientValue(nutrient: {
+  amount: number | null;
+  unit: string | null;
+  percentOfDailyNeeds: number | null;
+}): string {
+  const value = `${formatAmount(nutrient.amount)}${nutrient.unit ? ` ${nutrient.unit}` : ''}`;
+  if (nutrient.percentOfDailyNeeds === null) return value;
+  return `${value} · ${Math.round(nutrient.percentOfDailyNeeds)}%`;
+}
+
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
@@ -178,6 +243,9 @@ const styles = StyleSheet.create({
   header: { gap: Spacing.two },
   section: { gap: Spacing.three },
   ingredients: { gap: Spacing.two },
+  steps: { gap: Spacing.two },
+  nutrients: { gap: Spacing.two },
+  nutrientRow: { flexDirection: 'row', justifyContent: 'space-between', gap: Spacing.two },
   actions: { gap: Spacing.three, paddingTop: Spacing.two },
   cta: {
     alignSelf: 'flex-start',
