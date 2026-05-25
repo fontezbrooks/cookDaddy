@@ -1,0 +1,124 @@
+{
+  "project": "cookDaddy",
+  "generated": "2026-05-25",
+  "branch": "main",
+  "head": "c70f152",
+  "note": "P12 (analytics) implemented but uncommitted at generation time",
+  "summary": "Tinder-style couples meal-decision app: live-sync recipe swiping -> shared cookbook -> pantry-aware shopping list -> push. Single Expo codebase (iOS + Android).",
+  "stack": {
+    "runtime": "Expo SDK 56 + expo-router + React Native + TypeScript (strict)",
+    "auth": "@clerk/clerk-expo via Supabase Third-Party Auth + JWKS (not legacy HS256)",
+    "backend": "Supabase Postgres 17 (project tkizdngomjrgrmpancyz, us-east-1), RLS + SECURITY DEFINER RPCs, Edge Functions (Deno)",
+    "serverState": "@tanstack/react-query",
+    "clientState": "zustand + react-native-mmkv",
+    "animation": "react-native-reanimated + react-native-gesture-handler + @shopify/react-native-skia",
+    "native": "expo-notifications, expo-haptics, expo-audio, expo-secure-store",
+    "observability": "posthog-react-native + posthog-node + @sentry/react-native"
+  },
+  "entryPoints": {
+    "appRoot": "src/app/_layout.tsx",
+    "protectedTree": "src/app/(app)/_layout.tsx",
+    "authTree": "src/app/(auth)/_layout.tsx",
+    "edgeFunctions": [
+      "supabase/functions/fan-out-push/index.ts",
+      "supabase/functions/clerk-user-webhook/"
+    ],
+    "ingestion": "scripts/ingestion/import-spoon.ts (pnpm ingest), scripts/ingestion/cron-step.sh"
+  },
+  "routes": [
+    "(auth)/sign-in",
+    "(app)/home",
+    "(app)/session/[sessionId]",
+    "(app)/cookbook/index",
+    "(app)/cookbook/[matchId]",
+    "(app)/shopping",
+    "(app)/pantry",
+    "(app)/invite/[token]",
+    "(app)/settings/profile",
+    "(app)/settings/dietary",
+    "(app)/settings/pod",
+    "(app)/settings/vibes",
+    "(app)/settings/notifications"
+  ],
+  "coreModules": {
+    "src/lib/supabase.ts": "Supabase client factory (Clerk getToken adapter)",
+    "src/lib/pod-rpcs.ts": "pod lifecycle RPC wrappers + PodRpcError",
+    "src/lib/session-rpcs.ts": "start/active/submit/end session wrappers + SessionRpcError + deck_size param",
+    "src/lib/use-deck.ts": "session deck TanStack Query",
+    "src/lib/use-swipe-broadcast.ts": "Supabase Realtime swipe/match channel",
+    "src/lib/use-pod-sync.ts": "pod_members reconcile (partner-removed detection)",
+    "src/lib/use-pod-matches.ts": "cookbook list + markCooked/remove/restore",
+    "src/lib/use-match-detail.ts": "cookbook detail join (nutrients/steps/matchedAt)",
+    "src/lib/use-shopping-list.ts": "shopping CRUD + realtime + add-from-recipe RPC",
+    "src/lib/use-pantry.ts": "pantry CRUD + dedup-by-name_clean",
+    "src/lib/name-clean.ts": "pantry/shopping dedup key",
+    "src/lib/analytics.ts": "PostHog typed wrapper useAnalytics (consent-gated)",
+    "src/lib/use-analytics-identity.ts": "root identify/group/reset + app_opened tracker",
+    "src/lib/use-deck-size-flag.ts": "PostHog deck_size feature flag -> int",
+    "src/lib/push-registration.ts": "Expo push token register/touch",
+    "src/lib/use-notification-prefs.ts": "per-type notification prefs",
+    "src/lib/haptics.ts": "non-hook haptics chokepoint",
+    "src/lib/audio.ts": "non-hook audio chokepoint",
+    "src/lib/match-variant.ts": "match overlay variant selection",
+    "src/lib/swipe-queue.ts": "MMKV offline swipe retry queue"
+  },
+  "components": [
+    "swipe-deck.tsx",
+    "match-overlay.tsx",
+    "confetti.tsx",
+    "session-summary.tsx",
+    "push-priming-sheet.tsx",
+    "themed-text.tsx",
+    "themed-view.tsx"
+  ],
+  "stores": {
+    "useAuthStore": "MMKV-persisted auth",
+    "useSettingsStore": "MMKV; vibes toggles + analytics consent (analyticsEnabled opt-out)",
+    "usePodStore": "memory-only active pod",
+    "usePushPrimingStore": "MMKV push-priming dedupe"
+  },
+  "edgeFunctions": {
+    "fan-out-push": "push fan-out (matches/pod_invites/sessions webhooks) + server PostHog events (env-gated)",
+    "clerk-user-webhook": "Clerk -> Supabase user sync (svix-verified)",
+    "_shared": ["fan-out-push.ts", "server-analytics.ts", "clerk-webhook.ts"]
+  },
+  "config": {
+    "app.config.ts": "Expo config + extra keys + deep-link scheme",
+    "eas.json": "EAS build/submit profiles",
+    "jest.config.js": "jest-expo, 90% line gate, @/ alias, _shared+ingestion coverage",
+    "tsconfig.json": "strict TS",
+    "eslint.config.js": "flat eslint + prettier"
+  },
+  "docs": {
+    "docs/PRD/README.md": "product requirements (locked decisions)",
+    "docs/DESIGN/README.md": "schema/API/RLS, §7 swipe, §9 push, §17 analytics taxonomy",
+    "docs/MATCH-UX/README.md": "match overlay motion/haptics/audio spec",
+    "docs/WORKFLOW/README.md": "phased plan (§15 = P12 analytics)",
+    "docs/PUSH-OPS/README.md": "push operator runbook",
+    "docs/DESIGN-TOKENS/README.md": "Pencil-MCP design tokens"
+  },
+  "counts": {
+    "srcSourceFiles": 59,
+    "srcTestFiles": 55,
+    "migrations": 24,
+    "pgTapTests": 26,
+    "edgeFunctions": 2,
+    "ingestionScriptFiles": 17
+  },
+  "tests": {
+    "jestSuites": 61,
+    "jestTests": 489,
+    "lineCoverage": "97.67%",
+    "branchCoverage": "82.94%",
+    "pgTapStrategy": "cloud savepoint-rollback dry-run (local Docker space-constrained)"
+  },
+  "cloud": {
+    "ref": "tkizdngomjrgrmpancyz",
+    "region": "us-east-1",
+    "migrationsApplied": 24,
+    "latestMigration": "024_start_session_deck_size",
+    "recipes": 89,
+    "wiring": "pg_net fan-out triggers (matches/pod_invites/sessions); pg_cron prune-push-tokens"
+  },
+  "status": "P0-P12 implemented; next P13 (polish + a11y + perf + E2E + store submission)"
+}
