@@ -11,9 +11,20 @@ import { __resetSettingsStoreForTests, useSettingsStore } from '@/state/useSetti
 
 import VibesScreen from '../vibes';
 
+const mockCapture = jest.fn();
+jest.mock('@/lib/analytics', () => ({
+  useAnalytics: () => ({
+    capture: mockCapture,
+    identify: jest.fn(),
+    group: jest.fn(),
+    reset: jest.fn(),
+  }),
+}));
+
 describe('VibesScreen', () => {
   beforeEach(async () => {
     await __resetSettingsStoreForTests();
+    mockCapture.mockReset();
   });
 
   it('renders three toggle rows with their MATCH-UX defaults', () => {
@@ -28,6 +39,16 @@ describe('VibesScreen', () => {
     render(<VibesScreen />);
     fireEvent.press(screen.getByTestId('vibes-haptics'));
     expect(useSettingsStore.getState().hapticsEnabled).toBe(false);
+  });
+
+  it('captures haptics switch changes', () => {
+    render(<VibesScreen />);
+    fireEvent(screen.getByLabelText('Haptics toggle'), 'valueChange', false);
+    expect(useSettingsStore.getState().hapticsEnabled).toBe(false);
+    expect(mockCapture).toHaveBeenCalledWith('settings_vibes_changed', {
+      which_setting: 'haptics',
+      new_value: false,
+    });
   });
 
   it('tapping sounds toggle flips soundsEnabled', () => {

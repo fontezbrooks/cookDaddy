@@ -11,6 +11,7 @@ import { useSessionMatches } from '@/lib/use-session-matches';
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
 const mockClient = {};
+let mockDeckSize: number | undefined;
 
 jest.mock('@/lib/use-session-matches', () => ({
   useSessionMatches: jest.fn(),
@@ -18,6 +19,10 @@ jest.mock('@/lib/use-session-matches', () => ({
 
 jest.mock('@/lib/session-rpcs', () => ({
   startSession: jest.fn().mockResolvedValue({ sessionId: 'new-sess', deckRecipeIds: [] }),
+}));
+
+jest.mock('@/lib/use-deck-size-flag', () => ({
+  useDeckSizeFlag: () => mockDeckSize,
 }));
 
 jest.mock('@/lib/haptics', () => ({
@@ -78,6 +83,7 @@ describe('SessionSummary', () => {
     jest.mocked(startSession).mockClear();
     jest.mocked(haptics.notificationSuccess).mockClear();
     jest.mocked(haptics.selection).mockClear();
+    mockDeckSize = undefined;
     mockPush.mockClear();
     mockReplace.mockClear();
     setSignedIn();
@@ -114,7 +120,7 @@ describe('SessionSummary', () => {
 
     fireEvent.press(screen.getByTestId('session-summary-start-new'));
     await waitFor(() => {
-      expect(startSession).toHaveBeenCalledWith(mockClient, 'pod-1');
+      expect(startSession).toHaveBeenCalledWith(mockClient, 'pod-1', undefined);
     });
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith('/session/new-sess');
@@ -157,7 +163,7 @@ describe('SessionSummary', () => {
 
     fireEvent.press(screen.getByTestId('session-summary-swipe-more'));
     await waitFor(() => {
-      expect(startSession).toHaveBeenCalledWith(mockClient, 'pod-1');
+      expect(startSession).toHaveBeenCalledWith(mockClient, 'pod-1', undefined);
     });
   });
 
@@ -174,6 +180,7 @@ describe('SessionSummary', () => {
   });
 
   it('renders no-match actions and fires selection haptic once', async () => {
+    mockDeckSize = 25;
     jest.mocked(useSessionMatches).mockReturnValue({
       data: [],
       isLoading: false,
@@ -190,7 +197,7 @@ describe('SessionSummary', () => {
 
     fireEvent.press(screen.getByTestId('session-summary-try-again'));
     await waitFor(() => {
-      expect(startSession).toHaveBeenCalledWith(mockClient, 'pod-1');
+      expect(startSession).toHaveBeenCalledWith(mockClient, 'pod-1', 25);
     });
 
     fireEvent.press(screen.getByTestId('session-summary-adjust-filters'));

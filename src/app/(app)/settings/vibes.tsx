@@ -10,9 +10,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useAnalytics } from '@/lib/analytics';
 import { useSettingsStore } from '@/state/useSettingsStore';
 
 type Row = {
+  key: 'haptics' | 'sounds' | 'animations';
   testID: string;
   label: string;
   description: string;
@@ -21,6 +23,7 @@ type Row = {
 };
 
 export default function VibesScreen() {
+  const analytics = useAnalytics();
   const hapticsEnabled = useSettingsStore((s) => s.hapticsEnabled);
   const soundsEnabled = useSettingsStore((s) => s.soundsEnabled);
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
@@ -30,6 +33,7 @@ export default function VibesScreen() {
 
   const rows: Row[] = [
     {
+      key: 'haptics',
       testID: 'vibes-haptics',
       label: 'Haptics',
       description: 'Vibration on swipes and matches.',
@@ -37,6 +41,7 @@ export default function VibesScreen() {
       onChange: setHapticsEnabled,
     },
     {
+      key: 'sounds',
       testID: 'vibes-sounds',
       label: 'Sound effects',
       description: 'Match chimes. Respects system silent mode.',
@@ -44,6 +49,7 @@ export default function VibesScreen() {
       onChange: setSoundsEnabled,
     },
     {
+      key: 'animations',
       testID: 'vibes-animations',
       label: 'Animations',
       description: 'Turning off uses simple crossfades for the match overlay.',
@@ -51,6 +57,14 @@ export default function VibesScreen() {
       onChange: setAnimationsEnabled,
     },
   ];
+
+  const updateSetting = (row: Row, newValue: boolean) => {
+    row.onChange(newValue);
+    analytics.capture('settings_vibes_changed', {
+      which_setting: row.key,
+      new_value: newValue,
+    });
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -61,12 +75,12 @@ export default function VibesScreen() {
         <View style={styles.rows}>
           {rows.map((row) => (
             <Pressable
-              key={row.testID}
+              key={row.key}
               testID={row.testID}
               accessibilityRole="switch"
               accessibilityState={{ checked: row.value }}
               accessibilityLabel={row.label}
-              onPress={() => row.onChange(!row.value)}
+              onPress={() => updateSetting(row, !row.value)}
               style={styles.row}
             >
               <View style={styles.rowText}>
@@ -77,7 +91,7 @@ export default function VibesScreen() {
               </View>
               <Switch
                 value={row.value}
-                onValueChange={row.onChange}
+                onValueChange={(newValue) => updateSetting(row, newValue)}
                 accessibilityLabel={`${row.label} toggle`}
               />
             </Pressable>

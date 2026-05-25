@@ -11,7 +11,7 @@
 
 import { useAuth } from '@clerk/clerk-expo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
 import { SessionRpcError } from '@/lib/session-rpcs';
@@ -26,6 +26,16 @@ jest.mock('@/lib/session-rpcs', () => {
     markSessionActive: (...args: unknown[]) => mockMarkActive(...args),
   };
 });
+
+const mockCapture = jest.fn();
+jest.mock('@/lib/analytics', () => ({
+  useAnalytics: () => ({
+    capture: mockCapture,
+    identify: jest.fn(),
+    group: jest.fn(),
+    reset: jest.fn(),
+  }),
+}));
 
 // SwipeDeck is exercised by its own test file. Mock it here to keep the
 // screen test focused on routing between lobby/active/ended branches.
@@ -138,6 +148,7 @@ jest.mock('expo-router', () => ({
 }));
 
 const queryClients: QueryClient[] = [];
+const podCreatedAt = '2026-05-25T12:00:00.000Z';
 
 function wrap(children: ReactNode) {
   const client = new QueryClient({
@@ -163,6 +174,7 @@ function setSignedIn() {
 describe('SessionScreen', () => {
   beforeEach(() => {
     mockMarkActive.mockReset();
+    mockCapture.mockReset();
     mockMaybeSingle.mockReset();
     mockReplace.mockClear();
     mockParams.sessionId = 'sess-1';
@@ -206,6 +218,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r1', 'r2', 'r3'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -226,6 +239,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r1'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -248,6 +262,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r1'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -272,6 +287,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r1', 'r2'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -284,6 +300,100 @@ describe('SessionScreen', () => {
     expect(screen.getByTestId('swipe-deck-stub')).toHaveTextContent(/deck:2/);
   });
 
+  it('captures session_ready_state once when the loaded session transitions from lobby to active', async () => {
+    mockMaybeSingle
+      .mockResolvedValueOnce({
+        data: {
+          id: 'sess-1',
+          status: 'lobby',
+          pod_id: 'pod-1',
+          deck_recipe_ids: ['r1', 'r2'],
+          ended_reason: null,
+          pods: { created_at: podCreatedAt },
+        },
+        error: null,
+      })
+      .mockResolvedValue({
+        data: {
+          id: 'sess-1',
+          status: 'active',
+          pod_id: 'pod-1',
+          deck_recipe_ids: ['r1', 'r2'],
+          ended_reason: null,
+          pods: { created_at: podCreatedAt },
+        },
+        error: null,
+      });
+
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('session-lobby')).toBeOnTheScreen();
+    });
+
+    await act(async () => {
+      await queryClients[0]!.invalidateQueries({ queryKey: ['sessions', 'sess-1'] });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('session-active')).toBeOnTheScreen();
+    });
+    await waitFor(() => {
+      expect(mockCapture).toHaveBeenCalledWith(
+        'session_ready_state',
+        expect.objectContaining({
+          session_id: 'sess-1',
+          both_ready_within_ms: expect.any(Number),
+        }),
+      );
+    });
+    expect(
+      mockCapture.mock.calls.filter(([event]) => event === 'session_ready_state'),
+    ).toHaveLength(1);
+  });
+
+  it('captures swipe_progress_seen when the partner committed set grows', async () => {
+    let partnerCommittedRecipeIds = new Set<string>();
+    mockUseSwipeBroadcast.mockImplementation(() => ({
+      partnerCommit: null,
+      partnerProgress: null,
+      partnerMatch: null,
+      partnerCommittedRecipeIds,
+      partnerRightCommittedRecipeIds: new Set<string>(),
+      broadcastCommit: jest.fn().mockResolvedValue(undefined),
+      broadcastProgress: jest.fn().mockResolvedValue(undefined),
+      broadcastMatch: jest.fn().mockResolvedValue(undefined),
+    }));
+    mockMaybeSingle.mockResolvedValue({
+      data: {
+        id: 'sess-1',
+        status: 'active',
+        pod_id: 'pod-1',
+        deck_recipe_ids: ['r1', 'r2'],
+        ended_reason: null,
+        pods: { created_at: podCreatedAt },
+      },
+      error: null,
+    });
+
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('swipe-deck-fire-local-commit-r1')).toBeOnTheScreen();
+    });
+
+    partnerCommittedRecipeIds = new Set(['r2']);
+    fireEvent.press(screen.getByTestId('swipe-deck-fire-local-commit-r1'));
+
+    await waitFor(() => {
+      expect(mockCapture).toHaveBeenCalledWith(
+        'swipe_progress_seen',
+        expect.objectContaining({
+          session_id: 'sess-1',
+          partner_offset: expect.any(Number),
+        }),
+      );
+    });
+  });
+
   it('renders the ended summary when status=ended', async () => {
     mockMaybeSingle.mockResolvedValue({
       data: {
@@ -292,6 +402,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: [],
         ended_reason: 'completed',
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -311,6 +422,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r-1'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -336,6 +448,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r-1'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -349,6 +462,18 @@ describe('SessionScreen', () => {
     await waitFor(() => {
       expect(screen.getByTestId('match-overlay-variant')).toHaveTextContent('firstEver');
     });
+    await waitFor(() => {
+      expect(mockCapture).toHaveBeenCalledWith(
+        'match_first_ever',
+        expect.objectContaining({
+          pod_id: 'pod-1',
+          time_since_pod_created_min: expect.any(Number),
+        }),
+      );
+    });
+    expect(mockCapture.mock.calls.filter(([event]) => event === 'match_first_ever')).toHaveLength(
+      1,
+    );
   });
 
   it('mounts MatchOverlay when a partner broadcast fires (match.created)', async () => {
@@ -359,6 +484,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r-1'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -393,6 +519,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r1', 'r2', 'r3'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -423,6 +550,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r1', 'r2'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -453,6 +581,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r1', 'r2'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -488,6 +617,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r1', 'r2'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });
@@ -524,6 +654,7 @@ describe('SessionScreen', () => {
         pod_id: 'pod-1',
         deck_recipe_ids: ['r-1'],
         ended_reason: null,
+        pods: { created_at: podCreatedAt },
       },
       error: null,
     });

@@ -7,6 +7,7 @@ import { createSupabaseClient } from '@/lib/supabase';
 export type MatchDetail = {
   matchId: string;
   recipeId: string;
+  matchedAt: string;
   title: string;
   imageUrl: string | null;
   readyInMinutes: number | null;
@@ -80,6 +81,7 @@ type RecipeJoinRow = {
 type MatchDetailRow = {
   id: string;
   recipe_id: string;
+  created_at: string;
   cooked_at: string | null;
   removed_at: string | null;
   recipes: RecipeJoinRow | RecipeJoinRow[] | null;
@@ -113,6 +115,7 @@ function mapMatchDetail(row: MatchDetailRow): MatchDetail | undefined {
   return {
     matchId: row.id,
     recipeId: row.recipe_id,
+    matchedAt: row.created_at,
     title: recipe.title,
     imageUrl: recipe.image_url,
     readyInMinutes: recipe.ready_in_minutes,
@@ -158,7 +161,7 @@ export function useMatchDetail(matchId: string): {
       const { data, error } = await supabase
         .from('matches')
         .select(
-          'id, recipe_id, cooked_at, removed_at, recipes(title, image_url, ready_in_minutes, servings, source_url, source_name, recipe_ingredients(id, name, original, amount, unit, sort_order), recipe_nutrients(name, amount, unit, percent_of_daily_needs), recipe_instruction_groups(sort_order, recipe_instruction_steps(step_number, step_text, length_number, length_unit, sort_order)))',
+          'id, recipe_id, created_at, cooked_at, removed_at, recipes(title, image_url, ready_in_minutes, servings, source_url, source_name, recipe_ingredients(id, name, original, amount, unit, sort_order), recipe_nutrients(name, amount, unit, percent_of_daily_needs), recipe_instruction_groups(sort_order, recipe_instruction_steps(step_number, step_text, length_number, length_unit, sort_order)))',
         )
         .eq('id', matchId)
         .maybeSingle();

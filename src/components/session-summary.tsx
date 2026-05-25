@@ -10,6 +10,7 @@ import { DesignTokens } from '@/constants/design-tokens';
 import { haptics } from '@/lib/haptics';
 import { startSession } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
+import { useDeckSizeFlag } from '@/lib/use-deck-size-flag';
 import { type SessionMatch, useSessionMatches } from '@/lib/use-session-matches';
 
 type SessionSummaryProps = {
@@ -27,9 +28,10 @@ export function SessionSummary({ sessionId, podId, endedReason }: SessionSummary
   const router = useRouter();
   const { getToken } = useAuth();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
+  const deckSize = useDeckSizeFlag();
   const { data: matches, isLoading } = useSessionMatches(sessionId);
   const startSessionMutation = useMutation({
-    mutationFn: () => startSession(supabase, podId),
+    mutationFn: () => startSession(supabase, podId, deckSize),
     onSuccess: (result) => router.replace(`/session/${result.sessionId}`),
   });
 

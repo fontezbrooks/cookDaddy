@@ -1,11 +1,11 @@
 import { useAuth } from '@clerk/clerk-expo';
-import { usePostHog } from 'posthog-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
+import { useAnalytics } from '@/lib/analytics';
 import {
   getPushPermissionStatus,
   registerPushToken,
@@ -21,7 +21,7 @@ const REPROMPT_AFTER_MS = 14 * 24 * 60 * 60 * 1000;
 export function PushPrimingSheet(): React.ReactElement | null {
   const { isSignedIn, userId, getToken } = useAuth();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
-  const posthog = usePostHog();
+  const analytics = useAnalytics();
   const hasPod = usePodStore((s) => Boolean(s.activePodId));
   const partnerName = usePodStore((s) => s.partnerDisplayName) ?? 'your partner';
   const promptedAt = usePushPrimingStore((s) => s.promptedAt);
@@ -47,7 +47,7 @@ export function PushPrimingSheet(): React.ReactElement | null {
   const trigger = promptedAt === null ? 'first_pod_created' : 'reprompt';
 
   useEffect(() => {
-    if (visible) posthog?.capture('push_permission_prompted', { trigger });
+    if (visible) analytics.capture('push_permission_prompted', { trigger });
     // fire once when the sheet becomes visible
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
@@ -59,7 +59,7 @@ export function PushPrimingSheet(): React.ReactElement | null {
     setPromptedAt(Date.now());
     if (granted && userId) {
       await registerPushToken(supabase, userId).catch(() => undefined);
-      posthog?.capture('push_permission_granted', { platform: Platform.OS });
+      analytics.capture('push_permission_granted', { platform: Platform.OS as 'ios' | 'android' });
     }
     setDismissed(true);
   };

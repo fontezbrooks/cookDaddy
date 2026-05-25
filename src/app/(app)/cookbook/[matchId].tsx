@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
+import { useAnalytics } from '@/lib/analytics';
 import { haptics } from '@/lib/haptics';
 import { createSupabaseClient } from '@/lib/supabase';
 import { useMatchDetail } from '@/lib/use-match-detail';
@@ -20,6 +21,7 @@ export default function CookbookDetailScreen() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const analytics = useAnalytics();
   const podId = usePodStore((s) => s.activePodId);
   const [shoppingResult, setShoppingResult] = useState<{
     inserted: number;
@@ -34,6 +36,13 @@ export default function CookbookDetailScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['match-detail', matchId] });
       queryClient.invalidateQueries({ queryKey: ['pod-matches'] });
+      if (data) {
+        analytics.capture('recipe_cooked_marked', {
+          match_id: matchId,
+          recipe_id: data.recipeId,
+          time_since_match_h: (Date.now() - new Date(data.matchedAt).getTime()) / 3_600_000,
+        });
+      }
       haptics.notificationSuccess();
     },
   });
@@ -58,6 +67,10 @@ export default function CookbookDetailScreen() {
     onSuccess: (result) => {
       setShoppingResult({ inserted: result.insertedCount, conflicts: result.pantryConflicts });
       queryClient.invalidateQueries({ queryKey: ['shopping-list', podId] });
+      analytics.capture('shopping_item_added', {
+        source: 'recipe',
+        pantry_conflict: result.pantryConflicts.length > 0,
+      });
       haptics.notificationSuccess();
     },
   });

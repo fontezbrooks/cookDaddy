@@ -14,7 +14,7 @@
  * deferred to P8 polish. This test pins down the *structural* contract.
  */
 
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { MatchOverlay, type MatchOverlayPayload } from '../match-overlay';
 
@@ -41,15 +41,15 @@ jest.mock('@/lib/audio', () => ({
   },
 }));
 
-const mockPosthogCapture = jest.fn();
-jest.mock('posthog-react-native', () => {
-  const React = require('react');
-  return {
-    PostHogProvider: ({ children }: { children: unknown }) =>
-      React.createElement(React.Fragment, null, children),
-    usePostHog: () => ({ capture: mockPosthogCapture, identify: jest.fn(), reset: jest.fn() }),
-  };
-});
+const mockCapture = jest.fn();
+jest.mock('@/lib/analytics', () => ({
+  useAnalytics: () => ({
+    capture: mockCapture,
+    identify: jest.fn(),
+    group: jest.fn(),
+    reset: jest.fn(),
+  }),
+}));
 
 const PAYLOAD: MatchOverlayPayload = {
   matchId: 'm-1',
@@ -64,7 +64,7 @@ describe('MatchOverlay', () => {
     mockHapticsImpactLight.mockReset();
     mockHapticsImpactHeavy.mockReset();
     mockPlayMatchReveal.mockReset();
-    mockPosthogCapture.mockReset();
+    mockCapture.mockReset();
     jest.useFakeTimers();
   });
   afterEach(() => {
@@ -96,25 +96,35 @@ describe('MatchOverlay', () => {
   it('auto-closes after the 2.5s hard cap', () => {
     const onClose = jest.fn();
     render(<MatchOverlay payload={PAYLOAD} onClose={onClose} />);
-    jest.advanceTimersByTime(2500);
+    act(() => {
+      jest.advanceTimersByTime(2500);
+    });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('keeps existing variants on the default 2.5s auto-close', () => {
     const onClose = jest.fn();
     render(<MatchOverlay payload={PAYLOAD} variant="speedy" onClose={onClose} />);
-    jest.advanceTimersByTime(2499);
+    act(() => {
+      jest.advanceTimersByTime(2499);
+    });
     expect(onClose).not.toHaveBeenCalled();
-    jest.advanceTimersByTime(1);
+    act(() => {
+      jest.advanceTimersByTime(1);
+    });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('auto-closes firstEver after its 3.0s MATCH-UX §7 sequence', () => {
     const onClose = jest.fn();
     render(<MatchOverlay payload={PAYLOAD} variant="firstEver" onClose={onClose} />);
-    jest.advanceTimersByTime(2500);
+    act(() => {
+      jest.advanceTimersByTime(2500);
+    });
     expect(onClose).not.toHaveBeenCalled();
-    jest.advanceTimersByTime(500);
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -136,18 +146,24 @@ describe('MatchOverlay', () => {
     expect(mockHapticsImpactLight).toHaveBeenCalledTimes(1);
 
     // Heartbeat double-tap at t=280ms.
-    jest.advanceTimersByTime(280);
+    act(() => {
+      jest.advanceTimersByTime(280);
+    });
     expect(mockHapticsImpactLight).toHaveBeenCalledTimes(2);
 
     // Heavy payoff hit at t=750ms (reveal).
-    jest.advanceTimersByTime(750 - 280);
+    act(() => {
+      jest.advanceTimersByTime(750 - 280);
+    });
     expect(mockHapticsImpactHeavy).toHaveBeenCalledTimes(1);
   });
 
   it('skips the haptic pattern entirely in the reduced-motion variant', () => {
     mockUseReducedMotion.mockReturnValue(true);
     render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);
-    jest.advanceTimersByTime(2500);
+    act(() => {
+      jest.advanceTimersByTime(2500);
+    });
     expect(mockHapticsImpactLight).not.toHaveBeenCalled();
     expect(mockHapticsImpactHeavy).not.toHaveBeenCalled();
   });
@@ -156,17 +172,23 @@ describe('MatchOverlay', () => {
     render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);
     expect(mockPlayMatchReveal).not.toHaveBeenCalled();
     // Before the reveal beat — silence.
-    jest.advanceTimersByTime(749);
+    act(() => {
+      jest.advanceTimersByTime(749);
+    });
     expect(mockPlayMatchReveal).not.toHaveBeenCalled();
     // Cross the 750ms mark — chime fires once.
-    jest.advanceTimersByTime(1);
+    act(() => {
+      jest.advanceTimersByTime(1);
+    });
     expect(mockPlayMatchReveal).toHaveBeenCalledTimes(1);
   });
 
   it('skips audio playback entirely in the reduced-motion variant', () => {
     mockUseReducedMotion.mockReturnValue(true);
     render(<MatchOverlay payload={PAYLOAD} onClose={jest.fn()} />);
-    jest.advanceTimersByTime(2500);
+    act(() => {
+      jest.advanceTimersByTime(2500);
+    });
     expect(mockPlayMatchReveal).not.toHaveBeenCalled();
   });
 
@@ -181,50 +203,52 @@ describe('MatchOverlay', () => {
     expect(screen.queryByTestId('match-overlay-hero')).not.toBeOnTheScreen();
   });
 
-  it('fires PostHog "match_revealed" on mount with the variant + ids (MATCH-UX §13)', () => {
+  it('fires analytics "match_revealed" on mount with the variant + ids (MATCH-UX §13)', () => {
     render(<MatchOverlay payload={PAYLOAD} variant="speedy" onClose={jest.fn()} />);
-    expect(mockPosthogCapture).toHaveBeenCalledWith('match_revealed', {
+    expect(mockCapture).toHaveBeenCalledWith('match_revealed', {
       variant: 'speedy',
       match_id: 'm-1',
       recipe_id: 'r-1',
     });
   });
 
-  it('fires PostHog "match_dismissed" with dismissed_via="auto" when the hard-cap timer fires', () => {
+  it('fires analytics "match_overlay_dismissed" with action="closed" when the hard-cap timer fires', () => {
     const onClose = jest.fn();
     const { unmount } = render(<MatchOverlay payload={PAYLOAD} onClose={onClose} />);
-    jest.advanceTimersByTime(2500);
+    act(() => {
+      jest.advanceTimersByTime(2500);
+    });
     unmount();
-    expect(mockPosthogCapture).toHaveBeenCalledWith('match_dismissed', {
-      variant: 'standard',
+    expect(mockCapture).toHaveBeenCalledWith('match_overlay_dismissed', {
       match_id: 'm-1',
-      dismissed_via: 'auto',
+      duration_ms: expect.any(Number),
+      action: 'closed',
     });
   });
 
-  it('fires PostHog "match_dismissed" with dismissed_via="primary" when Cook this! is tapped', () => {
+  it('fires analytics "match_overlay_dismissed" with action="cook_this" when Cook this! is tapped', () => {
     const onPrimary = jest.fn();
     const { unmount } = render(
       <MatchOverlay payload={PAYLOAD} onClose={jest.fn()} onPrimary={onPrimary} />,
     );
     fireEvent.press(screen.getByTestId('match-overlay-primary'));
     unmount();
-    expect(mockPosthogCapture).toHaveBeenCalledWith('match_dismissed', {
-      variant: 'standard',
+    expect(mockCapture).toHaveBeenCalledWith('match_overlay_dismissed', {
       match_id: 'm-1',
-      dismissed_via: 'primary',
+      duration_ms: expect.any(Number),
+      action: 'cook_this',
     });
   });
 
-  it('fires PostHog "match_dismissed" with dismissed_via="secondary" when Keep swiping is tapped', () => {
+  it('fires analytics "match_overlay_dismissed" with action="keep_swiping" when Keep swiping is tapped', () => {
     const onClose = jest.fn();
     const { unmount } = render(<MatchOverlay payload={PAYLOAD} onClose={onClose} />);
     fireEvent.press(screen.getByTestId('match-overlay-secondary'));
     unmount();
-    expect(mockPosthogCapture).toHaveBeenCalledWith('match_dismissed', {
-      variant: 'standard',
+    expect(mockCapture).toHaveBeenCalledWith('match_overlay_dismissed', {
       match_id: 'm-1',
-      dismissed_via: 'secondary',
+      duration_ms: expect.any(Number),
+      action: 'keep_swiping',
     });
   });
 });

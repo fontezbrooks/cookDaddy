@@ -9,7 +9,9 @@
 // Verifies a shared secret header, classifies the payload, resolves recipients
 // + tokens + per-type opt-outs from Postgres with the service-role client, then
 // builds Expo push messages (../_shared/fan-out-push.ts) and POSTs them to the
-// Expo push service. All non-IO logic is unit-tested under Jest in _shared.
+// Expo push service. It also emits server-side PostHog events
+// (pod_invite_consumed / session_started), gated on POSTHOG_API_KEY. All non-IO
+// logic is unit-tested under Jest in _shared.
 //
 // Source spec: docs/DESIGN/README.md §9 + docs/WORKFLOW/README.md §14.
 // Local: `supabase functions serve fan-out-push`.
@@ -17,17 +19,21 @@
 // @ts-nocheck
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { PostHog } from 'npm:posthog-node@4';
 import {
   buildExpoMessages,
   classifyWebhook,
   WebhookPayloadError,
   type Recipient,
 } from '../_shared/fan-out-push.ts';
+import { buildAnalyticsEvents } from '../_shared/server-analytics.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const FANOUT_WEBHOOK_SECRET = Deno.env.get('FANOUT_WEBHOOK_SECRET');
 const EXPO_ACCESS_TOKEN = Deno.env.get('EXPO_ACCESS_TOKEN'); // optional
+const POSTHOG_API_KEY = Deno.env.get('POSTHOG_API_KEY');
+const POSTHOG_HOST = Deno.env.get('POSTHOG_HOST') ?? 'https://us.i.posthog.com';
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !FANOUT_WEBHOOK_SECRET) {
@@ -122,8 +128,10 @@ Deno.serve(async (req) => {
   }
 
   let event;
+  let body;
   try {
-    event = classifyWebhook(await req.json());
+    body = await req.json();
+    event = classifyWebhook(body);
   } catch (err) {
     if (err instanceof WebhookPayloadError) {
       return new Response(`bad payload: ${err.message}`, { status: 400 });
@@ -174,6 +182,25 @@ Deno.serve(async (req) => {
   }
 
   await sendExpo(messages);
+  if (POSTHOG_API_KEY) {
+    try {
+      const captures = buildAnalyticsEvents(event, body.record ?? {});
+      if (captures.length) {
+        const ph = new PostHog(POSTHOG_API_KEY, { host: POSTHOG_HOST });
+        for (const c of captures) {
+          ph.capture({
+            distinctId: c.distinctId,
+            event: c.event,
+            properties: c.properties,
+            groups: c.groups,
+          });
+        }
+        await ph.shutdown();
+      }
+    } catch (err) {
+      console.error('fan-out-push: posthog capture failed', err);
+    }
+  }
   return new Response(JSON.stringify({ sent: messages.length }), {
     status: 200,
     headers: { 'content-type': 'application/json' },

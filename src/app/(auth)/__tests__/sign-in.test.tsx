@@ -11,15 +11,25 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import SignInScreen from '../sign-in';
 
 const mockReplace = jest.fn();
+const mockCapture = jest.fn();
 const mockSearchParams: { redirect?: string } = {};
 jest.mock('expo-router', () => ({
   useRouter: () => ({ replace: mockReplace, push: jest.fn(), back: jest.fn() }),
   useLocalSearchParams: () => mockSearchParams,
 }));
+jest.mock('@/lib/analytics', () => ({
+  useAnalytics: () => ({
+    capture: mockCapture,
+    identify: jest.fn(),
+    group: jest.fn(),
+    reset: jest.fn(),
+  }),
+}));
 
 describe('SignInScreen', () => {
   beforeEach(() => {
     mockReplace.mockClear();
+    mockCapture.mockClear();
     Object.keys(mockSearchParams).forEach(
       (k) => delete (mockSearchParams as Record<string, unknown>)[k],
     );
@@ -70,6 +80,7 @@ describe('SignInScreen', () => {
 
     await waitFor(() => {
       expect(setActive).toHaveBeenCalledWith({ session: 'sess_123' });
+      expect(mockCapture).toHaveBeenCalledWith('signed_in', { provider: 'apple' });
       expect(mockReplace).toHaveBeenCalledWith('/home');
     });
   });

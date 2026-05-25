@@ -30,6 +30,7 @@ import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { haptics } from '@/lib/haptics';
+import { useAnalytics } from '@/lib/analytics';
 import {
   endSession,
   SessionRpcError,
@@ -98,6 +99,7 @@ export function SwipeDeck({
 }: SwipeDeckProps) {
   const { getToken } = useAuth();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
+  const analytics = useAnalytics();
 
   const { data: deck, isLoading } = useDeck(recipeIds);
   const { broadcastCommit, broadcastProgress, broadcastMatch } = useSwipeBroadcast(sessionId);
@@ -113,6 +115,8 @@ export function SwipeDeck({
   const [flashDir, setFlashDir] = useState<SwipeDirection | null>(null);
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const endedRef = useRef(false);
+  const cardIndexRef = useRef(0);
+  const lastSwipeAtRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -193,6 +197,18 @@ export function SwipeDeck({
         // off match.created if their submit_swipe hasn't returned yet.
         void broadcastMatch(payload);
       }
+      const now = Date.now();
+      const timeSincePrevSwipeMs =
+        lastSwipeAtRef.current === null ? 0 : now - lastSwipeAtRef.current;
+      lastSwipeAtRef.current = now;
+      analytics.capture('swipe', {
+        session_id: sessionId,
+        recipe_id: vars.recipeId,
+        direction: vars.direction,
+        card_index: cardIndexRef.current,
+        time_since_prev_swipe_ms: timeSincePrevSwipeMs,
+      });
+      cardIndexRef.current += 1;
       setIndex((i) => i + 1);
     },
     onError: (err, vars) => {

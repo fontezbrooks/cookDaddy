@@ -20,6 +20,8 @@ import * as SecureStore from 'expo-secure-store';
 import { useColorScheme } from 'react-native';
 import { PostHogProvider } from 'posthog-react-native';
 
+import { useAnalyticsIdentity } from '@/lib/use-analytics-identity';
+
 type AppExtra = {
   clerkPublishableKey?: string;
   sentryDsn?: string;
@@ -59,6 +61,11 @@ const queryClient = new QueryClient({
   },
 });
 
+function AnalyticsIdentity() {
+  useAnalyticsIdentity();
+  return null;
+}
+
 function RootLayout() {
   const colorScheme = useColorScheme();
   const publishableKey = extra.clerkPublishableKey ?? '';
@@ -67,6 +74,7 @@ function RootLayout() {
   const tree = (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <QueryClientProvider client={queryClient}>
+        <AnalyticsIdentity />
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />

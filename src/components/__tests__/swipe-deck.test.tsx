@@ -23,6 +23,7 @@ import { SwipeDeck } from '../swipe-deck';
 
 const mockSubmitSwipe = jest.fn();
 const mockEndSession = jest.fn();
+const mockCapture = jest.fn();
 jest.mock('@/lib/session-rpcs', () => {
   const actual = jest.requireActual('@/lib/session-rpcs');
   return {
@@ -55,6 +56,15 @@ jest.mock('@/lib/use-swipe-broadcast', () => ({
 
 jest.mock('@/lib/supabase', () => ({
   createSupabaseClient: () => ({}) as unknown,
+}));
+
+jest.mock('@/lib/analytics', () => ({
+  useAnalytics: () => ({
+    capture: mockCapture,
+    identify: jest.fn(),
+    group: jest.fn(),
+    reset: jest.fn(),
+  }),
 }));
 
 const mockHapticsImpactLight = jest.fn();
@@ -125,6 +135,7 @@ describe('SwipeDeck', () => {
     mockEnqueueSwipe.mockReset();
     mockPeekSwipeQueue.mockReset().mockReturnValue([]);
     mockRemoveFromSwipeQueue.mockReset();
+    mockCapture.mockReset();
     setSignedIn();
   });
 
@@ -184,6 +195,41 @@ describe('SwipeDeck', () => {
       recipeId: 'r-1',
       direction: 'right',
     });
+  });
+
+  it('captures the completed swipe analytics event without PII properties', async () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    mockSubmitSwipe.mockResolvedValueOnce({
+      match: false,
+      matchId: null,
+      alreadyMatched: false,
+    });
+
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+    fireEvent.press(screen.getByTestId('swipe-deck-like'));
+
+    await waitFor(() => {
+      expect(mockCapture).toHaveBeenCalledWith(
+        'swipe',
+        expect.objectContaining({
+          session_id: 'sess-1',
+          recipe_id: 'r-1',
+          direction: 'right',
+          card_index: 0,
+          time_since_prev_swipe_ms: 0,
+        }),
+      );
+    });
+    const props = mockCapture.mock.calls.find(([event]) => event === 'swipe')?.[1] as Record<
+      string,
+      unknown
+    >;
+    expect(Object.keys(props).sort()).toEqual(
+      ['card_index', 'direction', 'recipe_id', 'session_id', 'time_since_prev_swipe_ms'].sort(),
+    );
+    expect(props).not.toHaveProperty('name');
+    expect(props).not.toHaveProperty('display_name');
+    expect(props).not.toHaveProperty('email');
   });
 
   it('Dislike button calls submitSwipe(left)', async () => {

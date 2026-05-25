@@ -25,6 +25,7 @@ import { SwipeDeck, type OnLocalCommitPayload, type OnMatchPayload } from '@/com
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
+import { useAnalytics } from '@/lib/analytics';
 import { determineMatchVariant, type MatchVariant } from '@/lib/match-variant';
 import { markSessionActive, SessionRpcError } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
@@ -37,6 +38,7 @@ type SessionRow = {
   pod_id: string;
   deck_recipe_ids: string[];
   ended_reason: string | null;
+  pods?: { created_at: string } | null;
 };
 
 export default function SessionScreen() {
@@ -45,6 +47,7 @@ export default function SessionScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
+  const { capture } = useAnalytics();
 
   // Hosted at the screen so the overlay survives card-stack re-renders and
   // can be fed by either the local SwipeDeck or the partner broadcast.
@@ -70,6 +73,11 @@ export default function SessionScreen() {
   const [matchesInSession, setMatchesInSession] = useState(0);
   const [lastLocalCommitAt, setLastLocalCommitAt] = useState<number | null>(null);
   const [lastPartnerCommitAt, setLastPartnerCommitAt] = useState<number | null>(null);
+  const lobbyEnteredAtRef = useRef<number | null>(null);
+  const previousStatusRef = useRef<SessionRow['status'] | null>(null);
+  const readyFiredRef = useRef(false);
+  const prevPartnerSizeRef = useRef(0);
+  const firstEverFiredForRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (podHadPriorMatchesRef.current !== undefined) return;
@@ -150,13 +158,15 @@ export default function SessionScreen() {
     queryFn: async (): Promise<SessionRow | null> => {
       const { data, error } = await supabase
         .from('sessions')
-        .select('id, status, pod_id, deck_recipe_ids, ended_reason')
+        .select('id, status, pod_id, deck_recipe_ids, ended_reason, pods(created_at)')
         .eq('id', sessionId as string)
         .maybeSingle();
       if (error) throw new Error(error.message);
       return data as SessionRow | null;
     },
   });
+
+  const session = query.data;
 
   const activateMutation = useMutation({
     mutationFn: () => markSessionActive(supabase, sessionId as string),
@@ -168,7 +178,57 @@ export default function SessionScreen() {
   // Keep deckSize in the variant ref synced from the loaded session row.
   // Lives outside `query.data` access so the ref's deckSize is whatever
   // the most recent successful fetch returned.
-  variantInputsRef.current.deckSize = query.data?.deck_recipe_ids?.length ?? 0;
+  variantInputsRef.current.deckSize = session?.deck_recipe_ids?.length ?? 0;
+
+  useEffect(() => {
+    if (!session) return;
+
+    if (session.status === 'lobby' && lobbyEnteredAtRef.current == null) {
+      lobbyEnteredAtRef.current = Date.now();
+    }
+
+    if (
+      session.status === 'active' &&
+      previousStatusRef.current === 'lobby' &&
+      !readyFiredRef.current
+    ) {
+      readyFiredRef.current = true;
+      // Dual-ready presence UX is deferred (P6b.2); both_ready_within_ms is the lobby→active elapsed proxy.
+      capture('session_ready_state', {
+        session_id: sessionId as string,
+        both_ready_within_ms:
+          lobbyEnteredAtRef.current == null ? 0 : Date.now() - lobbyEnteredAtRef.current,
+      });
+    }
+
+    previousStatusRef.current = session.status;
+  }, [capture, session, sessionId]);
+
+  useEffect(() => {
+    const partnerSize = partnerCommittedRecipeIds.size;
+    if (partnerSize > prevPartnerSizeRef.current) {
+      capture('swipe_progress_seen', {
+        session_id: sessionId as string,
+        partner_offset: partnerSize - localCommittedRecipeIds.size,
+      });
+    }
+    prevPartnerSizeRef.current = partnerSize;
+  }, [capture, localCommittedRecipeIds.size, partnerCommittedRecipeIds.size, sessionId]);
+
+  useEffect(() => {
+    if (!session || !matchPayload || matchVariant !== 'firstEver') return;
+    if (firstEverFiredForRef.current === matchPayload.matchId) return;
+
+    firstEverFiredForRef.current = matchPayload.matchId;
+    const createdAt = session.pods?.created_at;
+    const timeSincePodCreatedMin = createdAt
+      ? Math.round((Date.now() - new Date(createdAt).getTime()) / 60_000)
+      : 0;
+    capture('match_first_ever', {
+      pod_id: session.pod_id,
+      time_since_pod_created_min: timeSincePodCreatedMin,
+    });
+  }, [capture, matchPayload, matchVariant, session]);
 
   if (!sessionId) {
     return (
@@ -190,7 +250,7 @@ export default function SessionScreen() {
     );
   }
 
-  if (!query.data) {
+  if (!session) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.container} testID="session-not-found">
@@ -206,7 +266,6 @@ export default function SessionScreen() {
     );
   }
 
-  const session = query.data;
   const deckSize = session.deck_recipe_ids?.length ?? 0;
 
   if (session.status === 'lobby') {

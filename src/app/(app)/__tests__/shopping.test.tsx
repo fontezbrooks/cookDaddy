@@ -7,6 +7,7 @@ import type { ShoppingItem } from '@/lib/use-shopping-list';
 import ShoppingScreen from '../shopping';
 
 const mockInvalidateQueries = jest.fn();
+const mockCapture = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
   useQueryClient: () => ({ invalidateQueries: mockInvalidateQueries }),
   useMutation: (config: {
@@ -36,6 +37,15 @@ jest.mock('@/lib/use-shopping-list', () => ({
 const mockClient = { from: jest.fn() };
 jest.mock('@/lib/supabase', () => ({
   createSupabaseClient: () => mockClient,
+}));
+
+jest.mock('@/lib/analytics', () => ({
+  useAnalytics: () => ({
+    capture: mockCapture,
+    identify: jest.fn(),
+    group: jest.fn(),
+    reset: jest.fn(),
+  }),
 }));
 
 let mockActivePodId: string | null = 'pod-1';
@@ -95,6 +105,7 @@ describe('ShoppingScreen', () => {
     mockClearChecked.mockReset().mockResolvedValue(undefined);
     mockMoveToPantry.mockReset().mockResolvedValue(undefined);
     mockInvalidateQueries.mockReset();
+    mockCapture.mockReset();
     setSignedIn();
   });
 
@@ -148,6 +159,10 @@ describe('ShoppingScreen', () => {
         mockClient,
         expect.objectContaining({ podId: 'pod-1', addedByUserId: 'user_alice', name: 'Milk' }),
       );
+      expect(mockCapture).toHaveBeenCalledWith('shopping_item_added', {
+        source: 'manual',
+        pantry_conflict: false,
+      });
     });
   });
 
@@ -166,6 +181,7 @@ describe('ShoppingScreen', () => {
           shoppingItemId: 'item-2',
         }),
       );
+      expect(mockCapture).toHaveBeenCalledWith('pantry_item_added', { source: 'shopping_move' });
     });
   });
 

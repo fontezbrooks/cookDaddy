@@ -58,8 +58,11 @@ function codeFromMessage(message: string | undefined): SessionRpcErrorCode {
 export async function startSession(
   supabase: SupabaseClient,
   podId: string,
+  deckSize?: number,
 ): Promise<StartSessionResult> {
-  const { data, error } = await supabase.rpc('start_session', { p_pod_id: podId });
+  const params =
+    deckSize == null ? { p_pod_id: podId } : { p_pod_id: podId, p_deck_size: deckSize };
+  const { data, error } = await supabase.rpc('start_session', params);
   if (error) {
     throw new SessionRpcError(codeFromMessage(error.message), error.message);
   }

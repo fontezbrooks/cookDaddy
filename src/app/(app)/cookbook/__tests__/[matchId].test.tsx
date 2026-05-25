@@ -7,6 +7,7 @@ import { __resetPodStoreForTests, usePodStore } from '@/state/usePodStore';
 import CookbookDetailScreen from '../[matchId]';
 
 const mockInvalidateQueries = jest.fn();
+const mockCapture = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
   useQueryClient: () => ({ invalidateQueries: mockInvalidateQueries }),
   useMutation: (config: {
@@ -47,6 +48,15 @@ jest.mock('@/lib/supabase', () => ({
   createSupabaseClient: () => mockClient,
 }));
 
+jest.mock('@/lib/analytics', () => ({
+  useAnalytics: () => ({
+    capture: mockCapture,
+    identify: jest.fn(),
+    group: jest.fn(),
+    reset: jest.fn(),
+  }),
+}));
+
 const mockBack = jest.fn();
 const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({
@@ -83,6 +93,7 @@ function setActivePod(): void {
 const detail: MatchDetail = {
   matchId: 'm1',
   recipeId: 'r1',
+  matchedAt: '2026-05-23T12:00:00.000Z',
   title: 'Lemony Pasta',
   imageUrl: 'https://example.test/pasta.jpg',
   readyInMinutes: 25,
@@ -127,6 +138,7 @@ describe('CookbookDetailScreen', () => {
     mockAddShopping.mockReset().mockResolvedValue({ insertedCount: 2, pantryConflicts: [] });
     mockNotificationSuccess.mockReset();
     mockInvalidateQueries.mockReset();
+    mockCapture.mockReset();
     mockBack.mockClear();
     mockReplace.mockClear();
     setSignedIn();
@@ -230,6 +242,11 @@ describe('CookbookDetailScreen', () => {
     await waitFor(() => {
       expect(mockMarkCooked).toHaveBeenCalledWith(mockClient, 'm1');
       expect(mockNotificationSuccess).toHaveBeenCalled();
+      expect(mockCapture).toHaveBeenCalledWith('recipe_cooked_marked', {
+        match_id: 'm1',
+        recipe_id: 'r1',
+        time_since_match_h: expect.any(Number),
+      });
     });
   });
 
@@ -300,6 +317,10 @@ describe('CookbookDetailScreen', () => {
       expect(screen.getByTestId('cookbook-shopping-status')).toHaveTextContent(
         /already in pantry: Yellow Onion/,
       );
+      expect(mockCapture).toHaveBeenCalledWith('shopping_item_added', {
+        source: 'recipe',
+        pantry_conflict: true,
+      });
     });
   });
 });

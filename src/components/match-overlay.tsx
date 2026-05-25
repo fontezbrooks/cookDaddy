@@ -16,7 +16,6 @@
 // 2.5s auto-close hard cap (§14), a11y label per §10.
 
 import * as Sentry from '@sentry/react-native';
-import { usePostHog } from 'posthog-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -34,6 +33,7 @@ import { Confetti, CONFETTI_PARTICLE_COUNT } from '@/components/confetti';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
+import { useAnalytics } from '@/lib/analytics';
 import { audio } from '@/lib/audio';
 import { haptics } from '@/lib/haptics';
 import {
@@ -71,38 +71,46 @@ export function MatchOverlay({
 }: MatchOverlayProps) {
   const config = MATCH_VARIANT_CONFIG[variant];
   const reducedMotion = useReducedMotion();
-  const posthog = usePostHog();
+  const analytics = useAnalytics();
 
   // Analytics dismissal-reason — captured on whichever path closes the
   // overlay (auto-close timer / primary CTA / secondary CTA). Mutated
   // in handlers, read in the cleanup effect so we only fire once per
   // overlay lifecycle. Default 'auto' covers the timer path.
   const dismissalReasonRef = useRef<'auto' | 'primary' | 'secondary'>('auto');
+  const mountedAtRef = useRef(Date.now());
 
   // MATCH-UX §11: overlay first frame ≤100ms from broadcast event.
   // Wrap the mount → first-paint window in a Sentry span so it shows
   // up in the perf dashboard. PostHog mirrors the variant + payload IDs
   // so we can correlate engagement against §13 metrics.
   useEffect(() => {
+    const mountedAt = mountedAtRef.current;
     const span = Sentry.startInactiveSpan({
       name: 'match-overlay.mount',
       op: 'ui.render',
       attributes: { variant, matchId: payload.matchId, recipeId: payload.recipeId },
     });
-    posthog?.capture('match_revealed', {
+    analytics.capture('match_revealed', {
       variant,
       match_id: payload.matchId,
       recipe_id: payload.recipeId,
     });
     return () => {
       span?.end();
-      posthog?.capture('match_dismissed', {
-        variant,
+      const action =
+        dismissalReasonRef.current === 'primary'
+          ? 'cook_this'
+          : dismissalReasonRef.current === 'secondary'
+            ? 'keep_swiping'
+            : 'closed';
+      analytics.capture('match_overlay_dismissed', {
         match_id: payload.matchId,
-        dismissed_via: dismissalReasonRef.current,
+        duration_ms: Date.now() - mountedAt,
+        action,
       });
     };
-  }, [posthog, variant, payload.matchId, payload.recipeId]);
+  }, [analytics, variant, payload.matchId, payload.recipeId]);
 
   // Auto-dismiss at the hard cap so a stuck overlay can't block the deck.
   useEffect(() => {

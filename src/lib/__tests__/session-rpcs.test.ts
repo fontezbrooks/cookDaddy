@@ -29,6 +29,28 @@ describe('startSession', () => {
     expect(result).toEqual({ sessionId: 'sess-1', deckRecipeIds: ['r1', 'r2', 'r3'] });
   });
 
+  it('passes p_deck_size when provided', async () => {
+    const rpc = jest.fn().mockResolvedValue({
+      data: [{ session_id: 'sess-1', deck_recipe_ids: ['r1'] }],
+      error: null,
+    });
+
+    await startSession(makeSupabase(rpc), 'pod-1', 15);
+
+    expect(rpc).toHaveBeenCalledWith('start_session', { p_pod_id: 'pod-1', p_deck_size: 15 });
+  });
+
+  it('omits p_deck_size when not provided', async () => {
+    const rpc = jest.fn().mockResolvedValue({
+      data: [{ session_id: 'sess-1', deck_recipe_ids: ['r1'] }],
+      error: null,
+    });
+
+    await startSession(makeSupabase(rpc), 'pod-1');
+
+    expect(rpc).toHaveBeenCalledWith('start_session', { p_pod_id: 'pod-1' });
+  });
+
   it('throws SessionRpcError(not_member) when caller is not in the pod', async () => {
     const rpc = jest.fn().mockResolvedValue({
       data: null,

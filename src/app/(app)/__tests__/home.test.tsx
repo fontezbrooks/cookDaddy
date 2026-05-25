@@ -51,6 +51,7 @@ jest.mock('@/lib/pod-rpcs', () => {
 });
 
 const mockStartSession = jest.fn();
+let mockDeckSize: number | undefined;
 jest.mock('@/lib/session-rpcs', () => {
   const actual = jest.requireActual('@/lib/session-rpcs');
   return {
@@ -58,6 +59,10 @@ jest.mock('@/lib/session-rpcs', () => {
     startSession: (...args: unknown[]) => mockStartSession(...args),
   };
 });
+
+jest.mock('@/lib/use-deck-size-flag', () => ({
+  useDeckSizeFlag: () => mockDeckSize,
+}));
 
 function wrap(children: ReactNode) {
   const client = new QueryClient({
@@ -74,6 +79,7 @@ describe('HomeScreen', () => {
     mockSingle.mockClear();
     mockCreateInvite.mockReset();
     mockStartSession.mockReset();
+    mockDeckSize = undefined;
     mockPush.mockReset();
     jest.mocked(useAuth).mockReturnValue({
       isLoaded: true,
@@ -112,6 +118,7 @@ describe('HomeScreen', () => {
   });
 
   it('starts a session and routes to /session/<id> from the paired view', async () => {
+    mockDeckSize = 15;
     mockSingle.mockResolvedValue({
       data: { display_name: 'Paired User', avatar_url: null },
       error: null,
@@ -132,7 +139,7 @@ describe('HomeScreen', () => {
     fireEvent.press(screen.getByTestId('home-start-session'));
 
     await waitFor(() => {
-      expect(mockStartSession).toHaveBeenCalledWith(expect.anything(), 'pod_abc');
+      expect(mockStartSession).toHaveBeenCalledWith(expect.anything(), 'pod_abc', 15);
       expect(mockPush).toHaveBeenCalledWith('/session/sess_new');
     });
   });

@@ -15,6 +15,7 @@ import { Spacing } from '@/constants/theme';
 import { createPodInvite, PodRpcError } from '@/lib/pod-rpcs';
 import { startSession } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
+import { useDeckSizeFlag } from '@/lib/use-deck-size-flag';
 import { usePodStore } from '@/state/usePodStore';
 
 const INVITE_BASE_URL = 'https://cookdaddy.app/invite/';
@@ -25,6 +26,7 @@ export default function HomeScreen() {
   const activePodId = usePodStore((s) => s.activePodId);
   const partnerRemoved = usePodStore((s) => s.partnerRemoved);
   const acknowledgePartnerRemoved = usePodStore((s) => s.acknowledgePartnerRemoved);
+  const deckSize = useDeckSizeFlag();
   const [inviteHint, setInviteHint] = useState<string | null>(null);
 
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
@@ -47,7 +49,7 @@ export default function HomeScreen() {
   const startSessionMutation = useMutation({
     mutationFn: () => {
       if (!activePodId) throw new Error('no active pod');
-      return startSession(supabase, activePodId);
+      return startSession(supabase, activePodId, deckSize);
     },
     onSuccess: ({ sessionId }) => {
       router.push(`/session/${sessionId}` as never);

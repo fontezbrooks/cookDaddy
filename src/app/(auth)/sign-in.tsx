@@ -12,9 +12,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useAnalytics } from '@/lib/analytics';
 
 export default function SignInScreen() {
   const router = useRouter();
+  const analytics = useAnalytics();
   const { redirect } = useLocalSearchParams<{ redirect?: string }>();
   const { startOAuthFlow: startApple } = useOAuth({ strategy: 'oauth_apple' });
   const { startOAuthFlow: startGoogle } = useOAuth({ strategy: 'oauth_google' });
@@ -49,6 +51,7 @@ export default function SignInScreen() {
         const { createdSessionId, setActive } = await start();
         if (createdSessionId && setActive) {
           await setActive({ session: createdSessionId });
+          analytics.capture('signed_in', { provider });
           router.replace(postSignInTarget as never);
         }
       } catch (err) {
@@ -57,7 +60,7 @@ export default function SignInScreen() {
         setPending('idle');
       }
     },
-    [router, postSignInTarget],
+    [analytics, router, postSignInTarget],
   );
 
   const handleEmail = useCallback(async () => {

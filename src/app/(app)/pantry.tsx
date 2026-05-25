@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
+import { useAnalytics } from '@/lib/analytics';
 import { createSupabaseClient } from '@/lib/supabase';
 import {
   addOrUpdatePantryItem,
@@ -27,6 +28,7 @@ export default function PantryScreen() {
   const activePodId = usePodStore((s) => s.activePodId);
   const { userId, getToken } = useAuth();
   const queryClient = useQueryClient();
+  const analytics = useAnalytics();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
   const { data, isLoading } = usePantry();
   const [name, setName] = useState('');
@@ -49,6 +51,7 @@ export default function PantryScreen() {
       setQuantity('');
       setUnit('');
       queryClient.invalidateQueries({ queryKey: ['pantry', activePodId] });
+      analytics.capture('pantry_item_added', { source: 'manual' });
     },
   });
 

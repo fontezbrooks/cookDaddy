@@ -6,6 +6,7 @@ import type { PantryItem } from '@/lib/use-pantry';
 import PantryScreen from '../pantry';
 
 const mockInvalidateQueries = jest.fn();
+const mockCapture = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
   useQueryClient: () => ({ invalidateQueries: mockInvalidateQueries }),
   useMutation: (config: {
@@ -31,6 +32,15 @@ jest.mock('@/lib/use-pantry', () => ({
 const mockClient = { from: jest.fn() };
 jest.mock('@/lib/supabase', () => ({
   createSupabaseClient: () => mockClient,
+}));
+
+jest.mock('@/lib/analytics', () => ({
+  useAnalytics: () => ({
+    capture: mockCapture,
+    identify: jest.fn(),
+    group: jest.fn(),
+    reset: jest.fn(),
+  }),
 }));
 
 let mockActivePodId: string | null = 'pod-1';
@@ -77,6 +87,7 @@ describe('PantryScreen', () => {
     mockAddOrUpdatePantryItem.mockReset().mockResolvedValue(undefined);
     mockDeletePantryItem.mockReset().mockResolvedValue(undefined);
     mockInvalidateQueries.mockReset();
+    mockCapture.mockReset();
     setSignedIn();
   });
 
@@ -100,6 +111,7 @@ describe('PantryScreen', () => {
         mockClient,
         expect.objectContaining({ podId: 'pod-1', updatedByUserId: 'user_alice', name: 'Rice' }),
       );
+      expect(mockCapture).toHaveBeenCalledWith('pantry_item_added', { source: 'manual' });
     });
   });
 

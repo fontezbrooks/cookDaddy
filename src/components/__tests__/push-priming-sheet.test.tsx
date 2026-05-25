@@ -13,7 +13,7 @@ import { __resetPushPrimingStoreForTests, usePushPrimingStore } from '@/state/us
 import { PushPrimingSheet } from '../push-priming-sheet';
 
 const mockClient = { from: jest.fn() };
-const mockPosthogCapture = jest.fn();
+const mockCapture = jest.fn();
 
 jest.mock('@/lib/push-registration', () => ({
   getPushPermissionStatus: jest.fn(),
@@ -25,14 +25,14 @@ jest.mock('@/lib/supabase', () => ({
   createSupabaseClient: () => mockClient,
 }));
 
-jest.mock('posthog-react-native', () => {
-  const React = require('react');
-  return {
-    PostHogProvider: ({ children }: { children: unknown }) =>
-      React.createElement(React.Fragment, null, children),
-    usePostHog: () => ({ capture: mockPosthogCapture, identify: jest.fn(), reset: jest.fn() }),
-  };
-});
+jest.mock('@/lib/analytics', () => ({
+  useAnalytics: () => ({
+    capture: mockCapture,
+    identify: jest.fn(),
+    group: jest.fn(),
+    reset: jest.fn(),
+  }),
+}));
 
 function setSignedIn(): void {
   jest.mocked(useAuth).mockReturnValue({
@@ -113,7 +113,7 @@ describe('PushPrimingSheet', () => {
     await waitFor(() => expect(screen.getByTestId('push-priming-sheet')).toBeOnTheScreen());
 
     expect(screen.getByTestId('push-priming-sheet')).toHaveTextContent(/Bob wants to swipe/);
-    expect(mockPosthogCapture).toHaveBeenCalledWith('push_permission_prompted', {
+    expect(mockCapture).toHaveBeenCalledWith('push_permission_prompted', {
       trigger: 'first_pod_created',
     });
   });
@@ -126,7 +126,7 @@ describe('PushPrimingSheet', () => {
 
     await waitFor(() => expect(screen.getByTestId('push-priming-sheet')).toBeOnTheScreen());
 
-    expect(mockPosthogCapture).toHaveBeenCalledWith('push_permission_prompted', {
+    expect(mockCapture).toHaveBeenCalledWith('push_permission_prompted', {
       trigger: 'reprompt',
     });
   });
@@ -144,7 +144,7 @@ describe('PushPrimingSheet', () => {
     await waitFor(() => expect(requestPushPermission).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(registerPushToken).toHaveBeenCalledWith(mockClient, 'user_alice'));
 
-    expect(mockPosthogCapture).toHaveBeenCalledWith('push_permission_granted', {
+    expect(mockCapture).toHaveBeenCalledWith('push_permission_granted', {
       platform: expect.any(String),
     });
     expect(usePushPrimingStore.getState().promptedAt).toBe(Date.now());
@@ -164,10 +164,7 @@ describe('PushPrimingSheet', () => {
     await waitFor(() => expect(requestPushPermission).toHaveBeenCalledTimes(1));
 
     expect(registerPushToken).not.toHaveBeenCalled();
-    expect(mockPosthogCapture).not.toHaveBeenCalledWith(
-      'push_permission_granted',
-      expect.anything(),
-    );
+    expect(mockCapture).not.toHaveBeenCalledWith('push_permission_granted', expect.anything());
     expect(usePushPrimingStore.getState().promptedAt).toBe(Date.now());
     await waitFor(() => expect(screen.queryByTestId('push-priming-sheet')).toBeNull());
   });

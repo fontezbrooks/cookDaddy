@@ -49,6 +49,7 @@ type RecipeRow = {
 type MatchRow = {
   id: string;
   recipe_id: string;
+  created_at: string;
   cooked_at: string | null;
   removed_at: string | null;
   recipes: RecipeRow | RecipeRow[] | null;
@@ -184,6 +185,7 @@ function matchRow(recipes: RecipeRow | RecipeRow[] | null = recipe): MatchRow {
   return {
     id: 'match-1',
     recipe_id: 'recipe-1',
+    created_at: '2026-05-23T12:00:00.000Z',
     cooked_at: null,
     removed_at: null,
     recipes,
@@ -208,6 +210,7 @@ describe('useMatchDetail', () => {
     expect(result.current.data).toEqual({
       matchId: 'match-1',
       recipeId: 'recipe-1',
+      matchedAt: '2026-05-23T12:00:00.000Z',
       title: 'Lemony Pasta',
       imageUrl: 'https://example.test/pasta.jpg',
       readyInMinutes: 25,
@@ -283,7 +286,7 @@ describe('useMatchDetail', () => {
       [20.5, 28],
     );
     expect(mockSelect).toHaveBeenCalledWith(
-      'id, recipe_id, cooked_at, removed_at, recipes(title, image_url, ready_in_minutes, servings, source_url, source_name, recipe_ingredients(id, name, original, amount, unit, sort_order), recipe_nutrients(name, amount, unit, percent_of_daily_needs), recipe_instruction_groups(sort_order, recipe_instruction_steps(step_number, step_text, length_number, length_unit, sort_order)))',
+      'id, recipe_id, created_at, cooked_at, removed_at, recipes(title, image_url, ready_in_minutes, servings, source_url, source_name, recipe_ingredients(id, name, original, amount, unit, sort_order), recipe_nutrients(name, amount, unit, percent_of_daily_needs), recipe_instruction_groups(sort_order, recipe_instruction_steps(step_number, step_text, length_number, length_unit, sort_order)))',
     );
     expect(mockEq).toHaveBeenCalledWith('id', 'match-1');
   });
