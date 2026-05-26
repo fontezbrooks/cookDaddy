@@ -6,19 +6,24 @@
 import { useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Pressable, Share, StyleSheet, View } from 'react-native';
+import { useMemo } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import {
+  DEFAULT_DIETARY_FLAGS,
+  hasAnyDietaryFlag,
+  type DietaryRow,
+} from '@/components/dietary-chips';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import { createPodInvite, PodRpcError } from '@/lib/pod-rpcs';
 import { startSession } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
+import { useCreatePodInvite } from '@/lib/use-create-pod-invite';
 import { useDeckSizeFlag } from '@/lib/use-deck-size-flag';
 import { usePodStore } from '@/state/usePodStore';
 
-const INVITE_BASE_URL = 'https://cookdaddy.app/invite/';
+const DEV_SOLO_MATCH_SESSION_ID = process.env.EXPO_PUBLIC_DEV_SOLO_MATCH_SESSION_ID;
 
 export default function HomeScreen() {
   const { userId, getToken } = useAuth();
@@ -27,7 +32,7 @@ export default function HomeScreen() {
   const partnerRemoved = usePodStore((s) => s.partnerRemoved);
   const acknowledgePartnerRemoved = usePodStore((s) => s.acknowledgePartnerRemoved);
   const deckSize = useDeckSizeFlag();
-  const [inviteHint, setInviteHint] = useState<string | null>(null);
+  const { createInvite, hint: inviteHint, isPending: isInvitePending } = useCreatePodInvite();
 
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
 
@@ -46,6 +51,21 @@ export default function HomeScreen() {
     },
   });
 
+  const { data: dietaryRow } = useQuery({
+    queryKey: ['dietary_profiles', userId],
+    enabled: Boolean(userId),
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data: row, error } = await supabase
+        .from('dietary_profiles')
+        .select('*')
+        .eq('user_id', userId as string)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      return (row as DietaryRow | null) ?? { user_id: userId as string, ...DEFAULT_DIETARY_FLAGS };
+    },
+  });
+
   const startSessionMutation = useMutation({
     mutationFn: () => {
       if (!activePodId) throw new Error('no active pod');
@@ -53,29 +73,6 @@ export default function HomeScreen() {
     },
     onSuccess: ({ sessionId }) => {
       router.push(`/session/${sessionId}` as never);
-    },
-  });
-
-  const inviteMutation = useMutation({
-    mutationFn: () => createPodInvite(supabase),
-    onSuccess: async ({ token }) => {
-      try {
-        await Share.share({
-          message: `Pair with me on cookDaddy: ${INVITE_BASE_URL}${token}`,
-          url: `${INVITE_BASE_URL}${token}`,
-        });
-        setInviteHint('Link shared. Waiting for your partner to tap it.');
-      } catch {
-        // Share sheet was dismissed — the invite still exists server-side.
-        setInviteHint('Invite created. Share it anytime from this screen.');
-      }
-    },
-    onError: (err) => {
-      if (err instanceof PodRpcError && err.code === 'already_in_a_pod') {
-        setInviteHint('You’re already paired. Reload to see your pod.');
-      } else {
-        setInviteHint('Couldn’t create an invite. Please try again.');
-      }
     },
   });
 
@@ -135,12 +132,12 @@ export default function HomeScreen() {
 
             <Pressable
               testID="home-create-invite"
-              style={[styles.cta, inviteMutation.isPending && styles.ctaDisabled]}
-              disabled={inviteMutation.isPending}
-              onPress={() => inviteMutation.mutate()}
+              style={[styles.cta, isInvitePending && styles.ctaDisabled]}
+              disabled={isInvitePending}
+              onPress={() => createInvite()}
             >
               <ThemedText type="small" style={styles.ctaText}>
-                {inviteMutation.isPending ? 'Creating link…' : 'Create invite link'}
+                {isInvitePending ? 'Creating link…' : 'Create invite link'}
               </ThemedText>
             </Pressable>
 
@@ -156,11 +153,90 @@ export default function HomeScreen() {
           </View>
         )}
 
+        {!hasAnyDietaryFlag(dietaryRow) ? (
+          <Link href="/settings/dietary" testID="home-dietary-nudge">
+            <ThemedText type="small">→ Set dietary preferences</ThemedText>
+          </Link>
+        ) : null}
+
         <Link href="/shopping" testID="home-cta-shopping">
           <ThemedText type="small">→ Shopping list</ThemedText>
         </Link>
+
+        <DevSoloMatchControl
+          activePodId={activePodId}
+          deckSize={deckSize}
+          supabase={supabase}
+          router={router}
+        />
       </View>
     </SafeAreaView>
+  );
+}
+
+function DevSoloMatchControl(props: {
+  activePodId: string | null;
+  deckSize: number | undefined;
+  supabase: ReturnType<typeof createSupabaseClient>;
+  router: ReturnType<typeof useRouter>;
+}) {
+  if (!__DEV__) return null;
+  return <DevSoloMatchControlInner {...props} />;
+}
+
+function DevSoloMatchControlInner({
+  activePodId,
+  deckSize,
+  supabase,
+  router,
+}: {
+  activePodId: string | null;
+  deckSize: number | undefined;
+  supabase: ReturnType<typeof createSupabaseClient>;
+  router: ReturnType<typeof useRouter>;
+}) {
+  const devSoloMatchMutation = useMutation({
+    mutationFn: async () => {
+      if (DEV_SOLO_MATCH_SESSION_ID) return DEV_SOLO_MATCH_SESSION_ID;
+      if (!activePodId) throw new Error('no active pod');
+
+      const { data: latestSession, error } = await supabase
+        .from('sessions')
+        .select('id')
+        .eq('pod_id', activePodId)
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      if (latestSession?.id) return latestSession.id as string;
+
+      const { sessionId } = await startSession(supabase, activePodId, deckSize);
+      return sessionId;
+    },
+    onSuccess: (sessionId) => {
+      router.push(`/session/${sessionId}` as never);
+    },
+  });
+
+  return (
+    <View style={styles.devFixture} testID="home-dev-solo-match-section">
+      <Pressable
+        testID="home-dev-solo-match"
+        style={[styles.cta, devSoloMatchMutation.isPending && styles.ctaDisabled]}
+        disabled={devSoloMatchMutation.isPending}
+        onPress={() => devSoloMatchMutation.mutate()}
+      >
+        <ThemedText type="small" style={styles.ctaText}>
+          {devSoloMatchMutation.isPending ? 'Opening…' : 'DEV: solo match'}
+        </ThemedText>
+      </Pressable>
+
+      {devSoloMatchMutation.isError ? (
+        <ThemedText type="small" testID="home-dev-solo-match-error">
+          Run pnpm dev:seed-match for this signed-in local user first.
+        </ThemedText>
+      ) : null}
+    </View>
   );
 }
 
@@ -203,5 +279,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.one,
     borderRadius: 8,
     backgroundColor: '#111',
+  },
+  devFixture: {
+    marginTop: Spacing.two,
+    gap: Spacing.two,
   },
 });

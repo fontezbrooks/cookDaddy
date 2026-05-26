@@ -5,16 +5,22 @@
 // screens use the factory directly).
 
 import { useAuth } from '@clerk/clerk-expo';
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, Stack, useSegments } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { PushPrimingSheet } from '@/components/push-priming-sheet';
 import { usePodSync } from '@/lib/use-pod-sync';
 import { usePushDeepLink } from '@/lib/use-push-deep-link';
 import { usePushForeground } from '@/lib/use-push-foreground';
+import { useOnboardingStore } from '@/state/useOnboardingStore';
 
 export default function ProtectedLayout() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn, userId } = useAuth();
+  const segments = useSegments();
+  const onboardingProgress = useOnboardingStore((s) =>
+    userId ? s.completedByUser[userId] : undefined,
+  );
+  const onboardingCompleted = onboardingProgress?.completed ?? false;
 
   // Keep usePodStore reconciled with the server's pod_members truth so
   // partner-removed-me transitions surface on foreground (DESIGN §16.1).
@@ -34,6 +40,10 @@ export default function ProtectedLayout() {
 
   if (!isSignedIn) {
     return <Redirect href="/(auth)/sign-in" />;
+  }
+
+  if (!onboardingCompleted && !segments.includes('onboarding')) {
+    return <Redirect href="/onboarding" />;
   }
 
   return (

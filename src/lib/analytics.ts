@@ -6,6 +6,7 @@ import { useCallback, useMemo } from 'react';
 import { useSettingsStore } from '@/state/useSettingsStore';
 
 type Platform = 'ios' | 'android';
+type EmptyProperties = Record<string, never>;
 
 export type AnalyticsEventProperties = {
   app_opened: { platform: Platform; app_version: string; cold_start: boolean; locale: string };
@@ -36,9 +37,14 @@ export type AnalyticsEventProperties = {
   };
   match_first_ever: { pod_id: string; time_since_pod_created_min: number };
   recipe_cooked_marked: { match_id: string; recipe_id: string; time_since_match_h: number };
+  // P14: deferred until the recipe rating UI lands.
   recipe_rated: { match_id: string; recipe_id: string; stars: number };
   shopping_item_added: { source: 'recipe' | 'manual'; pantry_conflict: boolean };
   pantry_item_added: { source: 'manual' | 'shopping_move' };
+  fridge_viewed: { item_count: number; aisle_count: number };
+  onboarding_started: EmptyProperties;
+  onboarding_step_completed: { step: number; skipped: boolean };
+  onboarding_completed: { skipped_steps: number };
   settings_vibes_changed: { which_setting: string; new_value: boolean };
 };
 
