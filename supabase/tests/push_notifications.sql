@@ -67,11 +67,10 @@ select ok(
   'anon cannot prune stale push tokens'
 );
 
-select tests.as_user('user_alice');
-select throws_ok(
-  $$ select public.prune_stale_push_tokens() $$,
-  '42501',
-  NULL,
+-- service_role only — assert declaratively (calling it as authenticated also
+-- crashes the Supabase-CLI local Postgres, same as the anon case above).
+select ok(
+  not has_function_privilege('authenticated', 'public.prune_stale_push_tokens()', 'EXECUTE'),
   'authenticated user cannot prune stale push tokens'
 );
 
