@@ -8,8 +8,8 @@ import { render, screen } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 
-import VibesScreen from '../settings/vibes';
-import ShoppingScreen from '../shopping';
+import VibesScreen from '../(tabs)/settings/vibes';
+import ShoppingScreen from '../(tabs)/shopping';
 import PantryScreen from '../pantry';
 
 // The invite/[token], session/[sessionId], and cookbook (index + [matchId])
