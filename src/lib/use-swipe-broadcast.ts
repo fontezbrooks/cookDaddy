@@ -16,17 +16,17 @@ import { createSupabaseClient } from '@/lib/supabase';
 
 import type { SwipeDirection } from '@/lib/session-rpcs';
 
-export type PartnerCommit = {
+type PartnerCommit = {
   recipeId: string;
   direction: SwipeDirection;
 };
 
-export type PartnerProgress = {
+type PartnerProgress = {
   recipeId: string;
   fraction: number;
 };
 
-export type PartnerMatch = {
+type PartnerMatch = {
   matchId: string;
   recipeId: string;
   recipeTitle: string;

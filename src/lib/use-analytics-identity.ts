@@ -15,7 +15,7 @@ function analyticsPlatform(): AnalyticsPlatform {
   return Platform.OS as AnalyticsPlatform;
 }
 
-export function resolveLocale(): string {
+function resolveLocale(): string {
   try {
     return Intl.DateTimeFormat().resolvedOptions().locale;
   } catch {

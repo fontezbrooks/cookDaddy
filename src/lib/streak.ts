@@ -1,4 +1,4 @@
-export const STREAK_THRESHOLD = 3;
+const STREAK_THRESHOLD = 3;
 
 export function computeStreakLength(
   recipeIds: string[],
