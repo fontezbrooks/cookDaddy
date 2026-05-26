@@ -7,6 +7,15 @@ select plan(5);
 
 select tests.seed_paired_pod() as pod \gset
 
+-- compute_session_deck pulls from all is_complete recipes. CI runs against a
+-- freshly-reset local DB with only a handful of complete recipes (cloud has
+-- ~89), so seed enough here to make the [5,50] size caps observable regardless
+-- of ambient catalog size. A fresh pod has no swipes/matches, so none are excluded.
+select tests.as_service();
+insert into public.recipes(external_id, title, raw_payload, is_complete)
+select 900000000 + g, 'Deck Size Recipe ' || g, '{}'::jsonb, true
+from generate_series(1, 12) g;
+
 select tests.as_user('user_alice');
 select * from public.start_session((:'pod')::uuid, 10) \gset s10_
 
