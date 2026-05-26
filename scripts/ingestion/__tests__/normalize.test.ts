@@ -1,5 +1,5 @@
 // Unit tests for the Spoonacular → DB normalizer.
-// Uses real fixture files in RecipeJson/ so regressions on actual payload shapes
+// Uses real fixture files in the local fixtures dir so regressions on actual payload shapes
 // are caught — Spoonacular drifts and minor field renames have bitten before.
 
 import { promises as fs } from 'node:fs';
@@ -12,10 +12,10 @@ import {
   titleSimilarity,
 } from '../normalize';
 
-const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
-const BUFFALO_FIXTURE = path.join(REPO_ROOT, 'RecipeJson', 'Best_Buffalo_Chicken_Chili.json');
-const ALMOND_FIXTURE = path.join(REPO_ROOT, 'RecipeJson', 'Almond_Horns.json');
-const BEEF_FIXTURE = path.join(REPO_ROOT, 'RecipeJson', 'Beef_Braised_In_Red_Wine.json');
+const FIXTURES_DIR = path.join(__dirname, 'fixtures');
+const BUFFALO_FIXTURE = path.join(FIXTURES_DIR, 'Best_Buffalo_Chicken_Chili.json');
+const ALMOND_FIXTURE = path.join(FIXTURES_DIR, 'Almond_Horns.json');
+const BEEF_FIXTURE = path.join(FIXTURES_DIR, 'Beef_Braised_In_Red_Wine.json');
 
 describe('normalizeSpoonPayload (Best_Buffalo_Chicken_Chili.json fixture)', () => {
   let payload: unknown;

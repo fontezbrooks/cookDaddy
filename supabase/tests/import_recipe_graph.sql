@@ -312,20 +312,14 @@ select is((:'update_result'::jsonb->>'inserted')::boolean, false, 'update call r
 select is((select title from public.recipes where id = (:'first_result'::jsonb->>'recipe_id')::uuid), 'Atomic Graph Chili Updated',
   'update path changes recipe title');
 
-select tests.as_anon();
-select throws_ok(
-  $$ select public.import_recipe_graph('{"recipe":{"external_id":999002,"title":"Denied","raw_payload":{},"is_complete":false}}'::jsonb) $$,
-  '42501',
-  null,
+select ok(
+  not has_function_privilege('anon', 'public.import_recipe_graph(jsonb)', 'EXECUTE'),
   'anon cannot execute import_recipe_graph'
 );
 
-select tests.as_user('user_alice');
-select throws_ok(
-  $$ select public.import_recipe_graph('{"recipe":{"external_id":999003,"title":"Denied","raw_payload":{},"is_complete":false}}'::jsonb) $$,
-  '42501',
-  null,
-  'authenticated user cannot execute import_recipe_graph'
+select ok(
+  not has_function_privilege('authenticated', 'public.import_recipe_graph(jsonb)', 'EXECUTE'),
+  'authenticated cannot execute import_recipe_graph'
 );
 
 select * from finish();

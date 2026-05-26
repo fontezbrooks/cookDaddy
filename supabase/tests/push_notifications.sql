@@ -60,12 +60,10 @@ select is(
   'fresh token remains'
 );
 
--- Function is service_role only.
-select tests.as_anon();
-select throws_ok(
-  $$ select public.prune_stale_push_tokens() $$,
-  '42501',
-  NULL,
+-- Function is service_role only. Assert the lockdown declaratively — calling
+-- it as anon crashes the Supabase-CLI local Postgres (see other test notes).
+select ok(
+  not has_function_privilege('anon', 'public.prune_stale_push_tokens()', 'EXECUTE'),
   'anon cannot prune stale push tokens'
 );
 

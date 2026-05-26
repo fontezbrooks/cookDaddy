@@ -6,6 +6,7 @@ web-build/
 ios/
 android/
 RecipeJson/
+scripts/ingestion/__tests__/fixtures/
 docs/
 supabase/functions/*/index.ts
 supabase/.temp/

@@ -87,14 +87,13 @@ select throws_ok(
   'non-member cannot add to another pod''s shopping list'
 );
 
--- Anon has no EXECUTE grant.
-select tests.as_anon();
-select throws_ok(
-  format($$ select public.add_shopping_items_from_recipe(%L::uuid, %L::uuid, array[%L::uuid]) $$,
-         :'pod', :'recipe', :'ing_onion'),
-  '42501',
-  null,
-  'anon is denied execute'
+-- Anon has no EXECUTE grant. Assert the lockdown declaratively rather than
+-- invoking the SECURITY DEFINER function as anon: a function-level 42501
+-- denial under `set role anon` crashes the Supabase-CLI local Postgres
+-- (postmaster reset -> recovery), failing the whole pgTAP run in CI.
+select ok(
+  not has_function_privilege('anon', 'public.add_shopping_items_from_recipe(uuid, uuid, uuid[])', 'EXECUTE'),
+  'anon cannot execute add_shopping_items_from_recipe'
 );
 
 select * from finish();
