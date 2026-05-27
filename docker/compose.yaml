@@ -1,0 +1,21 @@
+services:
+  ingest:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: cookdaddy-ingest:local
+    restart: always
+    env_file: ../.env # injects HEALTHCHECK_PING_URL etc. into the container env
+    environment:
+      TZ: UTC
+    volumes:
+      - ..:/app # host git clone (live code via git pull)
+      - ingest_node_modules:/app/node_modules # Linux-native deps (don't shadow with host)
+      - ingest_recipejson:/app/RecipeJson # persists fetched JSON + .imported.json ledger
+    # tiny workload; cap resources so it can't balloon
+    mem_limit: 1g
+    cpus: 1.0
+
+volumes:
+  ingest_node_modules:
+  ingest_recipejson:

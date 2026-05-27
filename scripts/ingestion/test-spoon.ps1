@@ -38,7 +38,7 @@ if (-not $ApiKey) {
 }
 
 $Uri = 'https://api.spoonacular.com/recipes/random?' +
-'number=5' +
+'number=3' +
 '&include-tags=dinner' +
 '&exclude-tags=seafood,shellfish,peanut,dessert' +
 '&includeNutrition=true' +
