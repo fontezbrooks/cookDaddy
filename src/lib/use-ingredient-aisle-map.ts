@@ -23,8 +23,11 @@ export function useIngredientAisleMap(): {
     queryKey: ['ingredient-aisle-map'],
     staleTime: INGREDIENT_AISLE_MAP_STALE_MS,
     queryFn: async (): Promise<Map<string, string>> => {
-      // P14: repoint this source to the canonical ingredients table when it lands.
-      const { data, error } = await supabase.from('recipe_ingredients').select('name_clean, aisle');
+      // P14: interim bound until canonical-ingredient server-side aggregation lands.
+      const { data, error } = await supabase
+        .from('recipe_ingredients')
+        .select('name_clean, aisle')
+        .limit(50000);
       if (error) throw new Error(error.message);
       return buildIngredientAisleMap((data ?? []) as IngredientAisleRow[]);
     },

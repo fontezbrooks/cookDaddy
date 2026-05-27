@@ -139,7 +139,9 @@ any code.** E2 must preserve scaffolding this milestone depends on (see FR2.4).
 2. **Milestone split:** P13 = launch-readiness; P14 = pivot.
 3. **Onboarding steps:** value-prop intro + pod create/join + dietary/allergens (no vibes/notif step).
 4. **Onboarding gating:** pod & dietary **skippable with home nudge**; intro unskippable.
-5. **Onboarding flag:** **local device** (reinstall re-shows; accepted).
+5. **Onboarding flag:** **local device** (reinstall re-shows; accepted). **Implemented via MMKV+zustand**
+   (`useOnboardingStore`, `createMmkvStorage('cookdaddy-onboarding')`, per-userId `completedByUser`) — the
+   idiomatic store pattern already used by `useSettingsStore`, **not** secure-store. Zero new deps.
 6. **Fridge route:** **new dedicated route**, separate from pantry.
 7. **Fridge interactivity:** **read-only**, with an **Edit button that routes to pantry**.
 8. **Fridge grouping:** **by aisle**.
@@ -163,7 +165,9 @@ any code.** E2 must preserve scaffolding this milestone depends on (see FR2.4).
 - **Data access pattern:** RPCs for writes/logic (`createPodInvite`, `startSession`, `add_shopping_items_from_recipe`); typed `useQuery` hooks for reads (`usePantry`, `useShoppingList`).
 - **Animation:** reanimated 4 + gesture-handler; `useReducedMotion()` already collapses motion to a 250 ms crossfade (MATCH-UX §12).
 - **Analytics:** P12 `useAnalytics()` wrapper + consent gate; PostHog provider gated on key.
-- **Storage available:** `expo-secure-store` (no AsyncStorage/MMKV — do not add one).
+- **Storage available:** `expo-secure-store` (Clerk token cache) **and `react-native-mmkv`** — already a
+  project dep, used by `useSettingsStore`/`useAuthStore` via `createMmkvStorage`. *(Design-time note said
+  "no MMKV"; that was wrong — MMKV is present, see the onboarding-flag implementation update below.)*
 
 ---
 
@@ -242,7 +246,9 @@ sequenceDiagram
 ```
 
 **`useOnboardingStatus()`** — new hook:
-- Reads `expo-secure-store` key `onboarding:v1:${userId}` → JSON `{ completed: boolean, step: number }` (per-user-per-device; FR3.1 local flag).
+- **Implemented as `useOnboardingStore` (MMKV+zustand `persist`), not a hook over secure-store:**
+  `createMmkvStorage('cookdaddy-onboarding')`, per-userId `completedByUser: Record<userId, { completed,
+  step, skipped }>`. MMKV reads are synchronous → no async loading state in the guard.
 - Returns `{ isLoaded, completed, step, advanceTo(step), complete() }` — `complete()` writes `{completed:true}`, `advanceTo()` persists `step` for resumability (FR3.6).
 - Immutable writes (spread, never mutate stored object).
 
@@ -346,5 +352,7 @@ E3 and E4 can proceed in parallel once E1's `(tabs)` skeleton exists (both add a
 - Nav IA → **tab bar** (Home · Cookbook · Fridge · Shopping · Settings; Settings = hub).
 - Aisle source → **client-side modal derivation** from `recipe_ingredients`; no migration; P14 repoints to canonical table.
 - Onboarding routing → **single-screen stepper**, resumable via persisted `step`.
-- Onboarding flag → `expo-secure-store` key `onboarding:v1:${userId}` (reuse existing dep).
+- Onboarding flag → **MMKV+zustand `useOnboardingStore`** (`createMmkvStorage('cookdaddy-onboarding')`,
+  per-userId). *(Design originally proposed secure-store; switched to MMKV during implementation —
+  already a project dep + the established store pattern, still zero new deps.)*
 - Pantry → **not a tab**; reached via Fridge "Edit".

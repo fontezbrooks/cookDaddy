@@ -35,7 +35,8 @@ export function groupPantryItemsByAisle(
   const grouped = new Map<string, PantryItem[]>();
 
   for (const item of items) {
-    const aisle = item.nameClean ? (aisleMap.get(item.nameClean) ?? 'Other') : 'Other';
+    const key = item.nameClean?.trim();
+    const aisle = key ? (aisleMap.get(key) ?? 'Other') : 'Other';
     grouped.set(aisle, [...(grouped.get(aisle) ?? []), item]);
   }
 

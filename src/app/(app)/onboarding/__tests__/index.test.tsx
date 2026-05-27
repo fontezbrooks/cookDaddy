@@ -59,6 +59,7 @@ describe('OnboardingScreen', () => {
     });
     expect(useOnboardingStore.getState().completedByUser.user_clerk_xyz).toEqual({
       completed: false,
+      skipped: 0,
       step: 1,
     });
     expect(mockCapture).toHaveBeenCalledWith('onboarding_step_completed', {
@@ -73,6 +74,7 @@ describe('OnboardingScreen', () => {
     });
     expect(useOnboardingStore.getState().completedByUser.user_clerk_xyz).toEqual({
       completed: false,
+      skipped: 1,
       step: 2,
     });
     expect(mockCapture).toHaveBeenCalledWith('onboarding_step_completed', {
@@ -81,8 +83,23 @@ describe('OnboardingScreen', () => {
     });
   });
 
-  it('resumes from the stored step and completes with skipped step count', async () => {
+  it.each([1, 2])(
+    'resumes from stored step %i without capturing onboarding_started',
+    async (storedStep) => {
+      useOnboardingStore.getState().setStep('user_clerk_xyz', storedStep);
+
+      render(<OnboardingScreen />);
+
+      expect(
+        screen.getByTestId(storedStep === 1 ? 'onboarding-pod' : 'onboarding-dietary'),
+      ).toBeOnTheScreen();
+      expect(mockCapture).not.toHaveBeenCalledWith('onboarding_started', {});
+    },
+  );
+
+  it('resumes from the stored step and completes with persisted skipped step count', async () => {
     useOnboardingStore.getState().setStep('user_clerk_xyz', 2);
+    useOnboardingStore.getState().recordSkip('user_clerk_xyz');
 
     render(<OnboardingScreen />);
 
@@ -93,7 +110,7 @@ describe('OnboardingScreen', () => {
       expect(mockReplace).toHaveBeenCalledWith('/home');
     });
     expect(useOnboardingStore.getState().completedByUser.user_clerk_xyz?.completed).toBe(true);
-    expect(mockCapture).toHaveBeenCalledWith('onboarding_completed', { skipped_steps: 1 });
+    expect(mockCapture).toHaveBeenCalledWith('onboarding_completed', { skipped_steps: 2 });
   });
 
   it('completes without adding skipped steps when the dietary step is done', async () => {

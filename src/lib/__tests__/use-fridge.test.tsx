@@ -68,6 +68,41 @@ describe('useFridge', () => {
     expect(result.current.groups.at(2)?.items.map((item) => item.name)).toEqual(['Rice']);
   });
 
+  it('trims nameClean before looking up the derived aisle', () => {
+    mockUsePantry.mockReturnValue({
+      data: [pantryItem({ id: '1', name: 'Apples', nameClean: ' apple ' })],
+      isLoading: false,
+      error: null,
+    });
+    mockUseIngredientAisleMap.mockReturnValue({
+      data: new Map([['apple', 'Produce']]),
+      isLoading: false,
+      error: null,
+    });
+
+    const { result } = renderHook(() => useFridge());
+
+    expect(result.current.groups).toHaveLength(1);
+    expect(result.current.groups[0]?.aisle).toBe('Produce');
+  });
+
+  it('treats an empty trimmed nameClean as Other', () => {
+    mockUsePantry.mockReturnValue({
+      data: [pantryItem({ id: '1', name: 'Mystery item', nameClean: '   ' })],
+      isLoading: false,
+      error: null,
+    });
+    mockUseIngredientAisleMap.mockReturnValue({
+      data: new Map([['mystery item', 'Pantry']]),
+      isLoading: false,
+      error: null,
+    });
+
+    const { result } = renderHook(() => useFridge());
+
+    expect(result.current.groups[0]?.aisle).toBe('Other');
+  });
+
   it('returns an empty group list for an empty pantry', () => {
     mockUsePantry.mockReturnValue({ data: [], isLoading: false, error: null });
     mockUseIngredientAisleMap.mockReturnValue({ data: new Map(), isLoading: false, error: null });

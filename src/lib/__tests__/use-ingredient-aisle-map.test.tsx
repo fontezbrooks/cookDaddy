@@ -15,6 +15,7 @@ const mockRows = {
   error: null as { message: string } | null,
 };
 
+const mockLimit = jest.fn();
 const mockSelect = jest.fn();
 const mockFrom = jest.fn();
 const mockClient = { from: mockFrom };
@@ -72,9 +73,10 @@ describe('useIngredientAisleMap', () => {
   beforeEach(() => {
     mockRows.data = [];
     mockRows.error = null;
-    mockSelect
+    mockLimit
       .mockReset()
       .mockImplementation(() => Promise.resolve({ data: mockRows.data, error: mockRows.error }));
+    mockSelect.mockReset().mockReturnValue({ limit: mockLimit });
     mockFrom.mockReset().mockReturnValue({ select: mockSelect });
     setSignedIn();
   });
@@ -94,8 +96,34 @@ describe('useIngredientAisleMap', () => {
 
     expect(mockFrom).toHaveBeenCalledWith('recipe_ingredients');
     expect(mockSelect).toHaveBeenCalledWith('name_clean, aisle');
+    expect(mockLimit).toHaveBeenCalledWith(50000);
     expect(result.current.data).toBeInstanceOf(Map);
     expect(result.current.data.get('egg')).toBe('Dairy');
     expect(result.current.error).toBeNull();
+  });
+
+  it('returns an empty Map when the limited query returns null data', async () => {
+    mockRows.data = null;
+
+    const { result } = renderHook(() => useIngredientAisleMap(), {
+      wrapper: ({ children }) => wrap(children),
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(mockLimit).toHaveBeenCalledWith(50000);
+    expect([...result.current.data.entries()]).toEqual([]);
+  });
+
+  it('surfaces query errors', async () => {
+    mockRows.error = { message: 'aisle fetch failed' };
+
+    const { result } = renderHook(() => useIngredientAisleMap(), {
+      wrapper: ({ children }) => wrap(children),
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.error?.message).toBe('aisle fetch failed');
   });
 });

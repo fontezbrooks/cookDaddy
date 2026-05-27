@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,28 +15,31 @@ export default function OnboardingScreen() {
   const { userId } = useAuth();
   const router = useRouter();
   const progress = useOnboardingStore((s) => (userId ? s.completedByUser[userId] : undefined));
+  const recordSkip = useOnboardingStore((s) => s.recordSkip);
   const setStep = useOnboardingStore((s) => s.setStep);
   const complete = useOnboardingStore((s) => s.complete);
   const { capture } = useAnalytics();
-  const [step, setLocalStep] = useState(progress?.step ?? 0);
-  const [skippedSteps, setSkippedSteps] = useState(0);
+  const initialStepRef = useRef(progress?.step ?? 0);
+  const [step, setLocalStep] = useState(initialStepRef.current);
 
   useEffect(() => {
-    capture('onboarding_started', {});
+    if (initialStepRef.current === 0) {
+      capture('onboarding_started', {});
+    }
   }, [capture]);
 
   const advance = (skipped: boolean) => {
     if (!userId) return;
     const next = Math.min(step + 1, 2);
     capture('onboarding_step_completed', { step, skipped });
+    if (skipped) recordSkip(userId);
     setStep(userId, next);
     setLocalStep(next);
-    if (skipped) setSkippedSteps((count) => count + 1);
   };
 
   const finish = (skipped: boolean) => {
     if (!userId) return;
-    const finalSkippedSteps = skipped ? skippedSteps + 1 : skippedSteps;
+    const finalSkippedSteps = skipped ? recordSkip(userId) : (progress?.skipped ?? 0);
     capture('onboarding_step_completed', { step, skipped });
     complete(userId);
     capture('onboarding_completed', { skipped_steps: finalSkippedSteps });
