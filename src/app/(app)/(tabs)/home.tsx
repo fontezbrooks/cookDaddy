@@ -23,8 +23,6 @@ import { useCreatePodInvite } from '@/lib/use-create-pod-invite';
 import { useDeckSizeFlag } from '@/lib/use-deck-size-flag';
 import { usePodStore } from '@/state/usePodStore';
 
-const DEV_SOLO_MATCH_SESSION_ID = process.env.EXPO_PUBLIC_DEV_SOLO_MATCH_SESSION_ID;
-
 export default function HomeScreen() {
   const { userId, getToken } = useAuth();
   const router = useRouter();
@@ -162,81 +160,8 @@ export default function HomeScreen() {
         <Link href="/shopping" testID="home-cta-shopping">
           <ThemedText type="small">→ Shopping list</ThemedText>
         </Link>
-
-        <DevSoloMatchControl
-          activePodId={activePodId}
-          deckSize={deckSize}
-          supabase={supabase}
-          router={router}
-        />
       </View>
     </SafeAreaView>
-  );
-}
-
-function DevSoloMatchControl(props: {
-  activePodId: string | null;
-  deckSize: number | undefined;
-  supabase: ReturnType<typeof createSupabaseClient>;
-  router: ReturnType<typeof useRouter>;
-}) {
-  if (!__DEV__) return null;
-  return <DevSoloMatchControlInner {...props} />;
-}
-
-function DevSoloMatchControlInner({
-  activePodId,
-  deckSize,
-  supabase,
-  router,
-}: {
-  activePodId: string | null;
-  deckSize: number | undefined;
-  supabase: ReturnType<typeof createSupabaseClient>;
-  router: ReturnType<typeof useRouter>;
-}) {
-  const devSoloMatchMutation = useMutation({
-    mutationFn: async () => {
-      if (DEV_SOLO_MATCH_SESSION_ID) return DEV_SOLO_MATCH_SESSION_ID;
-      if (!activePodId) throw new Error('no active pod');
-
-      const { data: latestSession, error } = await supabase
-        .from('sessions')
-        .select('id')
-        .eq('pod_id', activePodId)
-        .order('started_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw new Error(error.message);
-      if (latestSession?.id) return latestSession.id as string;
-
-      const { sessionId } = await startSession(supabase, activePodId, deckSize);
-      return sessionId;
-    },
-    onSuccess: (sessionId) => {
-      router.push(`/session/${sessionId}` as never);
-    },
-  });
-
-  return (
-    <View style={styles.devFixture} testID="home-dev-solo-match-section">
-      <Pressable
-        testID="home-dev-solo-match"
-        style={[styles.cta, devSoloMatchMutation.isPending && styles.ctaDisabled]}
-        disabled={devSoloMatchMutation.isPending}
-        onPress={() => devSoloMatchMutation.mutate()}
-      >
-        <ThemedText type="small" style={styles.ctaText}>
-          {devSoloMatchMutation.isPending ? 'Opening…' : 'DEV: solo match'}
-        </ThemedText>
-      </Pressable>
-
-      {devSoloMatchMutation.isError ? (
-        <ThemedText type="small" testID="home-dev-solo-match-error">
-          Run pnpm dev:seed-match for this signed-in local user first.
-        </ThemedText>
-      ) : null}
-    </View>
   );
 }
 
@@ -279,9 +204,5 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.one,
     borderRadius: 8,
     backgroundColor: '#111',
-  },
-  devFixture: {
-    marginTop: Spacing.two,
-    gap: Spacing.two,
   },
 });
