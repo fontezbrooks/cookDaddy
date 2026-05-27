@@ -20,7 +20,7 @@ milestone, sign-off first).
 | E2 Dead-code pass | Canonical `ingredients` table |
 | E3 Onboarding (intro · pod · dietary) | Spoonacular by-ingredient seeding |
 | E4 Fridge page (new route) | Any PRD / DESIGN / MATCH-UX change |
-| E5 Single-phone fixture *(nice-to-have)* | |
+| E5 Single-phone fixture *(implemented, then removed at user request)* | |
 
 ---
 
@@ -97,20 +97,17 @@ currently have.
 animation plays on mount and **respects the OS reduce-motion setting**; Edit button routes to
 `pantry`; empty state present; emits `fridge_viewed`.
 
-## E5 — Single-phone test fixture *(nice-to-have, cuttable)*
+## E5 — Single-phone test fixture *(implemented, then removed)*
 
 **Story:** As a tester, I can trigger a match solo, without a second physical device.
+
+**Status:** Implemented as a dev-only fixture, then removed at the user's request. E1-E4 remain intact.
 
 - **FR5.1** Seed/fixture: a test user pre-paired in a pod with a partner holding N fixed likes, so the
   tester's right-swipe produces a match.
 - **FR5.2** Dev-only entry point — **never bundled or reachable in production builds**.
 
-**Acceptance:** in a dev build a tester reaches a match state solo; absent from production; explicitly
-droppable if it slips.
-
-**DEV usage:** start local Supabase, sign into the Expo app, run
-`DEV_USER_ID=<signed-in Clerk user id> pnpm dev:seed-match`, then open the printed `/session/<id>` or
-tap Home's `DEV: solo match` control in a dev build.
+**Acceptance:** superseded by removal; no dev seed script or Home dev control remains.
 
 ---
 
@@ -146,6 +143,7 @@ any code.** E2 must preserve scaffolding this milestone depends on (see FR2.4).
 7. **Fridge interactivity:** **read-only**, with an **Edit button that routes to pantry**.
 8. **Fridge grouping:** **by aisle**.
 9. **Dead-code:** **keep** ingredient / recipe-rating scaffolding P14 will use.
+10. **E5 fixture:** implemented as a dev-only solo-match fixture, then removed at the user's request.
 
 ---
 ---
@@ -313,10 +311,10 @@ useFridge() →
 
 ---
 
-## E5 — Single-phone fixture *(nice-to-have, `__DEV__` only)*
+## E5 — Single-phone fixture *(implemented, then removed)*
 
-- **Seed (dev script):** test user + pod pairing test-user ↔ synthetic partner; partner pre-likes N recipes in a session so the tester's right-swipe triggers the instant-match overlay.
-- **Entry point:** `__DEV__`-gated control on Home (`if (!__DEV__) return null`) → runs seed → starts session. Never imported into / reachable in production builds.
+- Implemented as a dev seed script plus Home dev-only entry point.
+- Removed at the user's request; no seed script, package script, Home dev control, or dev-control tests remain.
 
 ---
 
@@ -332,10 +330,10 @@ useFridge() →
 E1 tab bar  ──▶  E3 onboarding ─┐
                  E4 fridge ──────┼──▶  E2 dead-code (last)
                                  │
-E5 fixture (anytime, optional) ──┘
+E5 fixture (removed after implementation) ──┘
 ```
 
-E3 and E4 can proceed in parallel once E1's `(tabs)` skeleton exists (both add a tab/route into it). E2 is gated last. E5 is independent and droppable.
+E3 and E4 can proceed in parallel once E1's `(tabs)` skeleton exists (both add a tab/route into it). E2 is gated last. E5 was independent, implemented, and later removed.
 
 ## Files touched (map)
 
@@ -345,7 +343,7 @@ E3 and E4 can proceed in parallel once E1's `(tabs)` skeleton exists (both add a
 | E3 | `onboarding/index`, `useOnboardingStatus`, `IntroStep`, `useCreatePodInvite`, `<DietaryChips>` | `(app)/_layout` (onboarding redirect), `home` (extract invite + dietary nudge), `settings/dietary` (use `<DietaryChips>`) | — |
 | E4 | `(tabs)/fridge`, `useFridge`, `useIngredientAisleMap` | `home`/tab nav (Fridge tab) | — |
 | E2 | — | removals across tree | — |
-| E5 | dev seed script + dev entry component | `home` (dev-gated control) | — |
+| E5 | — | removed dev seed script + dev entry component | — |
 
 ## Open design decisions (resolved)
 
