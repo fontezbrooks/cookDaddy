@@ -3,6 +3,8 @@
  *   • When Clerk reports no signed-in session, render a <Redirect /> to
  *     /(auth)/sign-in. The (app) tree must NOT render.
  *   • When signed in, render the children Stack.
+ *   • Signed-in users who have not completed onboarding redirect to
+ *     /onboarding, unless they are already inside that segment.
  *   • While Clerk is still loading, render a loading placeholder (not a
  *     redirect — would otherwise bounce the user mid-hydration).
  */
@@ -32,6 +34,7 @@ jest.mock('@/components/push-priming-sheet', () => ({
 
 // Capture <Redirect /> targets so the test can assert the route.
 const mockRedirect = jest.fn();
+let mockSegments: string[] = [];
 jest.mock('expo-router', () => {
   const React = require('react');
   return {
@@ -41,12 +44,21 @@ jest.mock('expo-router', () => {
     },
     Stack: (props: { children?: React.ReactNode }) =>
       React.createElement('Stack', null, props.children),
+    useSegments: jest.fn(() => mockSegments),
   };
 });
+
+let mockCompletedByUser: Record<string, { completed: boolean; step: number }> = {};
+jest.mock('@/state/useOnboardingStore', () => ({
+  useOnboardingStore: (selector: (state: unknown) => unknown) =>
+    selector({ completedByUser: mockCompletedByUser }),
+}));
 
 describe('(app)/_layout', () => {
   beforeEach(() => {
     mockRedirect.mockClear();
+    mockSegments = [];
+    mockCompletedByUser = {};
   });
 
   it('redirects to /sign-in when no Clerk session', () => {
@@ -63,7 +75,22 @@ describe('(app)/_layout', () => {
     expect(tree.UNSAFE_getByType('Redirect' as never)).toBeTruthy();
   });
 
-  it('renders the navigation stack when signed in', () => {
+  it('shows a loading placeholder while Clerk is still hydrating', () => {
+    jest.mocked(useAuth).mockReturnValue({
+      isLoaded: false,
+      isSignedIn: false,
+      userId: null,
+      getToken: jest.fn(),
+      signOut: jest.fn(),
+    } as never);
+
+    const tree = render(<ProtectedLayout />);
+    expect(mockRedirect).not.toHaveBeenCalled();
+    expect(tree.getByTestId('protected-loading')).toBeOnTheScreen();
+  });
+
+  it('renders the navigation stack when signed in and onboarding is completed', () => {
+    mockCompletedByUser = { user_abc: { completed: true, step: 2 } };
     jest.mocked(useAuth).mockReturnValue({
       isLoaded: true,
       isSignedIn: true,
@@ -77,17 +104,33 @@ describe('(app)/_layout', () => {
     expect(tree.UNSAFE_getByType('Stack' as never)).toBeTruthy();
   });
 
-  it('shows a loading placeholder while Clerk is still hydrating', () => {
+  it('redirects to onboarding when signed in and onboarding is not completed', () => {
+    mockSegments = ['(app)', '(tabs)', 'home'];
     jest.mocked(useAuth).mockReturnValue({
-      isLoaded: false,
-      isSignedIn: false,
-      userId: null,
-      getToken: jest.fn(),
+      isLoaded: true,
+      isSignedIn: true,
+      userId: 'user_abc',
+      getToken: jest.fn().mockResolvedValue('jwt-fixture'),
+      signOut: jest.fn(),
+    } as never);
+
+    const tree = render(<ProtectedLayout />);
+    expect(mockRedirect).toHaveBeenCalledWith('/onboarding');
+    expect(tree.UNSAFE_getByType('Redirect' as never)).toBeTruthy();
+  });
+
+  it('renders the navigation stack when already in onboarding to avoid a redirect loop', () => {
+    mockSegments = ['(app)', 'onboarding'];
+    jest.mocked(useAuth).mockReturnValue({
+      isLoaded: true,
+      isSignedIn: true,
+      userId: 'user_abc',
+      getToken: jest.fn().mockResolvedValue('jwt-fixture'),
       signOut: jest.fn(),
     } as never);
 
     const tree = render(<ProtectedLayout />);
     expect(mockRedirect).not.toHaveBeenCalled();
-    expect(tree.getByTestId('protected-loading')).toBeOnTheScreen();
+    expect(tree.UNSAFE_getByType('Stack' as never)).toBeTruthy();
   });
 });

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "app.config.ts",
+    "eslint.config.js",
+    "jest.config.js",
+    "jest.setup.js",
+    "src/app/**/*.{ts,tsx}",
+    "src/**/*.test.{ts,tsx}",
+    "scripts/**/*.{js,ts}"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "scripts/**/*.{js,ts}",
+    "supabase/functions/_shared/**/*.ts",
+    "types/**/*.d.ts",
+    "__mocks__/**/*.js"
+  ],
+  "ignore": [
+    "coverage/**",
+    ".expo/**",
+    "ios/**",
+    "android/**",
+    "RecipeJson/**",
+    "scripts/ingestion/test-spoon.ps1",
+    "supabase/functions/*/index.ts"
+  ]
+}

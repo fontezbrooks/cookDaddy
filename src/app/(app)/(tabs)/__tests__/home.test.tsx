@@ -16,18 +16,35 @@ import { __resetPodStoreForTests } from '@/state/usePodStore';
 import HomeScreen from '../home';
 
 // Supabase factory is mocked so the home screen never needs a real network.
-const mockSelect = jest.fn();
-const mockEq = jest.fn();
 const mockSingle = jest.fn();
+const mockMaybeSingle = jest.fn();
+const mockSessionsMaybeSingle = jest.fn();
+const mockFrom = jest.fn((table: string) => {
+  if (table === 'dietary_profiles') {
+    return {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      maybeSingle: mockMaybeSingle,
+    };
+  }
+  if (table === 'sessions') {
+    return {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      order: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      maybeSingle: mockSessionsMaybeSingle,
+    };
+  }
+  return {
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    single: mockSingle,
+  };
+});
 jest.mock('@/lib/supabase', () => ({
   createSupabaseClient: jest.fn(() => ({
-    from: jest.fn(() => ({
-      select: mockSelect.mockReturnValue({
-        eq: mockEq.mockReturnValue({
-          single: mockSingle,
-        }),
-      }),
-    })),
+    from: mockFrom,
   })),
   ensureSelfUserRow: jest.fn().mockResolvedValue(undefined),
 }));
@@ -74,9 +91,11 @@ function wrap(children: ReactNode) {
 describe('HomeScreen', () => {
   beforeEach(() => {
     __resetPodStoreForTests();
-    mockSelect.mockClear();
-    mockEq.mockClear();
+    mockFrom.mockClear();
     mockSingle.mockClear();
+    mockMaybeSingle.mockResolvedValue({ data: null, error: null });
+    mockSessionsMaybeSingle.mockReset();
+    mockSessionsMaybeSingle.mockResolvedValue({ data: null, error: null });
     mockCreateInvite.mockReset();
     mockStartSession.mockReset();
     mockDeckSize = undefined;
@@ -144,6 +163,101 @@ describe('HomeScreen', () => {
     });
   });
 
+  it('opens the latest seeded dev solo-match session from the dev control', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Paired User', avatar_url: null },
+      error: null,
+    });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().setActivePod({
+      podId: 'pod_abc',
+      partnerId: 'dev_solo_match_partner',
+      partnerDisplayName: 'DEV Solo Partner',
+    });
+    mockSessionsMaybeSingle.mockResolvedValueOnce({
+      data: { id: 'sess_seeded' },
+      error: null,
+    });
+
+    render(wrap(<HomeScreen />));
+    await waitFor(() => expect(screen.getByTestId('home-dev-solo-match')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-dev-solo-match'));
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/session/sess_seeded');
+    });
+    expect(mockStartSession).not.toHaveBeenCalled();
+  });
+
+  it('falls back to start_session from the dev control when no seeded session exists', async () => {
+    mockDeckSize = 20;
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Paired User', avatar_url: null },
+      error: null,
+    });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().setActivePod({
+      podId: 'pod_abc',
+      partnerId: 'dev_solo_match_partner',
+      partnerDisplayName: 'DEV Solo Partner',
+    });
+    mockSessionsMaybeSingle.mockResolvedValueOnce({ data: null, error: null });
+    mockStartSession.mockResolvedValueOnce({
+      sessionId: 'sess_fallback',
+      deckRecipeIds: ['r1'],
+    });
+
+    render(wrap(<HomeScreen />));
+    await waitFor(() => expect(screen.getByTestId('home-dev-solo-match')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-dev-solo-match'));
+
+    await waitFor(() => {
+      expect(mockStartSession).toHaveBeenCalledWith(expect.anything(), 'pod_abc', 20);
+      expect(mockPush).toHaveBeenCalledWith('/session/sess_fallback');
+    });
+  });
+
+  it('shows a dev-control hint when no active pod is available', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+
+    render(wrap(<HomeScreen />));
+    await waitFor(() => expect(screen.getByTestId('home-dev-solo-match')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-dev-solo-match'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-dev-solo-match-error')).toBeOnTheScreen();
+    });
+  });
+
+  it('shows a dev-control hint when the seeded session lookup fails', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Paired User', avatar_url: null },
+      error: null,
+    });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().setActivePod({
+      podId: 'pod_abc',
+      partnerId: 'dev_solo_match_partner',
+      partnerDisplayName: 'DEV Solo Partner',
+    });
+    mockSessionsMaybeSingle.mockResolvedValueOnce({
+      data: null,
+      error: { message: 'lookup failed' },
+    });
+
+    render(wrap(<HomeScreen />));
+    await waitFor(() => expect(screen.getByTestId('home-dev-solo-match')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-dev-solo-match'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-dev-solo-match-error')).toBeOnTheScreen();
+    });
+    expect(mockStartSession).not.toHaveBeenCalled();
+  });
+
   it('surfaces an error hint when start_session rejects', async () => {
     mockSingle.mockResolvedValue({
       data: { display_name: 'Paired User', avatar_url: null },
@@ -197,6 +311,45 @@ describe('HomeScreen', () => {
     await waitFor(() => {
       expect(screen.getByTestId('home-cta-shopping')).toBeOnTheScreen();
     });
+  });
+
+  it('shows the dietary nudge when dietary preferences are missing', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+    mockMaybeSingle.mockResolvedValueOnce({ data: null, error: null });
+
+    render(wrap(<HomeScreen />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-dietary-nudge')).toBeOnTheScreen();
+    });
+  });
+
+  it('hides the dietary nudge when any dietary preference is enabled', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+    mockMaybeSingle.mockResolvedValueOnce({
+      data: {
+        user_id: 'user_clerk_xyz',
+        vegetarian: false,
+        vegan: true,
+        gluten_free: false,
+        dairy_free: false,
+        low_fodmap: false,
+      },
+      error: null,
+    });
+
+    render(wrap(<HomeScreen />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-greeting')).toHaveTextContent(/Solo User/);
+    });
+    expect(screen.queryByTestId('home-dietary-nudge')).toBeNull();
   });
 
   it('hides the empty state when an active pod is set', async () => {
