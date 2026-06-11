@@ -86,7 +86,11 @@ jobs:
 
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned: `latest` drifted to v2.102.0+ which runs `supabase test db`
+          # as a restricted role, so the pgTAP seed helpers hit
+          # "permission denied for table users" (all tests "ran 0").
+          # v2.101.0 is the last version where the suite passed (2026-05-27).
+          version: 2.101.0
 
       - name: Start Supabase
         run: supabase start
