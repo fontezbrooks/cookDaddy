@@ -8,72 +8,217 @@
         "role": "primary",
         "displayName": "Persimmon",
         "canonical": "oklch(0.66 0.18 42)",
-        "tonalRamp": ["oklch(0.20 0.08 42)", "oklch(0.30 0.12 42)", "oklch(0.40 0.15 42)", "oklch(0.50 0.17 42)", "oklch(0.66 0.18 42)", "oklch(0.76 0.14 42)", "oklch(0.86 0.09 42)", "oklch(0.95 0.04 42)"]
+        "tonalRamp": [
+          "oklch(0.20 0.08 42)",
+          "oklch(0.30 0.12 42)",
+          "oklch(0.40 0.15 42)",
+          "oklch(0.50 0.17 42)",
+          "oklch(0.66 0.18 42)",
+          "oklch(0.76 0.14 42)",
+          "oklch(0.86 0.09 42)",
+          "oklch(0.95 0.04 42)"
+        ]
       },
       "punch-pink": {
         "role": "secondary",
         "displayName": "Punch Pink",
         "canonical": "oklch(0.70 0.18 1)",
-        "tonalRamp": ["oklch(0.22 0.09 1)", "oklch(0.33 0.13 1)", "oklch(0.44 0.16 1)", "oklch(0.56 0.18 1)", "oklch(0.70 0.18 1)", "oklch(0.80 0.13 1)", "oklch(0.88 0.08 1)", "oklch(0.95 0.04 1)"]
+        "tonalRamp": [
+          "oklch(0.22 0.09 1)",
+          "oklch(0.33 0.13 1)",
+          "oklch(0.44 0.16 1)",
+          "oklch(0.56 0.18 1)",
+          "oklch(0.70 0.18 1)",
+          "oklch(0.80 0.13 1)",
+          "oklch(0.88 0.08 1)",
+          "oklch(0.95 0.04 1)"
+        ]
       },
       "pool-teal": {
         "role": "tertiary",
         "displayName": "Pool Teal",
         "canonical": "oklch(0.79 0.10 187)",
-        "tonalRamp": ["oklch(0.25 0.05 187)", "oklch(0.36 0.07 187)", "oklch(0.47 0.08 187)", "oklch(0.60 0.09 187)", "oklch(0.79 0.10 187)", "oklch(0.86 0.08 187)", "oklch(0.92 0.05 187)", "oklch(0.97 0.02 187)"]
+        "tonalRamp": [
+          "oklch(0.25 0.05 187)",
+          "oklch(0.36 0.07 187)",
+          "oklch(0.47 0.08 187)",
+          "oklch(0.60 0.09 187)",
+          "oklch(0.79 0.10 187)",
+          "oklch(0.86 0.08 187)",
+          "oklch(0.92 0.05 187)",
+          "oklch(0.97 0.02 187)"
+        ]
       },
       "arcade-amber": {
         "role": "tertiary",
         "displayName": "Arcade Amber",
         "canonical": "oklch(0.83 0.15 80)",
-        "tonalRamp": ["oklch(0.28 0.07 80)", "oklch(0.40 0.10 80)", "oklch(0.52 0.13 80)", "oklch(0.66 0.15 80)", "oklch(0.83 0.15 80)", "oklch(0.89 0.11 80)", "oklch(0.94 0.07 80)", "oklch(0.98 0.03 80)"]
+        "tonalRamp": [
+          "oklch(0.28 0.07 80)",
+          "oklch(0.40 0.10 80)",
+          "oklch(0.52 0.13 80)",
+          "oklch(0.66 0.15 80)",
+          "oklch(0.83 0.15 80)",
+          "oklch(0.89 0.11 80)",
+          "oklch(0.94 0.07 80)",
+          "oklch(0.98 0.03 80)"
+        ]
       },
       "ink": {
         "role": "neutral",
         "displayName": "Ink",
         "canonical": "oklch(0.25 0.012 60)",
-        "tonalRamp": ["oklch(0.18 0.012 60)", "oklch(0.25 0.012 60)", "oklch(0.38 0.010 60)", "oklch(0.50 0.010 70)", "oklch(0.62 0.008 70)", "oklch(0.75 0.005 80)", "oklch(0.88 0.003 90)", "oklch(0.975 0.002 270)"]
+        "tonalRamp": [
+          "oklch(0.18 0.012 60)",
+          "oklch(0.25 0.012 60)",
+          "oklch(0.38 0.010 60)",
+          "oklch(0.50 0.010 70)",
+          "oklch(0.62 0.008 70)",
+          "oklch(0.75 0.005 80)",
+          "oklch(0.88 0.003 90)",
+          "oklch(0.975 0.002 270)"
+        ]
       },
       "canvas": {
         "role": "neutral",
         "displayName": "Canvas",
         "canonical": "oklch(0.975 0.002 270)",
-        "tonalRamp": ["oklch(0.18 0.006 60)", "oklch(0.25 0.008 60)", "oklch(0.40 0.006 70)", "oklch(0.55 0.004 90)", "oklch(0.70 0.003 120)", "oklch(0.85 0.002 200)", "oklch(0.94 0.002 250)", "oklch(0.975 0.002 270)"]
+        "tonalRamp": [
+          "oklch(0.18 0.006 60)",
+          "oklch(0.25 0.008 60)",
+          "oklch(0.40 0.006 70)",
+          "oklch(0.55 0.004 90)",
+          "oklch(0.70 0.003 120)",
+          "oklch(0.85 0.002 200)",
+          "oklch(0.94 0.002 250)",
+          "oklch(0.975 0.002 270)"
+        ]
       },
       "success": {
         "role": "semantic",
         "displayName": "Fresh Green",
         "canonical": "oklch(0.66 0.16 150)",
-        "tonalRamp": ["oklch(0.24 0.07 150)", "oklch(0.34 0.10 150)", "oklch(0.45 0.13 150)", "oklch(0.56 0.15 150)", "oklch(0.66 0.16 150)", "oklch(0.78 0.12 150)", "oklch(0.88 0.07 150)", "oklch(0.95 0.04 150)"]
+        "tonalRamp": [
+          "oklch(0.24 0.07 150)",
+          "oklch(0.34 0.10 150)",
+          "oklch(0.45 0.13 150)",
+          "oklch(0.56 0.15 150)",
+          "oklch(0.66 0.16 150)",
+          "oklch(0.78 0.12 150)",
+          "oklch(0.88 0.07 150)",
+          "oklch(0.95 0.04 150)"
+        ]
+      },
+      "success-deep": {
+        "role": "semantic",
+        "displayName": "Success Deep",
+        "canonical": "oklch(0.53 0.13 152)",
+        "tonalRamp": [
+          "oklch(0.24 0.07 152)",
+          "oklch(0.34 0.10 152)",
+          "oklch(0.43 0.12 152)",
+          "oklch(0.53 0.13 152)",
+          "oklch(0.64 0.13 152)",
+          "oklch(0.76 0.11 152)",
+          "oklch(0.87 0.07 152)",
+          "oklch(0.95 0.04 152)"
+        ]
       },
       "danger": {
         "role": "semantic",
         "displayName": "Chili Red",
         "canonical": "oklch(0.59 0.20 28)",
-        "tonalRamp": ["oklch(0.22 0.09 28)", "oklch(0.32 0.13 28)", "oklch(0.43 0.17 28)", "oklch(0.59 0.20 28)", "oklch(0.70 0.16 28)", "oklch(0.80 0.11 28)", "oklch(0.89 0.06 28)", "oklch(0.96 0.03 28)"]
+        "tonalRamp": [
+          "oklch(0.22 0.09 28)",
+          "oklch(0.32 0.13 28)",
+          "oklch(0.43 0.17 28)",
+          "oklch(0.59 0.20 28)",
+          "oklch(0.70 0.16 28)",
+          "oklch(0.80 0.11 28)",
+          "oklch(0.89 0.06 28)",
+          "oklch(0.96 0.03 28)"
+        ]
       }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "Hero voice — 'It's a Match!', celebration headers, first-run welcome. Space Grotesk 700. May scale to ~72px for the match hero only." },
-      "headline": { "displayName": "Headline", "purpose": "Section openers, empty-state headers, big stat moments. Space Grotesk 600." },
-      "title": { "displayName": "Title", "purpose": "Screen titles, recipe names, list section headers. Inter 600." },
-      "body": { "displayName": "Body", "purpose": "Ingredient lists, descriptions, settings rows. Inter 400-500. Cap measured prose at 65-75ch." },
-      "label": { "displayName": "Label", "purpose": "Chips, tab labels, metadata. Inter 600, sentence case — never tracked all-caps eyebrows." },
-      "numeral": { "displayName": "Numeral", "purpose": "Timers, 'card 7/20', streak counts, prep time, macros. JetBrains Mono 500 for scoreboard feel." }
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero voice — 'It's a Match!', celebration headers, first-run welcome. Space Grotesk 700. May scale to ~72px for the match hero only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section openers, empty-state headers, big stat moments. Space Grotesk 600."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Screen titles, recipe names, list section headers. Inter 600."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Ingredient lists, descriptions, settings rows. Inter 400-500. Cap measured prose at 65-75ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Chips, tab labels, metadata. Inter 600, sentence case — never tracked all-caps eyebrows."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "Timers, 'card 7/20', streak counts, prep time, macros. JetBrains Mono 500 for scoreboard feel."
+      }
     },
     "shadows": [
-      { "name": "rest", "value": "none", "purpose": "Default. Surfaces sit on Canvas separated by a 1px ink@8% hairline — flat until touched." },
-      { "name": "raised", "value": "0 2px 8px rgba(42,37,33,0.08)", "purpose": "Sheets, active deck card at rest, floating controls. Soft, close, ambient." },
-      { "name": "lifted", "value": "0 12px 32px rgba(42,37,33,0.18)", "purpose": "Deck card mid-swipe and modals — 'in your hand' depth." },
-      { "name": "match-glow", "value": "0 0 48px rgba(255,79,135,0.45)", "purpose": "Punch-Pink bloom behind the match card. The ONLY place glow is allowed." }
+      {
+        "name": "rest",
+        "value": "none",
+        "purpose": "Default. Surfaces sit on Canvas separated by a 1px ink@8% hairline — flat until touched."
+      },
+      {
+        "name": "raised",
+        "value": "0 2px 8px rgba(42,37,33,0.08)",
+        "purpose": "Sheets, active deck card at rest, floating controls. Soft, close, ambient."
+      },
+      {
+        "name": "lifted",
+        "value": "0 12px 32px rgba(42,37,33,0.18)",
+        "purpose": "Deck card mid-swipe and modals — 'in your hand' depth."
+      },
+      {
+        "name": "match-glow",
+        "value": "0 0 48px rgba(255,79,135,0.45)",
+        "purpose": "Punch-Pink bloom behind the match card. The ONLY place glow is allowed."
+      }
     ],
     "motion": [
-      { "name": "spring-card", "value": "damping:12 stiffness:180 mass:1", "purpose": "Reanimated withSpring — card reveal/scale." },
-      { "name": "spring-text", "value": "damping:10 stiffness:160 mass:0.9", "purpose": "Reanimated withSpring — text settle." },
-      { "name": "spring-avatar", "value": "damping:10 stiffness:200 mass:0.8", "purpose": "Reanimated withSpring — partner avatar pop." },
-      { "name": "spring-cta", "value": "damping:14 stiffness:200 mass:1", "purpose": "Reanimated withSpring — CTA/press feedback (tactile press physics)." },
-      { "name": "spring-dismiss", "value": "damping:18 stiffness:220 mass:1", "purpose": "Reanimated withSpring — overlay dismiss." },
-      { "name": "reduced-motion-crossfade", "value": "250ms", "purpose": "prefers-reduced-motion replacement for all match choreography." }
+      {
+        "name": "spring-card",
+        "value": "damping:12 stiffness:180 mass:1",
+        "purpose": "Reanimated withSpring — card reveal/scale."
+      },
+      {
+        "name": "spring-text",
+        "value": "damping:10 stiffness:160 mass:0.9",
+        "purpose": "Reanimated withSpring — text settle."
+      },
+      {
+        "name": "spring-avatar",
+        "value": "damping:10 stiffness:200 mass:0.8",
+        "purpose": "Reanimated withSpring — partner avatar pop."
+      },
+      {
+        "name": "spring-cta",
+        "value": "damping:14 stiffness:200 mass:1",
+        "purpose": "Reanimated withSpring — CTA/press feedback (tactile press physics)."
+      },
+      {
+        "name": "spring-dismiss",
+        "value": "damping:18 stiffness:220 mass:1",
+        "purpose": "Reanimated withSpring — overlay dismiss."
+      },
+      {
+        "name": "reduced-motion-crossfade",
+        "value": "250ms",
+        "purpose": "prefers-reduced-motion replacement for all match choreography."
+      }
     ],
     "breakpoints": [
       { "name": "phone", "value": "0-479px" },
@@ -104,7 +249,7 @@
       "refersTo": "cta-cook-this",
       "description": "The match success CTA — Fresh Green pill with a check glyph. The only button that gets the success color.",
       "html": "<button class=\"ds-cta-cook\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>Cook this!</button>",
-      "css": ".ds-cta-cook { display: inline-flex; align-items: center; gap: 8px; background: #1FAE55; color: #FFFFFF; font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 17px; padding: 16px 32px; border: none; border-radius: 999px; transition: transform .12s, background .15s; } .ds-cta-cook:hover { background: #1B9E4D; } .ds-cta-cook:focus-visible { outline: 2px solid rgba(31,174,85,0.6); outline-offset: 2px; } .ds-cta-cook:active { transform: translateY(1px); }"
+      "css": ".ds-cta-cook { display: inline-flex; align-items: center; gap: 8px; background: #15803D; color: #FFFFFF; font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 17px; padding: 16px 32px; border: none; border-radius: 999px; transition: transform .12s, background .15s; } .ds-cta-cook:hover { background: #1B9E4D; } .ds-cta-cook:focus-visible { outline: 2px solid rgba(31,174,85,0.6); outline-offset: 2px; } .ds-cta-cook:active { transform: translateY(1px); }"
     },
     {
       "name": "Filter Chip",
@@ -158,12 +303,36 @@
       "Reward only what's earned — matches celebrate; swipes whisper."
     ],
     "rules": [
-      { "name": "The One Loud Thing Rule", "body": "Each screen gets exactly one dominant color moment. If two things shout, neither is heard.", "section": "colors" },
-      { "name": "The Earned-Pink Rule", "body": "Punch Pink appears only on genuine reward (a match, a streak payoff). Its rarity is what makes the match feel electric.", "section": "colors" },
-      { "name": "The Persimmon-Deep-on-Light Rule", "body": "Base Persimmon (#F1582E) is ~3.4:1 on white and fails WCAG AA as text and behind white text. On light surfaces, Persimmon Deep (#CB4421, 4.74:1) carries anything text-bearing: primary-button fills with white labels, selected-chip fills, active-tab tint, primary links, and Persimmon-colored text. Reserve base #F1582E for non-text accents, borders, and fills behind >=24px display type. The AA bar is non-negotiable; when unsure, go deep.", "section": "colors" },
-      { "name": "The No-Eyebrow Rule", "body": "No tiny all-caps tracked kickers above sections. Hierarchy comes from size and weight, not decorative labels.", "section": "typography" },
-      { "name": "The Mono-for-Numbers Rule", "body": "Anything that ticks, counts, or scores is set in JetBrains Mono.", "section": "typography" },
-      { "name": "The Flat-Until-Touched Rule", "body": "Surfaces are flat at rest. Elevation is a response — to touch, to drag, to the match — never ambient decoration.", "section": "elevation" }
+      {
+        "name": "The One Loud Thing Rule",
+        "body": "Each screen gets exactly one dominant color moment. If two things shout, neither is heard.",
+        "section": "colors"
+      },
+      {
+        "name": "The Earned-Pink Rule",
+        "body": "Punch Pink appears only on genuine reward (a match, a streak payoff). Its rarity is what makes the match feel electric.",
+        "section": "colors"
+      },
+      {
+        "name": "The Persimmon-Deep-on-Light Rule",
+        "body": "Base Persimmon (#F1582E) is ~3.4:1 on white and fails WCAG AA as text and behind white text. On light surfaces, Persimmon Deep (#CB4421, 4.74:1) carries anything text-bearing: primary-button fills with white labels, selected-chip fills, active-tab tint, primary links, and Persimmon-colored text. Reserve base #F1582E for non-text accents, borders, and fills behind >=24px display type. The AA bar is non-negotiable; when unsure, go deep.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Eyebrow Rule",
+        "body": "No tiny all-caps tracked kickers above sections. Hierarchy comes from size and weight, not decorative labels.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mono-for-Numbers Rule",
+        "body": "Anything that ticks, counts, or scores is set in JetBrains Mono.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-Until-Touched Rule",
+        "body": "Surfaces are flat at rest. Elevation is a response — to touch, to drag, to the match — never ambient decoration.",
+        "section": "elevation"
+      }
     ],
     "dos": [
       "Do carry Persimmon across the whole app (active tab, selected chip, primary CTA), so the product feels alive before the payoff.",

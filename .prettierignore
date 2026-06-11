@@ -12,3 +12,5 @@ supabase/functions/*/index.ts
 supabase/.temp/
 pnpm-lock.yaml
 *.log
+.agents/
+skills-lock.json

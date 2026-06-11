@@ -80,7 +80,7 @@ function AnalyticsIdentity() {
 }
 
 function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     SpaceGrotesk_600SemiBold,
     SpaceGrotesk_700Bold,
     Inter_400Regular,
@@ -94,8 +94,8 @@ function RootLayout() {
   const posthogKey = extra.posthogKey;
 
   useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync();
-  }, [fontsLoaded]);
+    if (fontsLoaded || fontError) SplashScreen.hideAsync();
+  }, [fontsLoaded, fontError]);
 
   const tree = (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>

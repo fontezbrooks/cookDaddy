@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     minWidth: 130,
     alignItems: 'center',
   },
-  ctaPrimary: { backgroundColor: DesignTokens.color.successFresh },
+  ctaPrimary: { backgroundColor: DesignTokens.color.successDeep },
   // The overlay renders against a black scrim — light-theme elevated
   // surface is the secondary CTA background regardless of OS theme.
   ctaSecondary: { backgroundColor: DesignTokens.color.surface.light },

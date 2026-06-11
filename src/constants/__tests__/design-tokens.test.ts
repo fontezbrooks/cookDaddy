@@ -31,6 +31,7 @@ describe('DesignTokens', () => {
     expect(DesignTokens.color.spotlight).toBe('#241F1B');
     expect(DesignTokens.color.punchPink).toBe('#FF4F87');
     expect(DesignTokens.color.successFresh).toBe('#1FAE55');
+    expect(DesignTokens.color.successDeep).toBe('#15803D');
     expect(DesignTokens.color.ink).toEqual({ light: '#2A2521', dark: '#F5F4F2' });
   });
 
