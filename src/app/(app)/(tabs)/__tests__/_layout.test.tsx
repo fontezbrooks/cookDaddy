@@ -26,7 +26,7 @@ describe('(tabs)/_layout', () => {
     mockTabsScreen.mockClear();
   });
 
-  it('renders the five text-only tab screens in order', () => {
+  it('renders the five tab screens with icons in order', () => {
     const tree = render(<TabsLayout />);
 
     expect(tree.UNSAFE_getByType('Tabs' as never)).toBeTruthy();
@@ -45,12 +45,8 @@ describe('(tabs)/_layout', () => {
       'Shopping',
       'Settings',
     ]);
-    expect(mockTabsScreen.mock.calls.map(([props]) => props.options.tabBarIcon)).toEqual([
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    ]);
+    const icons = mockTabsScreen.mock.calls.map(([props]) => props.options.tabBarIcon);
+    expect(icons).toHaveLength(5);
+    icons.forEach((icon) => expect(typeof icon).toBe('function'));
   });
 });
