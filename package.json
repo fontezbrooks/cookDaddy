@@ -61,6 +61,7 @@
     "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-expo": "~56.0.0",
+    "lint-staged": "^17.0.7",
     "posthog-node": "^5.34.9",
     "prettier": "^3.4.2",
     "react-test-renderer": "19.2.3",
@@ -99,5 +100,12 @@
     "cron:tick": "bash scripts/ingestion/cron-step.sh",
     "cron:health": "tail -200 \"$HOME/spoonacular-cron.log\" | grep -E 'tick (start|end)' | tail -50",
     "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs}": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{json,md}": "prettier --write"
   }
 }
