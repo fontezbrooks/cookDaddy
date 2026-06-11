@@ -397,18 +397,28 @@ const styles = StyleSheet.create({
   card: {
     width: '85%',
     borderRadius: 24,
-    backgroundColor: DesignTokens.color.textOnDark,
+    backgroundColor: DesignTokens.color.spotlight,
     padding: Spacing.four,
     gap: Spacing.three,
     alignItems: 'center',
+    shadowColor: DesignTokens.color.punchPink,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.45,
+    shadowRadius: 24,
+    elevation: 16,
   },
   cardReduced: {
     width: '85%',
     borderRadius: 24,
-    backgroundColor: DesignTokens.color.textOnDark,
+    backgroundColor: DesignTokens.color.spotlight,
     padding: Spacing.four,
     gap: Spacing.three,
     alignItems: 'center',
+    shadowColor: DesignTokens.color.punchPink,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.45,
+    shadowRadius: 24,
+    elevation: 16,
   },
   // Recipe hero clipped to a fixed-aspect frame so the ken-burns
   // scale + translate (1.0 → 1.05, ±4px) doesn't leak past the card edge.
@@ -422,13 +432,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  heading: { textAlign: 'center' },
-  recipeTitle: { textAlign: 'center' },
+  heading: { textAlign: 'center', color: DesignTokens.color.punchPink },
+  recipeTitle: { textAlign: 'center', color: DesignTokens.color.inkOnDark },
   // Variant badge — small accent text beneath the recipe title (MATCH-UX
   // §7 row "Same wavelength 🧠" for speedy, future variants too).
   badge: {
     textAlign: 'center',
-    color: DesignTokens.color.accentCelebration2,
+    color: DesignTokens.color.arcadeAmber,
     fontWeight: '600',
   },
   ctaRow: { flexDirection: 'row', gap: Spacing.three, marginTop: Spacing.two },
@@ -439,10 +449,10 @@ const styles = StyleSheet.create({
     minWidth: 130,
     alignItems: 'center',
   },
-  ctaPrimary: { backgroundColor: DesignTokens.color.accentSuccess },
+  ctaPrimary: { backgroundColor: DesignTokens.color.successDeep },
   // The overlay renders against a black scrim — light-theme elevated
   // surface is the secondary CTA background regardless of OS theme.
-  ctaSecondary: { backgroundColor: DesignTokens.color.bgElevated.light },
+  ctaSecondary: { backgroundColor: DesignTokens.color.surface.light },
   ctaPrimaryText: { color: DesignTokens.color.textOnDark, fontWeight: '700' },
-  ctaSecondaryText: { color: DesignTokens.color.bgCard.light, fontWeight: '600' },
+  ctaSecondaryText: { color: DesignTokens.color.ink.light, fontWeight: '600' },
 });

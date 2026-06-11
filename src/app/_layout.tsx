@@ -11,14 +11,25 @@
 //   • ThemeProvider + Stack are presentation — innermost.
 
 import { ClerkProvider } from '@clerk/clerk-expo';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
+import { JetBrainsMono_500Medium } from '@expo-google-fonts/jetbrains-mono';
+import { SpaceGrotesk_600SemiBold, SpaceGrotesk_700Bold } from '@expo-google-fonts/space-grotesk';
 import * as Sentry from '@sentry/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Constants from 'expo-constants';
+import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SecureStore from 'expo-secure-store';
-import { useColorScheme } from 'react-native';
 import { PostHogProvider } from 'posthog-react-native';
+import { useEffect } from 'react';
+import { useColorScheme } from 'react-native';
 
 import { useAnalyticsIdentity } from '@/lib/use-analytics-identity';
 
@@ -39,6 +50,8 @@ if (extra.sentryDsn) {
     debug: __DEV__,
   });
 }
+
+SplashScreen.preventAutoHideAsync();
 
 // Clerk's token cache: Clerk's session JWT is stored in expo-secure-store
 // (Keychain on iOS, EncryptedSharedPreferences on Android) so sign-in survives
@@ -67,9 +80,26 @@ function AnalyticsIdentity() {
 }
 
 function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    SpaceGrotesk_600SemiBold,
+    SpaceGrotesk_700Bold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    JetBrainsMono_500Medium,
+  });
   const colorScheme = useColorScheme();
   const publishableKey = extra.clerkPublishableKey ?? '';
   const posthogKey = extra.posthogKey;
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) SplashScreen.hideAsync();
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
 
   const tree = (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { createSupabaseClient } from '@/lib/supabase';
 
@@ -111,7 +112,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: 'transparent',
   },
-  chipActive: { backgroundColor: '#111', borderColor: '#111' },
+  chipActive: {
+    backgroundColor: DesignTokens.color.persimmonDeep,
+    borderColor: DesignTokens.color.persimmonDeep,
+  },
   chipText: { color: '#111' },
   chipTextActive: { color: '#fff' },
 });

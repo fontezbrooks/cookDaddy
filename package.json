@@ -6,7 +6,11 @@
   "packageManager": "pnpm@11.1.3",
   "dependencies": {
     "@clerk/clerk-expo": "^2.19.31",
+    "@expo-google-fonts/inter": "^0.4.2",
+    "@expo-google-fonts/jetbrains-mono": "^0.4.1",
+    "@expo-google-fonts/space-grotesk": "^0.4.1",
     "@expo/ui": "~56.0.11",
+    "@expo/vector-icons": "^15.1.1",
     "@sentry/react-native": "^8.12.0",
     "@shopify/react-native-skia": "^2.6.2",
     "@supabase/supabase-js": "^2.106.1",
@@ -57,6 +61,7 @@
     "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-expo": "~56.0.0",
+    "lint-staged": "^17.0.7",
     "posthog-node": "^5.34.9",
     "prettier": "^3.4.2",
     "react-test-renderer": "19.2.3",
@@ -95,5 +100,12 @@
     "cron:tick": "bash scripts/ingestion/cron-step.sh",
     "cron:health": "tail -200 \"$HOME/spoonacular-cron.log\" | grep -E 'tick (start|end)' | tail -50",
     "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs}": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{json,md}": "prettier --write"
   }
 }

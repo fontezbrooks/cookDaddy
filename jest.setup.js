@@ -17,6 +17,26 @@ jest.mock('@sentry/react-native', () => ({
   startSpan: jest.fn((_ctx, fn) => fn({ end: jest.fn() })),
 }));
 
+jest.mock('expo-font', () => ({
+  useFonts: () => [true, null],
+  loadAsync: jest.fn(),
+  isLoaded: () => true,
+}));
+jest.mock('expo-splash-screen', () => ({ preventAutoHideAsync: jest.fn(), hideAsync: jest.fn() }));
+jest.mock('@expo-google-fonts/space-grotesk', () => ({
+  SpaceGrotesk_600SemiBold: 'SpaceGrotesk_600SemiBold',
+  SpaceGrotesk_700Bold: 'SpaceGrotesk_700Bold',
+}));
+jest.mock('@expo-google-fonts/inter', () => ({
+  Inter_400Regular: 'Inter_400Regular',
+  Inter_500Medium: 'Inter_500Medium',
+  Inter_600SemiBold: 'Inter_600SemiBold',
+  Inter_700Bold: 'Inter_700Bold',
+}));
+jest.mock('@expo-google-fonts/jetbrains-mono', () => ({
+  JetBrainsMono_500Medium: 'JetBrainsMono_500Medium',
+}));
+
 // PostHog requires Async/storage and event flushing — stub the provider so
 // trees that include it render synchronously in tests.
 jest.mock('posthog-react-native', () => {
