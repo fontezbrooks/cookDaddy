@@ -97,6 +97,10 @@ function RootLayout() {
     if (fontsLoaded || fontError) SplashScreen.hideAsync();
   }, [fontsLoaded, fontError]);
 
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   const tree = (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <QueryClientProvider client={queryClient}>
