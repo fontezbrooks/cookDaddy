@@ -138,8 +138,8 @@ Density is deliberately low. Color is **committed**: a single appetite-forward P
 The palette is appetite-forward and high-contrast: a warm brand red-orange anchored on a clean cool-neutral canvas, with a small, punchy "celebration" set reserved for reward moments.
 
 ### Primary
-- **Persimmon** (`#F1582E` / `oklch(0.66 0.18 42)`): The brand. Primary CTAs, active tab, selected chips, focus accents, and any "this is the move" affordance. Appetite + energy in one hue. Used with intent on every screen, but never more than one dominant Persimmon element competing for attention at a time.
-- **Persimmon Deep** (`#CB4421` / `oklch(0.55 0.17 40)`): Pressed/active state of Persimmon controls. The press is a real color shift, not just opacity.
+- **Persimmon** (`#F1582E` / `oklch(0.66 0.18 42)`): The brand. The "this is the move" hue — appetite + energy. Used with intent on every screen, but never more than one dominant Persimmon element competing at a time. **Contrast caveat:** at ~3.4:1 on white it is below the AA text threshold, so base Persimmon is for *non-text* accents (focus rings, borders, dividers), decorative fills behind ≥24px display type, and large brand moments — **not** small text and **not** behind white text. See the Persimmon-Deep-on-Light Rule.
+- **Persimmon Deep** (`#CB4421` / `oklch(0.55 0.17 40)`): The text-safe, AA-passing Persimmon (4.74:1 with white). This is the default for anything text-bearing on light: primary-button fills (white label), selected-chip fills, active-tab tint, primary links, and Persimmon-colored text. Also the pressed/active state of Persimmon controls. When in doubt between the two, go deep.
 
 ### Secondary
 - **Punch Pink** (`#FF4F87` / `oklch(0.70 0.18 1)`): The match/celebration voice. Match-overlay accents, confetti, "it happened" highlights. Pink is the payoff color — it should feel rare and a little electric.
@@ -166,6 +166,8 @@ The palette is appetite-forward and high-contrast: a warm brand red-orange ancho
 **The One Loud Thing Rule.** Each screen gets exactly one dominant color moment. On the deck it's the card; on a match it's the Pink reveal; on a form it's the Persimmon submit. If two things shout, neither is heard.
 
 **The Earned-Pink Rule.** Punch Pink appears only on genuine reward (a match, a streak payoff). It is never decoration. Its rarity is what makes the match feel electric.
+
+**The Persimmon-Deep-on-Light Rule.** Base Persimmon (`#F1582E`) is a mid-luminance orange — ~3.4:1 on white — which fails WCAG AA both as text and *behind* white text at normal sizes. So on light surfaces, **Persimmon Deep (`#CB4421`, 4.74:1)** carries anything text-bearing: primary-button fills with white labels, selected-chip fills, active-tab tint, primary links, and any Persimmon-colored text. Reserve base `#F1582E` for non-text UI accents (focus rings, borders), decorative fills behind ≥24px display type, and the large brand moments where the 3:1 large-text threshold applies. The AA bar is non-negotiable; when unsure, go deep.
 
 ## 3. Typography
 
@@ -208,14 +210,14 @@ Buttons, cards, and inputs should feel **tactile & confident**: chunky enough to
 
 ### Buttons
 - **Shape:** Pill (`999px`) for primary actions; `12px` (`rounded.md`) for inline/compact buttons. No 1px-border + soft-shadow "ghost card" combos — pick a fill or a border, never both as decoration.
-- **Primary:** Persimmon fill, white text, `16px 28px` padding. Pressed → Persimmon Deep + 1px down-translate + shadow collapse (spring back on release).
+- **Primary:** **Persimmon Deep** fill (AA-safe with white text at 4.74:1 — base Persimmon's white-on-fill is only ~3.4:1), white text, `16px 28px` padding. Pressed → a darker step + 1px down-translate + shadow collapse (spring back on release).
 - **Secondary:** Surface fill, Ink text, 1px `ink @ 12%` border. Same press physics.
 - **Cook-this (success CTA):** Fresh Green fill, white text, pill, `16px 32px` — the one button that gets the match's success color, always with a check or chef glyph.
 - **Hover/Focus:** Focus ring = 2px Persimmon at 60% with a 2px offset; never remove focus visibility.
 
 ### Chips
 - **Style:** Pill, Surface fill, Ink-Muted text, 1px hairline border. `8px 14px` padding.
-- **State:** Selected = Persimmon fill + white text (dietary filters, active toggles). Selection is a color *and* fill change so it survives color-blindness; pair with a check where space allows.
+- **State:** Selected = **Persimmon Deep** fill + white text (dietary filters, active toggles) — Deep for the AA-safe 4.74:1. Selection is a color *and* fill change so it survives color-blindness; pair with a check where space allows.
 
 ### Cards / Containers
 - **Corner Style:** `16px` (`rounded.lg`) for content cards; `12px` for compact rows. Never above `20px` — no over-rounded blobs.
@@ -230,7 +232,7 @@ Buttons, cards, and inputs should feel **tactile & confident**: chunky enough to
 
 ### Navigation (Tab Bar)
 - **Surface:** Bottom tab bar on Surface with a top hairline. Five tabs: Home · Cookbook · Fridge · Shopping · Settings.
-- **States:** Active tab = Persimmon icon + Persimmon label (Inter 600, 13px, sentence case). Inactive = Ink-Muted. Active state is icon-fill + color, so it's never color-only.
+- **States:** Active tab = **Persimmon Deep** tint on icon + label (Inter 600, 13px, sentence case — Deep because the 13px label needs AA). Inactive = Ink-Muted. Active state pairs the tint with a **filled** icon variant (outline when inactive), so it's never color-only.
 - **Motion:** Icon does a small spring-scale on selection (game-feel), respecting reduced-motion.
 
 ### Signature Component — The Match Overlay

@@ -160,6 +160,7 @@
     "rules": [
       { "name": "The One Loud Thing Rule", "body": "Each screen gets exactly one dominant color moment. If two things shout, neither is heard.", "section": "colors" },
       { "name": "The Earned-Pink Rule", "body": "Punch Pink appears only on genuine reward (a match, a streak payoff). Its rarity is what makes the match feel electric.", "section": "colors" },
+      { "name": "The Persimmon-Deep-on-Light Rule", "body": "Base Persimmon (#F1582E) is ~3.4:1 on white and fails WCAG AA as text and behind white text. On light surfaces, Persimmon Deep (#CB4421, 4.74:1) carries anything text-bearing: primary-button fills with white labels, selected-chip fills, active-tab tint, primary links, and Persimmon-colored text. Reserve base #F1582E for non-text accents, borders, and fills behind >=24px display type. The AA bar is non-negotiable; when unsure, go deep.", "section": "colors" },
       { "name": "The No-Eyebrow Rule", "body": "No tiny all-caps tracked kickers above sections. Hierarchy comes from size and weight, not decorative labels.", "section": "typography" },
       { "name": "The Mono-for-Numbers Rule", "body": "Anything that ticks, counts, or scores is set in JetBrains Mono.", "section": "typography" },
       { "name": "The Flat-Until-Touched Rule", "body": "Surfaces are flat at rest. Elevation is a response — to touch, to drag, to the match — never ambient decoration.", "section": "elevation" }
@@ -171,7 +172,8 @@
       "Do make presses physical: spring-driven translate + color shift.",
       "Do reserve Punch Pink, Spotlight, and Match Glow for the match moment only.",
       "Do pair every success/danger signal with a glyph or label, and ship a prefers-reduced-motion alternative for every animation.",
-      "Do keep secondary text at Ink Muted or darker; verify >=4.5:1 against Canvas."
+      "Do keep secondary text at Ink Muted or darker; verify >=4.5:1 against Canvas.",
+      "Do use Persimmon Deep (#CB4421) for any Persimmon that bears text or is an active tint on light (primary buttons, selected chips, active tab, links); base Persimmon #F1582E fails AA there."
     ],
     "donts": [
       "Don't ship generic recipe-app clutter — one decision per screen.",
