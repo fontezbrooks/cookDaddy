@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-10",
+  "title": "Design System: cookDaddy",
+  "extensions": {
+    "colorMeta": {
+      "persimmon": {
+        "role": "primary",
+        "displayName": "Persimmon",
+        "canonical": "oklch(0.66 0.18 42)",
+        "tonalRamp": ["oklch(0.20 0.08 42)", "oklch(0.30 0.12 42)", "oklch(0.40 0.15 42)", "oklch(0.50 0.17 42)", "oklch(0.66 0.18 42)", "oklch(0.76 0.14 42)", "oklch(0.86 0.09 42)", "oklch(0.95 0.04 42)"]
+      },
+      "punch-pink": {
+        "role": "secondary",
+        "displayName": "Punch Pink",
+        "canonical": "oklch(0.70 0.18 1)",
+        "tonalRamp": ["oklch(0.22 0.09 1)", "oklch(0.33 0.13 1)", "oklch(0.44 0.16 1)", "oklch(0.56 0.18 1)", "oklch(0.70 0.18 1)", "oklch(0.80 0.13 1)", "oklch(0.88 0.08 1)", "oklch(0.95 0.04 1)"]
+      },
+      "pool-teal": {
+        "role": "tertiary",
+        "displayName": "Pool Teal",
+        "canonical": "oklch(0.79 0.10 187)",
+        "tonalRamp": ["oklch(0.25 0.05 187)", "oklch(0.36 0.07 187)", "oklch(0.47 0.08 187)", "oklch(0.60 0.09 187)", "oklch(0.79 0.10 187)", "oklch(0.86 0.08 187)", "oklch(0.92 0.05 187)", "oklch(0.97 0.02 187)"]
+      },
+      "arcade-amber": {
+        "role": "tertiary",
+        "displayName": "Arcade Amber",
+        "canonical": "oklch(0.83 0.15 80)",
+        "tonalRamp": ["oklch(0.28 0.07 80)", "oklch(0.40 0.10 80)", "oklch(0.52 0.13 80)", "oklch(0.66 0.15 80)", "oklch(0.83 0.15 80)", "oklch(0.89 0.11 80)", "oklch(0.94 0.07 80)", "oklch(0.98 0.03 80)"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(0.25 0.012 60)",
+        "tonalRamp": ["oklch(0.18 0.012 60)", "oklch(0.25 0.012 60)", "oklch(0.38 0.010 60)", "oklch(0.50 0.010 70)", "oklch(0.62 0.008 70)", "oklch(0.75 0.005 80)", "oklch(0.88 0.003 90)", "oklch(0.975 0.002 270)"]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas",
+        "canonical": "oklch(0.975 0.002 270)",
+        "tonalRamp": ["oklch(0.18 0.006 60)", "oklch(0.25 0.008 60)", "oklch(0.40 0.006 70)", "oklch(0.55 0.004 90)", "oklch(0.70 0.003 120)", "oklch(0.85 0.002 200)", "oklch(0.94 0.002 250)", "oklch(0.975 0.002 270)"]
+      },
+      "success": {
+        "role": "semantic",
+        "displayName": "Fresh Green",
+        "canonical": "oklch(0.66 0.16 150)",
+        "tonalRamp": ["oklch(0.24 0.07 150)", "oklch(0.34 0.10 150)", "oklch(0.45 0.13 150)", "oklch(0.56 0.15 150)", "oklch(0.66 0.16 150)", "oklch(0.78 0.12 150)", "oklch(0.88 0.07 150)", "oklch(0.95 0.04 150)"]
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "Chili Red",
+        "canonical": "oklch(0.59 0.20 28)",
+        "tonalRamp": ["oklch(0.22 0.09 28)", "oklch(0.32 0.13 28)", "oklch(0.43 0.17 28)", "oklch(0.59 0.20 28)", "oklch(0.70 0.16 28)", "oklch(0.80 0.11 28)", "oklch(0.89 0.06 28)", "oklch(0.96 0.03 28)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero voice — 'It's a Match!', celebration headers, first-run welcome. Space Grotesk 700. May scale to ~72px for the match hero only." },
+      "headline": { "displayName": "Headline", "purpose": "Section openers, empty-state headers, big stat moments. Space Grotesk 600." },
+      "title": { "displayName": "Title", "purpose": "Screen titles, recipe names, list section headers. Inter 600." },
+      "body": { "displayName": "Body", "purpose": "Ingredient lists, descriptions, settings rows. Inter 400-500. Cap measured prose at 65-75ch." },
+      "label": { "displayName": "Label", "purpose": "Chips, tab labels, metadata. Inter 600, sentence case — never tracked all-caps eyebrows." },
+      "numeral": { "displayName": "Numeral", "purpose": "Timers, 'card 7/20', streak counts, prep time, macros. JetBrains Mono 500 for scoreboard feel." }
+    },
+    "shadows": [
+      { "name": "rest", "value": "none", "purpose": "Default. Surfaces sit on Canvas separated by a 1px ink@8% hairline — flat until touched." },
+      { "name": "raised", "value": "0 2px 8px rgba(42,37,33,0.08)", "purpose": "Sheets, active deck card at rest, floating controls. Soft, close, ambient." },
+      { "name": "lifted", "value": "0 12px 32px rgba(42,37,33,0.18)", "purpose": "Deck card mid-swipe and modals — 'in your hand' depth." },
+      { "name": "match-glow", "value": "0 0 48px rgba(255,79,135,0.45)", "purpose": "Punch-Pink bloom behind the match card. The ONLY place glow is allowed." }
+    ],
+    "motion": [
+      { "name": "spring-card", "value": "damping:12 stiffness:180 mass:1", "purpose": "Reanimated withSpring — card reveal/scale." },
+      { "name": "spring-text", "value": "damping:10 stiffness:160 mass:0.9", "purpose": "Reanimated withSpring — text settle." },
+      { "name": "spring-avatar", "value": "damping:10 stiffness:200 mass:0.8", "purpose": "Reanimated withSpring — partner avatar pop." },
+      { "name": "spring-cta", "value": "damping:14 stiffness:200 mass:1", "purpose": "Reanimated withSpring — CTA/press feedback (tactile press physics)." },
+      { "name": "spring-dismiss", "value": "damping:18 stiffness:220 mass:1", "purpose": "Reanimated withSpring — overlay dismiss." },
+      { "name": "reduced-motion-crossfade", "value": "250ms", "purpose": "prefers-reduced-motion replacement for all match choreography." }
+    ],
+    "breakpoints": [
+      { "name": "phone", "value": "0-479px" },
+      { "name": "phone-lg", "value": "480-599px" },
+      { "name": "tablet", "value": "600px+" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Persimmon fill, pill, tactile press. The 'this is the move' affordance.",
+      "html": "<button class=\"ds-btn-primary\">Start swiping</button>",
+      "css": ".ds-btn-primary { background: #F1582E; color: #FFFFFF; font-family: Inter, system-ui, sans-serif; font-weight: 700; font-size: 16px; padding: 16px 28px; border: none; border-radius: 999px; transition: background .15s, transform .12s, box-shadow .12s; box-shadow: 0 2px 8px rgba(42,37,33,0.08); } .ds-btn-primary:hover { background: #E14F27; } .ds-btn-primary:focus-visible { outline: 2px solid rgba(241,88,46,0.6); outline-offset: 2px; } .ds-btn-primary:active { background: #CB4421; transform: translateY(1px); box-shadow: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Surface fill with hairline border, same tactile press physics.",
+      "html": "<button class=\"ds-btn-secondary\">Maybe later</button>",
+      "css": ".ds-btn-secondary { background: #FFFFFF; color: #2A2521; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 16px; padding: 16px 28px; border: 1px solid rgba(42,37,33,0.12); border-radius: 999px; transition: transform .12s, border-color .15s; } .ds-btn-secondary:hover { border-color: rgba(42,37,33,0.28); } .ds-btn-secondary:focus-visible { outline: 2px solid rgba(241,88,46,0.6); outline-offset: 2px; } .ds-btn-secondary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Cook-this CTA",
+      "kind": "button",
+      "refersTo": "cta-cook-this",
+      "description": "The match success CTA — Fresh Green pill with a check glyph. The only button that gets the success color.",
+      "html": "<button class=\"ds-cta-cook\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>Cook this!</button>",
+      "css": ".ds-cta-cook { display: inline-flex; align-items: center; gap: 8px; background: #1FAE55; color: #FFFFFF; font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 17px; padding: 16px 32px; border: none; border-radius: 999px; transition: transform .12s, background .15s; } .ds-cta-cook:hover { background: #1B9E4D; } .ds-cta-cook:focus-visible { outline: 2px solid rgba(31,174,85,0.6); outline-offset: 2px; } .ds-cta-cook:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Dietary/filter pill. Selected = Persimmon fill + check, so selection survives color-blindness.",
+      "html": "<div class=\"ds-chip-row\"><button class=\"ds-chip\">Vegetarian</button><button class=\"ds-chip ds-chip--on\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>Gluten-free</button></div>",
+      "css": ".ds-chip-row { display: flex; gap: 8px; } .ds-chip { display: inline-flex; align-items: center; gap: 6px; background: #FFFFFF; color: #5E5B55; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 13px; padding: 8px 14px; border: 1px solid rgba(42,37,33,0.12); border-radius: 999px; transition: border-color .15s; } .ds-chip:hover { border-color: rgba(42,37,33,0.28); } .ds-chip--on { background: #F1582E; color: #FFFFFF; border-color: #F1582E; }"
+    },
+    {
+      "name": "Content Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat-until-touched content container on Canvas; hairline at rest, raised when active.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card__title\">Buffalo Chicken Chili</h3><p class=\"ds-card__meta\"><span class=\"ds-num\">35</span> min · <span class=\"ds-num\">4</span> servings</p></div>",
+      "css": ".ds-card { background: #FFFFFF; border: 1px solid rgba(42,37,33,0.08); border-radius: 16px; padding: 16px; transition: box-shadow .15s, transform .12s; } .ds-card:hover { box-shadow: 0 2px 8px rgba(42,37,33,0.08); } .ds-card__title { font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 22px; line-height: 28px; color: #2A2521; margin: 0 0 4px; } .ds-card__meta { font-family: Inter, system-ui, sans-serif; font-size: 14px; color: #5E5B55; margin: 0; } .ds-num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Surface field, hairline border, Persimmon focus — no glow.",
+      "html": "<input class=\"ds-input\" placeholder=\"Search recipes\" />",
+      "css": ".ds-input { background: #FFFFFF; color: #2A2521; font-family: Inter, system-ui, sans-serif; font-size: 16px; padding: 14px 16px; border: 1px solid rgba(42,37,33,0.14); border-radius: 12px; transition: border-color .15s, box-shadow .15s; } .ds-input::placeholder { color: #5E5B55; } .ds-input:focus-visible { outline: none; border-color: #F1582E; box-shadow: 0 0 0 2px rgba(241,88,46,0.5); }"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab-bar",
+      "description": "Bottom 5-tab nav. Active = Persimmon icon-fill + label; inactive = Ink Muted. Never color-only.",
+      "html": "<nav class=\"ds-tabbar\"><a class=\"ds-tab ds-tab--on\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 3 2 12h3v8h6v-5h2v5h6v-8h3z\"/></svg><span>Home</span></a><a class=\"ds-tab\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M4 5h16v14H4z\"/><path d=\"M4 9h16\"/></svg><span>Cookbook</span></a><a class=\"ds-tab\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M6 3h12v18H6z\"/><path d=\"M9 8v4\"/></svg><span>Fridge</span></a></nav>",
+      "css": ".ds-tabbar { display: flex; gap: 4px; background: #FFFFFF; border-top: 1px solid rgba(42,37,33,0.08); padding: 8px 4px; } .ds-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #5E5B55; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 13px; text-decoration: none; transition: transform .12s; } .ds-tab span { letter-spacing: 0.02em; } .ds-tab--on { color: #F1582E; } .ds-tab--on:active { transform: scale(0.94); }"
+    },
+    {
+      "name": "Match Overlay (signature)",
+      "kind": "custom",
+      "refersTo": "match-overlay",
+      "description": "The product's reason to exist. Spotlight stage + Pink glow + Display type + Cook-this CTA. The only surface using Spotlight, Match Glow, and Display type together.",
+      "html": "<div class=\"ds-match\"><div class=\"ds-match__card\"><p class=\"ds-match__kicker\">It's a</p><h1 class=\"ds-match__title\">Match!</h1><p class=\"ds-match__recipe\">Buffalo Chicken Chili</p></div></div>",
+      "css": ".ds-match { display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); padding: 48px 24px; border-radius: 16px; } .ds-match__card { background: #241F1B; border-radius: 24px; padding: 32px; text-align: center; box-shadow: 0 0 48px rgba(255,79,135,0.45); } .ds-match__kicker { font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 600; font-size: 24px; color: #FF4F87; margin: 0; } .ds-match__title { font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 56px; line-height: 60px; letter-spacing: -0.02em; color: #F5F4F2; margin: 0; } .ds-match__recipe { font-family: Inter, system-ui, sans-serif; font-size: 16px; color: #F5F4F2; opacity: 0.85; margin: 12px 0 0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Arcade Kitchen",
+    "overview": "cookDaddy lives where a game cabinet meets a kitchen. The job is unserious — what's for dinner — but the payoff is real, so the interface plays like a well-built mobile game: confident color, big satisfying type, decisive tap targets, and reward beats that land. 'Arcade' supplies the energy and the game-feel; 'Kitchen' supplies the appetite and the warmth. The tension between the two is the brand. This system rejects generic recipe-app clutter, sterile productivity SaaS, and childish cartoonishness alike — playful is achieved through craft, never gimmicks. Color is committed: a single appetite-forward Persimmon carries identity across the whole app, not just the match overlay, so the product feels alive end to end rather than flat-until-payoff. Restraint guards potency — the loudest moment on any screen is reserved for the match.",
+    "keyCharacteristics": [
+      "One bold brand color (Persimmon) used with intent across every surface, not hoarded for the overlay.",
+      "Big, confident display type (Space Grotesk) for moments; clean humanist body (Inter) for reading; mono numerals for arcade-scoreboard data.",
+      "One decision per screen — the deck and the match are the heroes; supporting surfaces stay quiet.",
+      "Tactile, spring-driven feedback: things you touch respond physically.",
+      "Reward only what's earned — matches celebrate; swipes whisper."
+    ],
+    "rules": [
+      { "name": "The One Loud Thing Rule", "body": "Each screen gets exactly one dominant color moment. If two things shout, neither is heard.", "section": "colors" },
+      { "name": "The Earned-Pink Rule", "body": "Punch Pink appears only on genuine reward (a match, a streak payoff). Its rarity is what makes the match feel electric.", "section": "colors" },
+      { "name": "The No-Eyebrow Rule", "body": "No tiny all-caps tracked kickers above sections. Hierarchy comes from size and weight, not decorative labels.", "section": "typography" },
+      { "name": "The Mono-for-Numbers Rule", "body": "Anything that ticks, counts, or scores is set in JetBrains Mono.", "section": "typography" },
+      { "name": "The Flat-Until-Touched Rule", "body": "Surfaces are flat at rest. Elevation is a response — to touch, to drag, to the match — never ambient decoration.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do carry Persimmon across the whole app (active tab, selected chip, primary CTA), so the product feels alive before the payoff.",
+      "Do keep one loud color moment per screen.",
+      "Do set anything that counts or ticks in JetBrains Mono.",
+      "Do make presses physical: spring-driven translate + color shift.",
+      "Do reserve Punch Pink, Spotlight, and Match Glow for the match moment only.",
+      "Do pair every success/danger signal with a glyph or label, and ship a prefers-reduced-motion alternative for every animation.",
+      "Do keep secondary text at Ink Muted or darker; verify >=4.5:1 against Canvas."
+    ],
+    "donts": [
+      "Don't ship generic recipe-app clutter — one decision per screen.",
+      "Don't drift into sterile productivity SaaS density.",
+      "Don't go childish or cartoonish — no mascots, balloon gradients, or comic-sans whimsy.",
+      "Don't use tiny all-caps tracked eyebrows above sections.",
+      "Don't round cards past 20px, and never pair a 1px border with a soft wide drop-shadow as decoration.",
+      "Don't rely on color alone for like/pass, success/error, or active tab.",
+      "Don't spend shadow on resting surfaces — flat until touched.",
+      "Don't let Danger Crimson and Persimmon read as the same signal; keep their hue separation."
+    ]
+  }
+}
