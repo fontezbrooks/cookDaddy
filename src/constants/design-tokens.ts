@@ -43,6 +43,20 @@ export const DesignTokens = {
     dotEmptyBorder: '#666666',
     dotHalfFill: '#666666',
     dotFullFill: '#FFFFFF',
+    // Arcade Kitchen redesign palette — see DESIGN.md
+    persimmon: '#F1582E',
+    persimmonDeep: '#CB4421',
+    punchPink: '#FF4F87',
+    poolTeal: '#3FC8BE',
+    arcadeAmber: '#FFB627',
+    spotlight: '#241F1B',
+    inkOnDark: '#F5F4F2',
+    successFresh: '#1FAE55',
+    dangerChili: '#E23A2C',
+    ink: { light: '#2A2521', dark: '#F5F4F2' },
+    inkMuted: { light: '#5E5B55', dark: '#A8A39B' },
+    canvas: { light: '#F6F6F8', dark: '#1C1916' },
+    surface: { light: '#FFFFFF', dark: '#2A2622' },
   },
 
   space: {
@@ -73,7 +87,15 @@ export const DesignTokens = {
   },
 
   fontFamily: {
+    // Loaded via useFonts in app/_layout.tsx — see DESIGN.md §3
     sans: 'Inter',
+    display: 'SpaceGrotesk_700Bold',
+    displaySemibold: 'SpaceGrotesk_600SemiBold',
+    body: 'Inter_400Regular',
+    bodyMedium: 'Inter_500Medium',
+    bodySemibold: 'Inter_600SemiBold',
+    bodyBold: 'Inter_700Bold',
+    mono: 'JetBrainsMono_500Medium',
   },
 
   motion: {

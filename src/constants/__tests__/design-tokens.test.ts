@@ -26,6 +26,14 @@ describe('DesignTokens', () => {
     expect(hues.size).toBe(3);
   });
 
+  it('exposes the Arcade Kitchen brand palette (DESIGN.md)', () => {
+    expect(DesignTokens.color.persimmon).toBe('#F1582E');
+    expect(DesignTokens.color.spotlight).toBe('#241F1B');
+    expect(DesignTokens.color.punchPink).toBe('#FF4F87');
+    expect(DesignTokens.color.successFresh).toBe('#1FAE55');
+    expect(DesignTokens.color.ink).toEqual({ light: '#2A2521', dark: '#F5F4F2' });
+  });
+
   it('preserves the match-overlay timing budget (MATCH-UX §3)', () => {
     const t = DesignTokens.motion.timings;
     expect(t.backdropMs).toBe(280);
