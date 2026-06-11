@@ -65,9 +65,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Run the gitleaks binary directly rather than gitleaks-action@v2,
+      # which crashes in its own GitHub-API/license call (octokit) before
+      # scanning. The binary has no API dependency.
+      - name: Gitleaks
+        run: |
+          VERSION=8.21.2
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
+          ./gitleaks dir . --redact --no-banner --exit-code 1
 
   pgtap:
     name: Postgres schema + RLS (pgTAP)

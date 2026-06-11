@@ -177,7 +177,7 @@ The palette is appetite-forward and high-contrast: a warm brand red-orange ancho
 
 **The Earned-Pink Rule.** Punch Pink appears only on genuine reward (a match, a streak payoff). It is never decoration. Its rarity is what makes the match feel electric.
 
-**The Persimmon-Deep-on-Light Rule.** Base Persimmon (`#F1582E`) is a mid-luminance orange — ~3.4:1 on white — which fails WCAG AA both as text and _behind_ white text at normal sizes. So on light surfaces, **Persimmon Deep (`#CB4421`, 4.74:1)** carries anything text-bearing: primary-button fills with white labels, selected-chip fills, active-tab tint, primary links, and any Persimmon-colored text. Reserve base `#F1582E` for non-text UI accents (focus rings, borders), decorative fills behind ≥24px display type, and the large brand moments where the 3:1 large-text threshold applies. The AA bar is non-negotiable; when unsure, go deep.
+**The Persimmon-Deep-on-Light Rule.** Base Persimmon (`#F1582E`) is a mid-luminance orange — ~3.4:1 on white — which fails WCAG AA both as text and _behind_ white text at normal sizes. So on light surfaces, **Persimmon Deep (`#CB4421`, 4.74:1)** carries anything text-bearing: primary-button fills with white labels, selected-chip fills, active-tab tint, primary links, and any Persimmon-colored text. Reserve base `#F1582E` for non-text UI accents (focus rings, borders), decorative fills behind ≥24px display type, and the large brand moments where the 3:1 large-text threshold applies. The AA bar is non-negotiable; when unsure, go deep. **Inverse on dark:** Deep is _too dark_ against a dark surface (~3.9:1 on a `#121212` tab bar), so on dark backgrounds use **base Persimmon** (`#F1582E`, ~5.4:1 there). Theme-resolve any Persimmon text/tint — Deep on light, base on dark.
 
 ## 3. Typography
 
@@ -251,7 +251,7 @@ Buttons, cards, and inputs should feel **tactile & confident**: chunky enough to
 ### Navigation (Tab Bar)
 
 - **Surface:** Bottom tab bar on Surface with a top hairline. Five tabs: Home · Cookbook · Fridge · Shopping · Settings.
-- **States:** Active tab = **Persimmon Deep** tint on icon + label (Inter 600, 13px, sentence case — Deep because the 13px label needs AA). Inactive = Ink-Muted. Active state pairs the tint with a **filled** icon variant (outline when inactive), so it's never color-only.
+- **States:** Active tab = **Persimmon tint, theme-resolved** on icon + label (Persimmon Deep `#CB4421` on light, base Persimmon `#F1582E` on dark — both clear AA for the 13px label; Inter 600, sentence case). Inactive = Ink-Muted. Active state pairs the tint with a **filled** icon variant (outline when inactive), so it's never color-only.
 - **Motion:** Icon does a small spring-scale on selection (game-feel), respecting reduced-motion.
 
 ### Signature Component — The Match Overlay

@@ -11,7 +11,8 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: DesignTokens.color.persimmonDeep,
+        tabBarActiveTintColor:
+          scheme === 'dark' ? DesignTokens.color.persimmon : DesignTokens.color.persimmonDeep,
         tabBarInactiveTintColor: resolveThemedColor(DesignTokens.color.inkMuted, scheme),
       }}
     >
