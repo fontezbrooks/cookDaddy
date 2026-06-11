@@ -1,8 +1,19 @@
 import { Tabs } from 'expo-router';
+import { useColorScheme } from 'react-native';
+
+import { DesignTokens, resolveThemedColor } from '@/constants/design-tokens';
 
 export default function TabsLayout() {
+  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: DesignTokens.color.persimmonDeep,
+        tabBarInactiveTintColor: resolveThemedColor(DesignTokens.color.inkMuted, scheme),
+      }}
+    >
       <Tabs.Screen name="home" options={{ tabBarLabel: 'Home', tabBarButtonTestID: 'tab-home' }} />
       <Tabs.Screen
         name="cookbook"

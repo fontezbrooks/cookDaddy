@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     fontFamily: DesignTokens.fontFamily.bodyMedium,
     lineHeight: 30,
     fontSize: 14,
-    color: '#3c87f7',
+    color: DesignTokens.color.persimmonDeep,
   },
   code: {
     fontFamily: DesignTokens.fontFamily.mono,
