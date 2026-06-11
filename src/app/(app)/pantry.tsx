@@ -212,7 +212,7 @@ function formatDate(value: string): string {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   scrollContent: { paddingBottom: Spacing.five },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.four },
@@ -222,6 +222,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: DesignTokens.color.borderMuted.light,
+    backgroundColor: DesignTokens.color.surface.light,
     borderRadius: DesignTokens.radius.md,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     borderRadius: DesignTokens.radius.md,
-    backgroundColor: DesignTokens.color.bgCard.light,
+    backgroundColor: DesignTokens.color.persimmonDeep,
   },
   secondaryCta: {
     paddingHorizontal: Spacing.three,
