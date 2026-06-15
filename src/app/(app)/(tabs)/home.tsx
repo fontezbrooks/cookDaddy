@@ -16,6 +16,7 @@ import {
   type DietaryRow,
 } from '@/components/dietary-chips';
 import { ThemedText } from '@/components/themed-text';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { startSession } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
@@ -166,7 +167,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: {
     flex: 1,
     padding: Spacing.four,
@@ -185,24 +186,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     borderRadius: 12,
-    backgroundColor: '#111',
+    backgroundColor: DesignTokens.color.persimmonDeep,
     marginTop: Spacing.two,
   },
   ctaDisabled: { opacity: 0.6 },
-  ctaText: { color: '#fff', fontWeight: '600' },
+  ctaText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
   banner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: Spacing.three,
     borderRadius: 12,
-    backgroundColor: '#f3e9d2',
+    backgroundColor: DesignTokens.color.surface.light,
+    borderWidth: 1,
+    borderColor: DesignTokens.color.borderMuted.light,
     gap: Spacing.three,
   },
   bannerAck: {
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.one,
     borderRadius: 8,
-    backgroundColor: '#111',
+    backgroundColor: DesignTokens.color.persimmonDeep,
   },
 });

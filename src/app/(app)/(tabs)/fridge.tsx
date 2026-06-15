@@ -154,7 +154,7 @@ function formatQuantity(item: PantryItem): string {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.four },
   header: {
     flexDirection: 'row',
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     borderRadius: DesignTokens.radius.md,
-    backgroundColor: DesignTokens.color.bgCard.light,
+    backgroundColor: DesignTokens.color.persimmonDeep,
   },
   editButtonText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
   revealFrame: { flex: 1 },
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     paddingTop: Spacing.three,
     paddingBottom: Spacing.two,
-    backgroundColor: Colors.light.background,
+    backgroundColor: DesignTokens.color.surface.light,
   },
   itemRow: {
     gap: Spacing.one,

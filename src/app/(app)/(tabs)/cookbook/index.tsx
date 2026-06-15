@@ -155,7 +155,7 @@ function RecipeImage({ entry }: { entry: CookbookEntry }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
   filterRow: {
     flexDirection: 'row',
@@ -168,11 +168,11 @@ const styles = StyleSheet.create({
     borderRadius: DesignTokens.radius.pill,
     borderWidth: 1,
     borderColor: DesignTokens.color.borderMuted.light,
-    backgroundColor: DesignTokens.color.bg.light,
+    backgroundColor: DesignTokens.color.surface.light,
   },
   filterTabActive: {
-    borderColor: DesignTokens.color.bgCard.light,
-    backgroundColor: DesignTokens.color.bgCard.light,
+    borderColor: DesignTokens.color.persimmonDeep,
+    backgroundColor: DesignTokens.color.persimmonDeep,
   },
   filterText: { color: DesignTokens.color.textPrimary.light, fontWeight: '600' },
   filterTextActive: { color: DesignTokens.color.textOnDark, fontWeight: '700' },
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     minWidth: 140,
     borderRadius: DesignTokens.radius.md,
     overflow: 'hidden',
-    backgroundColor: DesignTokens.color.bgElevated.light,
+    backgroundColor: DesignTokens.color.surface.light,
     borderWidth: 1,
     borderColor: DesignTokens.color.borderMuted.light,
   },
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     borderRadius: DesignTokens.radius.pill,
     overflow: 'hidden',
     color: DesignTokens.color.textOnDark,
-    backgroundColor: DesignTokens.color.accentSuccess,
+    backgroundColor: DesignTokens.color.successDeep,
     fontWeight: '700',
   },
   empty: {

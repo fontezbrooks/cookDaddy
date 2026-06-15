@@ -376,7 +376,7 @@ function PartnerProgressDots({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   cta: {
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     borderRadius: DesignTokens.radius.md,
-    backgroundColor: DesignTokens.color.bgCard.light,
+    backgroundColor: DesignTokens.color.persimmonDeep,
     marginTop: Spacing.three,
   },
   ctaDisabled: { opacity: 0.6 },
