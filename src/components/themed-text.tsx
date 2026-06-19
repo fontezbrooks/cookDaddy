@@ -62,21 +62,23 @@ const styles = StyleSheet.create({
   },
   display: {
     fontFamily: DesignTokens.fontFamily.display,
-    fontSize: 64,
+    fontSize: 56,
     fontWeight: 700,
-    lineHeight: 68,
+    lineHeight: 60,
+    letterSpacing: -1.1,
   },
   title: {
-    fontFamily: DesignTokens.fontFamily.displaySemibold,
-    fontSize: 48,
+    fontFamily: DesignTokens.fontFamily.bodySemibold,
+    fontSize: 22,
     fontWeight: 600,
-    lineHeight: 52,
+    lineHeight: 28,
   },
   subtitle: {
     fontFamily: DesignTokens.fontFamily.displaySemibold,
     fontSize: 32,
-    lineHeight: 44,
+    lineHeight: 36,
     fontWeight: 600,
+    letterSpacing: -0.3,
   },
   link: {
     fontFamily: DesignTokens.fontFamily.bodyMedium,
@@ -92,6 +94,6 @@ const styles = StyleSheet.create({
   code: {
     fontFamily: DesignTokens.fontFamily.mono,
     fontWeight: Platform.select({ android: 700 }) ?? 500,
-    fontSize: 12,
+    fontSize: 15,
   },
 });
