@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
     borderRadius: DesignTokens.radius.lg,
     // Card surface — always dark in v1 regardless of OS theme; use the
     // light-mode value of the themed token explicitly.
-    backgroundColor: DesignTokens.color.bgCard.light,
+    backgroundColor: DesignTokens.color.swipeCardSurface.light,
     padding: Spacing.four,
     justifyContent: 'flex-end',
     // Reserve border space at all times so the flash doesn't shift layout.
