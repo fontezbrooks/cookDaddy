@@ -193,12 +193,12 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: DesignTokens.color.bgElevated.light,
+    backgroundColor: DesignTokens.color.canvas.light,
   },
   placeholder: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: DesignTokens.color.bgElevated.light,
+    backgroundColor: DesignTokens.color.canvas.light,
   },
   tileBody: { padding: Spacing.two, gap: Spacing.two },
   tileTitle: { color: DesignTokens.color.ink.light, fontWeight: '700' },
