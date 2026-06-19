@@ -327,7 +327,7 @@ function FullContent({
 }: MatchOverlayProps & { config: MatchVariantConfig }) {
   return (
     <>
-      <ThemedText type="title" style={styles.heading} testID="match-overlay-heading">
+      <ThemedText type="display" style={styles.heading} testID="match-overlay-heading">
         {config.heading}
       </ThemedText>
       <ThemedText type="subtitle" style={styles.recipeTitle}>
