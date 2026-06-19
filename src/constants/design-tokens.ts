@@ -54,6 +54,7 @@ export const DesignTokens = {
     successFresh: '#1FAE55',
     successDeep: '#15803D',
     dangerChili: '#E23A2C',
+    dangerDeep: '#B00020', // AA-safe destructive fill with white label (~7.3:1); dangerChili is 4.31:1.
     ink: { light: '#2A2521', dark: '#F5F4F2' },
     inkMuted: { light: '#5E5B55', dark: '#A8A39B' },
     canvas: { light: '#F6F6F8', dark: '#1C1916' },
