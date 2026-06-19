@@ -2,10 +2,10 @@
 -- Guarantee: create_pod_invite() on an unpaired user creates a fresh pod with
 -- the caller as the sole member, returns a raw token + future expiry, and
 -- persists only the HMAC of the token in pod_invites.token_hash. Second call
--- by the same user (now in a pod) raises.
+-- by the same still-solo user reuses the pod and regenerates the invite.
 
 begin;
-select plan(7);
+select plan(10);
 
 select tests.seed_three_users();
 
@@ -44,13 +44,31 @@ select is(
   'raw token is never stored in token_hash column'
 );
 
--- Second call by alice (now in a pod) raises.
+-- Second call by alice (still solo) reuses the pod and regenerates the invite.
 select tests.as_user('user_alice');
-select throws_ok(
-  $$ select * from public.create_pod_invite() $$,
-  'P0001',
-  'already_in_a_pod',
-  'second create_pod_invite by user already in pod raises'
+select * from public.create_pod_invite() \gset alice2_
+
+select isnt(:'alice2_token', :'alice_token', 'second solo call returns a fresh token');
+select is(
+  (:'alice2_pod_id')::uuid,
+  (:'alice_pod_id')::uuid,
+  'second solo call reuses the same pod'
+);
+select is(
+  (select count(*)::int from public.pod_invites
+    where pod_id = (:'alice_pod_id')::uuid
+      and consumed_at is null
+      and expires_at > now()),
+  1,
+  'only one live pending invite remains for the pod'
+);
+select is(
+  (select count(*)::int from public.pod_invites
+    where pod_id = (:'alice_pod_id')::uuid
+      and token_hash = public.hash_invite_token(:'alice_token')
+      and expires_at <= now()),
+  1,
+  'first invite is expired when the replacement is issued'
 );
 
 select * from finish();

@@ -8,7 +8,7 @@ import { useAuth } from '@clerk/clerk-expo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
-import { Share } from 'react-native';
+import { Alert, Share } from 'react-native';
 
 import { PodRpcError } from '@/lib/pod-rpcs';
 import { __resetPodStoreForTests } from '@/state/usePodStore';
@@ -49,11 +49,13 @@ jest.mock('expo-router', () => ({
 }));
 
 const mockCreateInvite = jest.fn();
+const mockDissolvePod = jest.fn();
 jest.mock('@/lib/pod-rpcs', () => {
   const actual = jest.requireActual('@/lib/pod-rpcs');
   return {
     ...actual,
     createPodInvite: (...args: unknown[]) => mockCreateInvite(...args),
+    dissolvePod: (...args: unknown[]) => mockDissolvePod(...args),
   };
 });
 
@@ -85,6 +87,7 @@ describe('HomeScreen', () => {
     mockSingle.mockClear();
     mockMaybeSingle.mockResolvedValue({ data: null, error: null });
     mockCreateInvite.mockReset();
+    mockDissolvePod.mockReset();
     mockStartSession.mockReset();
     mockDeckSize = undefined;
     mockPush.mockReset();
@@ -191,6 +194,35 @@ describe('HomeScreen', () => {
     await waitFor(() => {
       expect(screen.getByTestId('home-manage-pod')).toBeOnTheScreen();
     });
+  });
+
+  it('leaves the active pod from the paired view after confirmation', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Paired User', avatar_url: null },
+      error: null,
+    });
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((_title, _message, buttons) => {
+      const leave = (buttons ?? []).find((button) => button.style === 'destructive');
+      leave?.onPress?.();
+    });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().setActivePod({
+      podId: 'pod_abc',
+      partnerId: 'partner_xyz',
+      partnerDisplayName: 'Partner',
+    });
+    mockDissolvePod.mockResolvedValueOnce(undefined);
+
+    render(wrap(<HomeScreen />));
+    await waitFor(() => expect(screen.getByTestId('home-leave-pod')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-leave-pod'));
+
+    await waitFor(() => {
+      expect(mockDissolvePod).toHaveBeenCalledWith(expect.anything(), 'pod_abc');
+      expect(usePodStore.getState().activePodId).toBeNull();
+    });
+
+    alertSpy.mockRestore();
   });
 
   it('renders a Shopping list link', async () => {

@@ -7,7 +7,7 @@ import { useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -19,6 +19,7 @@ import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
+import { dissolvePod, PodRpcError } from '@/lib/pod-rpcs';
 import { startSession } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
 import { useCreatePodInvite } from '@/lib/use-create-pod-invite';
@@ -30,6 +31,8 @@ export default function HomeScreen() {
   const router = useRouter();
   const activePodId = usePodStore((s) => s.activePodId);
   const partnerRemoved = usePodStore((s) => s.partnerRemoved);
+  const partnerDisplayName = usePodStore((s) => s.partnerDisplayName);
+  const clearActivePod = usePodStore((s) => s.clearActivePod);
   const acknowledgePartnerRemoved = usePodStore((s) => s.acknowledgePartnerRemoved);
   const deckSize = useDeckSizeFlag();
   const { createInvite, hint: inviteHint, isPending: isInvitePending } = useCreatePodInvite();
@@ -76,6 +79,26 @@ export default function HomeScreen() {
     },
   });
 
+  const leavePodMutation = useMutation({
+    mutationFn: async () => {
+      if (!activePodId) throw new PodRpcError('unknown', 'no active pod to leave');
+      await dissolvePod(supabase, activePodId);
+    },
+    onSuccess: () => {
+      clearActivePod();
+    },
+  });
+
+  const confirmLeavePod = () => {
+    const line = partnerDisplayName
+      ? `This ends your pod with ${partnerDisplayName}.`
+      : 'This ends your current pod and disables any invite link you sent.';
+    Alert.alert('Leave pod?', `${line} This can’t be undone.`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Leave pod', style: 'destructive', onPress: () => leavePodMutation.mutate() },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
@@ -119,6 +142,23 @@ export default function HomeScreen() {
             <Link href="/settings/pod" testID="home-manage-pod">
               <ThemedText type="small">→ Manage pod</ThemedText>
             </Link>
+
+            <Pressable
+              testID="home-leave-pod"
+              style={[styles.leavePod, leavePodMutation.isPending && styles.leavePodDisabled]}
+              disabled={leavePodMutation.isPending}
+              onPress={confirmLeavePod}
+            >
+              <ThemedText type="small" style={styles.leavePodText}>
+                {leavePodMutation.isPending ? 'Leaving…' : 'Leave pod'}
+              </ThemedText>
+            </Pressable>
+
+            {leavePodMutation.isError ? (
+              <ThemedText type="small" testID="home-leave-pod-error">
+                Couldn’t leave the pod. Please try again.
+              </ThemedText>
+            ) : null}
           </View>
         ) : (
           <View style={styles.emptyState} testID="home-empty-state">
@@ -194,4 +234,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: DesignTokens.color.persimmonDeep,
   },
+  leavePod: {
+    marginTop: Spacing.two,
+    alignSelf: 'flex-start',
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    borderRadius: DesignTokens.radius.md,
+    backgroundColor: DesignTokens.color.dangerDeep,
+  },
+  leavePodText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
+  leavePodDisabled: { opacity: 0.6 },
 });
