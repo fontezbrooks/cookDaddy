@@ -15,6 +15,7 @@ import {
   hasAnyDietaryFlag,
   type DietaryRow,
 } from '@/components/dietary-chips';
+import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -101,16 +102,13 @@ export default function HomeScreen() {
           <View style={styles.paired} testID="home-paired">
             <ThemedText type="small">Pod active. Ready to swipe?</ThemedText>
 
-            <Pressable
+            <PrimaryButton
               testID="home-start-session"
-              style={[styles.cta, startSessionMutation.isPending && styles.ctaDisabled]}
               disabled={startSessionMutation.isPending}
               onPress={() => startSessionMutation.mutate()}
-            >
-              <ThemedText type="small" style={styles.ctaText}>
-                {startSessionMutation.isPending ? 'Starting…' : 'Start a session'}
-              </ThemedText>
-            </Pressable>
+              title={startSessionMutation.isPending ? 'Starting…' : 'Start a session'}
+              style={{ marginTop: Spacing.two }}
+            />
 
             {startSessionMutation.isError ? (
               <ThemedText type="small" testID="home-start-session-error">
@@ -129,16 +127,13 @@ export default function HomeScreen() {
               Invite your partner to start deciding what&apos;s for dinner.
             </ThemedText>
 
-            <Pressable
+            <PrimaryButton
               testID="home-create-invite"
-              style={[styles.cta, isInvitePending && styles.ctaDisabled]}
               disabled={isInvitePending}
               onPress={() => createInvite()}
-            >
-              <ThemedText type="small" style={styles.ctaText}>
-                {isInvitePending ? 'Creating link…' : 'Create invite link'}
-              </ThemedText>
-            </Pressable>
+              title={isInvitePending ? 'Creating link…' : 'Create invite link'}
+              style={{ marginTop: Spacing.two }}
+            />
 
             {inviteHint ? (
               <ThemedText type="small" testID="home-invite-hint">
@@ -181,15 +176,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.four,
     gap: Spacing.two,
   },
-  cta: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: 12,
-    backgroundColor: DesignTokens.color.persimmonDeep,
-    marginTop: Spacing.two,
-  },
-  ctaDisabled: { opacity: 0.6 },
   ctaText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
   banner: {
     flexDirection: 'row',
