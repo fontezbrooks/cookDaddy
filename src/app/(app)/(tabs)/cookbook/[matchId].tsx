@@ -311,6 +311,6 @@ const styles = StyleSheet.create({
   },
   ctaDisabled: { opacity: 0.6 },
   ctaText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
-  secondaryCtaText: { color: DesignTokens.color.textPrimary.light, fontWeight: '600' },
+  secondaryCtaText: { color: DesignTokens.color.ink.light, fontWeight: '600' },
   shoppingGroup: { gap: Spacing.one },
 });

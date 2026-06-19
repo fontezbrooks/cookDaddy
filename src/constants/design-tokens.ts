@@ -23,7 +23,6 @@ export const DesignTokens = {
     bgCard: { light: '#111111', dark: '#1F1F22' },
     // Match-overlay backdrop scrim (70% black) — MATCH-UX §4.2.
     bgOverlayScrim: '#000000B3',
-    textPrimary: { light: '#000000', dark: '#FFFFFF' },
     textSecondary: { light: '#60646C', dark: '#B0B4BA' },
     // Locked colors for content sitting on dark surfaces (card, CTAs).
     textOnDark: '#FFFFFF',
