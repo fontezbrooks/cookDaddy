@@ -28,6 +28,7 @@ export type PodRpcErrorCode =
   | 'invite_already_consumed'
   | 'cannot_consume_own_invite'
   | 'consumer_already_in_a_pod'
+  | 'pod_full'
   | 'already_in_a_pod'
   | 'not_member'
   | 'unauthenticated'
@@ -39,6 +40,7 @@ const KNOWN_CODES: ReadonlySet<PodRpcErrorCode> = new Set<PodRpcErrorCode>([
   'invite_already_consumed',
   'cannot_consume_own_invite',
   'consumer_already_in_a_pod',
+  'pod_full',
   'already_in_a_pod',
   'not_member',
   'unauthenticated',

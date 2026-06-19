@@ -2,12 +2,16 @@
 -- Guarantee: dissolve_pod(pod_id) sets pods.archived_at, deletes both
 -- pod_members rows (so the partner-removed-me detection in the mobile app
 -- works), only members can call it, and after dissolution either partner can
--- create a brand-new pod.
+-- create a brand-new pod. Pending invites are expired when the pod dissolves.
 
 begin;
-select plan(6);
+select plan(7);
 
 select tests.seed_paired_pod() as pod \gset
+
+select tests.as_service();
+insert into public.pod_invites(pod_id, inviter_user_id, token_hash, expires_at)
+values ((:'pod')::uuid, 'user_alice', public.hash_invite_token('pending-dissolve-token'), now() + interval '1 hour');
 
 -- Non-member cannot dissolve.
 select tests.as_user('user_carol');
@@ -38,6 +42,15 @@ select is(
   (select count(*)::int from public.pod_members where pod_id = (:'pod')::uuid),
   0,
   'all pod_members rows deleted (enables partner-removed-me detection)'
+);
+
+select is(
+  (select count(*)::int from public.pod_invites
+    where pod_id = (:'pod')::uuid
+      and consumed_at is null
+      and expires_at > now()),
+  0,
+  'pending invites for the dissolved pod are expired'
 );
 
 -- Alice can create a new pod after dissolution.
