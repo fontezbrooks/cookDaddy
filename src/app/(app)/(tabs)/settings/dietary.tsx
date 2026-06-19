@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DietaryChips } from '@/components/dietary-chips';
 import { ThemedText } from '@/components/themed-text';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 
 export default function DietaryScreen() {
@@ -21,6 +22,6 @@ export default function DietaryScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
 });

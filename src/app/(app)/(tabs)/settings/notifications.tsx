@@ -2,6 +2,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Switch, View } from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { type NotificationPrefKey, useNotificationPrefs } from '@/lib/use-notification-prefs';
 
@@ -81,14 +82,19 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
   rows: { marginTop: Spacing.three, gap: Spacing.three },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: Spacing.two,
+    backgroundColor: DesignTokens.color.surface.light,
+    borderWidth: 1,
+    borderColor: DesignTokens.color.borderMuted.light,
+    borderRadius: DesignTokens.radius.md,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.three,
     gap: Spacing.three,
   },
   rowText: { flex: 1, gap: Spacing.half },

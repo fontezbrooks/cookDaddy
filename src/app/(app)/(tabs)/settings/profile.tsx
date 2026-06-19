@@ -10,6 +10,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { createSupabaseClient } from '@/lib/supabase';
 
@@ -108,24 +109,24 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
   field: { gap: Spacing.one },
   input: {
     borderWidth: 1,
-    borderColor: '#888',
+    borderColor: DesignTokens.color.borderMuted.light,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 10,
-    color: '#000',
-    backgroundColor: '#fff',
+    color: DesignTokens.color.ink.light,
+    backgroundColor: DesignTokens.color.surface.light,
   },
   saveButton: {
     marginTop: Spacing.three,
-    backgroundColor: '#111',
+    backgroundColor: DesignTokens.color.persimmonDeep,
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
   },
-  saveButtonText: { color: '#fff', fontWeight: '600' },
+  saveButtonText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
 });

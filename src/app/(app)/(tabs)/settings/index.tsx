@@ -3,7 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
-import { Colors, Spacing } from '@/constants/theme';
+import { DesignTokens } from '@/constants/design-tokens';
+import { Spacing } from '@/constants/theme';
 
 const SETTINGS_LINKS = [
   { href: '/settings/profile', label: 'Profile', testID: 'settings-link-profile' },
@@ -35,7 +36,7 @@ export default function SettingsHubScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: {
     flex: 1,
     padding: Spacing.four,
@@ -46,7 +47,10 @@ const styles = StyleSheet.create({
   },
   link: {
     paddingVertical: Spacing.three,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.light.backgroundSelected,
+    paddingHorizontal: Spacing.three,
+    borderWidth: 1,
+    borderColor: DesignTokens.color.borderMuted.light,
+    borderRadius: DesignTokens.radius.md,
+    backgroundColor: DesignTokens.color.surface.light,
   },
 });

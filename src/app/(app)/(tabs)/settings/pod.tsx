@@ -11,6 +11,7 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { dissolvePod, PodRpcError } from '@/lib/pod-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
@@ -98,7 +99,7 @@ export default function PodSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
   destructive: {
     marginTop: Spacing.three,
@@ -106,8 +107,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     borderRadius: 12,
-    backgroundColor: '#b00020',
+    backgroundColor: DesignTokens.color.dangerDeep,
   },
-  destructiveText: { color: '#fff', fontWeight: '600' },
+  destructiveText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
   disabled: { opacity: 0.6 },
 });
