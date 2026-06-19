@@ -5,7 +5,9 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DietaryChips } from '@/components/dietary-chips';
+import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Colors, Spacing } from '@/constants/theme';
 import { useAnalytics } from '@/lib/analytics';
 import { useCreatePodInvite } from '@/lib/use-create-pod-invite';
@@ -68,11 +70,7 @@ function IntroStep({ onNext }: { onNext: () => void }) {
         <ValueCard title="Match" copy="See the recipes you both want." />
         <ValueCard title="Cook" copy="Turn matches into meals and shopping lists." />
       </View>
-      <Pressable testID="onboarding-next" style={styles.cta} onPress={onNext}>
-        <ThemedText type="small" style={styles.ctaText}>
-          Get started
-        </ThemedText>
-      </Pressable>
+      <PrimaryButton testID="onboarding-next" onPress={onNext} title="Get started" />
     </View>
   );
 }
@@ -86,16 +84,12 @@ function PodStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void })
       <ThemedText type="small">
         Create an invite link and share it. Your partner joins your pod when they open the link.
       </ThemedText>
-      <Pressable
+      <PrimaryButton
         testID="onboarding-create-invite"
-        style={[styles.cta, isPending && styles.ctaDisabled]}
         disabled={isPending}
         onPress={() => createInvite()}
-      >
-        <ThemedText type="small" style={styles.ctaText}>
-          {isPending ? 'Creating link…' : 'Create invite link'}
-        </ThemedText>
-      </Pressable>
+        title={isPending ? 'Creating link…' : 'Create invite link'}
+      />
       {hint ? (
         <ThemedText type="small" testID="onboarding-invite-hint">
           {hint}
@@ -105,11 +99,7 @@ function PodStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void })
         <Pressable testID="onboarding-skip" style={styles.secondaryCta} onPress={onSkip}>
           <ThemedText type="small">Skip for now</ThemedText>
         </Pressable>
-        <Pressable testID="onboarding-next" style={styles.cta} onPress={onNext}>
-          <ThemedText type="small" style={styles.ctaText}>
-            Next
-          </ThemedText>
-        </Pressable>
+        <PrimaryButton testID="onboarding-next" onPress={onNext} title="Next" />
       </View>
     </View>
   );
@@ -127,11 +117,7 @@ function DietaryStep({ onDone, onSkip }: { onDone: () => void; onSkip: () => voi
         <Pressable testID="onboarding-skip" style={styles.secondaryCta} onPress={onSkip}>
           <ThemedText type="small">Skip</ThemedText>
         </Pressable>
-        <Pressable testID="onboarding-finish" style={styles.cta} onPress={onDone}>
-          <ThemedText type="small" style={styles.ctaText}>
-            Done
-          </ThemedText>
-        </Pressable>
+        <PrimaryButton testID="onboarding-finish" onPress={onDone} title="Done" />
       </View>
     </View>
   );
@@ -149,7 +135,7 @@ function ValueCard({ title, copy }: { title: string; copy: string }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: { flex: 1, padding: Spacing.four },
   step: { flex: 1, justifyContent: 'center', gap: Spacing.three },
   cardRow: { gap: Spacing.two },
@@ -161,15 +147,6 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   actions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
-  cta: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: 12,
-    backgroundColor: '#111',
-  },
-  ctaDisabled: { opacity: 0.6 },
-  ctaText: { color: '#fff', fontWeight: '600' },
   secondaryCta: {
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.three,

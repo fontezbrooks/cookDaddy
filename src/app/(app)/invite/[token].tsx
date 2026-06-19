@@ -9,10 +9,12 @@ import { useAuth } from '@clerk/clerk-expo';
 import { useMutation } from '@tanstack/react-query';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import {
   consumePodInvite,
@@ -118,15 +120,12 @@ export default function InviteTokenScreen() {
         <View style={styles.container}>
           <ThemedText type="title">{copy.title}</ThemedText>
           <ThemedText type="small">{copy.body}</ThemedText>
-          <Pressable
+          <PrimaryButton
             testID="invite-home-cta"
-            style={styles.cta}
             onPress={() => router.replace('/home')}
-          >
-            <ThemedText type="small" style={styles.ctaText}>
-              Go home
-            </ThemedText>
-          </Pressable>
+            title="Go home"
+            style={{ marginTop: Spacing.three }}
+          />
         </View>
       </SafeAreaView>
     );
@@ -142,16 +141,7 @@ export default function InviteTokenScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.two },
-  cta: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: 12,
-    backgroundColor: '#111',
-    marginTop: Spacing.three,
-  },
-  ctaText: { color: '#fff', fontWeight: '600' },
 });
