@@ -33,17 +33,22 @@ begin
     select count(*)::int
       into v_member_count
       from pod_members
-     where pod_id = v_pod;
+     where pod_members.pod_id = v_pod;
 
     if v_member_count >= 2 then
       raise exception 'already_in_a_pod' using errcode = 'P0001';
     end if;
 
+    perform 1
+      from pods
+     where pods.id = v_pod
+       for update;
+
     update pod_invites
        set expires_at = now()
-     where pod_id = v_pod
-       and consumed_at is null
-       and expires_at > now();
+     where pod_invites.pod_id = v_pod
+       and pod_invites.consumed_at is null
+       and pod_invites.expires_at > now();
   else
     insert into pods default values returning id into v_pod;
     insert into pod_members(pod_id, user_id) values (v_pod, v_user);
@@ -105,6 +110,15 @@ begin
     raise exception 'cannot_consume_own_invite' using errcode = 'P0001';
   end if;
 
+  if exists (
+    select 1
+    from pods
+    where pods.id = v_invite.pod_id
+      and pods.archived_at is not null
+  ) then
+    raise exception 'invite_expired' using errcode = 'P0001';
+  end if;
+
   -- Same-user re-tap → idempotent success.
   if v_invite.consumed_at is not null and v_invite.consumed_by = v_user then
     pod_id          := v_invite.pod_id;
@@ -121,15 +135,6 @@ begin
     raise exception 'invite_expired' using errcode = 'P0001';
   end if;
 
-  if exists (
-    select 1
-    from pods p
-    where p.id = v_invite.pod_id
-      and p.archived_at is not null
-  ) then
-    raise exception 'invite_expired' using errcode = 'P0001';
-  end if;
-
   -- Consumer must not already be in a different active pod.
   if exists (
     select 1
@@ -140,6 +145,10 @@ begin
       and pm.pod_id <> v_invite.pod_id
   ) then
     raise exception 'consumer_already_in_a_pod' using errcode = 'P0001';
+  end if;
+
+  if (select count(*) from pod_members where pod_members.pod_id = v_invite.pod_id) >= 2 then
+    raise exception 'pod_full' using errcode = 'P0001';
   end if;
 
   insert into pod_members(pod_id, user_id) values (v_invite.pod_id, v_user);

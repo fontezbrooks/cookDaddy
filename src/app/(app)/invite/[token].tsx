@@ -46,6 +46,10 @@ const ERROR_COPY: Record<PodRpcErrorCode, { title: string; body: string }> = {
     title: 'You’re already paired',
     body: 'Leave your current pod from Settings before joining a new one.',
   },
+  pod_full: {
+    title: 'This pod is full',
+    body: 'This pod already has two members.',
+  },
   already_in_a_pod: {
     title: 'You’re already paired',
     body: 'Leave your current pod from Settings before joining a new one.',
