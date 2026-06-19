@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: DesignTokens.space.three,
     paddingVertical: DesignTokens.space.two,
     borderRadius: DesignTokens.radius.md,
-    backgroundColor: DesignTokens.color.bgCard.light,
+    backgroundColor: DesignTokens.color.persimmonDeep,
   },
   secondaryCta: {
     alignSelf: 'flex-start',

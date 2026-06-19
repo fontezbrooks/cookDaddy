@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     zIndex: 50,
   },
   card: {
-    backgroundColor: DesignTokens.color.bgCard.light,
+    backgroundColor: DesignTokens.color.surface.light,
     padding: Spacing.four,
     gap: Spacing.three,
     borderTopLeftRadius: DesignTokens.radius.lg,

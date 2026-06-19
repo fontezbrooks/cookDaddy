@@ -18,7 +18,8 @@
 
 export const DesignTokens = {
   color: {
-    bgCard: { light: '#111111', dark: '#1F1F22' },
+    // Intentional dark surface for the swipe-deck recipe card (forced dark in v1; see swipe-deck.tsx). NOT a general card bg — light cards use `surface`.
+    swipeCardSurface: { light: '#111111', dark: '#1F1F22' },
     // Match-overlay backdrop scrim (70% black) — MATCH-UX §4.2.
     bgOverlayScrim: '#000000B3',
     // Locked colors for content sitting on dark surfaces (card, CTAs).
