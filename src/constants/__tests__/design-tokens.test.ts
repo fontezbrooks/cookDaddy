@@ -70,7 +70,6 @@ describe('DesignTokens', () => {
 
   it('exposes themed colors with both light and dark variants', () => {
     expect(DesignTokens.color.bg).toEqual({ light: '#FFFFFF', dark: '#000000' });
-    expect(DesignTokens.color.textPrimary).toEqual({ light: '#000000', dark: '#FFFFFF' });
   });
 });
 

@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     borderColor: DesignTokens.color.persimmonDeep,
     backgroundColor: DesignTokens.color.persimmonDeep,
   },
-  filterText: { color: DesignTokens.color.textPrimary.light, fontWeight: '600' },
+  filterText: { color: DesignTokens.color.ink.light, fontWeight: '600' },
   filterTextActive: { color: DesignTokens.color.textOnDark, fontWeight: '700' },
   grid: {
     flexDirection: 'row',
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     backgroundColor: DesignTokens.color.bgElevated.light,
   },
   tileBody: { padding: Spacing.two, gap: Spacing.two },
-  tileTitle: { color: DesignTokens.color.textPrimary.light, fontWeight: '700' },
+  tileTitle: { color: DesignTokens.color.ink.light, fontWeight: '700' },
   badge: {
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.two,

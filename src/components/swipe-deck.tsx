@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     borderColor: DesignTokens.color.borderMuted.light,
   },
   streakText: {
-    color: DesignTokens.color.textPrimary.light,
+    color: DesignTokens.color.ink.light,
     fontWeight: '700',
   },
   card: {
