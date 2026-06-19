@@ -69,7 +69,7 @@ describe('DesignTokens', () => {
   });
 
   it('exposes themed colors with both light and dark variants', () => {
-    expect(DesignTokens.color.bg).toEqual({ light: '#FFFFFF', dark: '#000000' });
+    expect(DesignTokens.color.canvas).toEqual({ light: '#F6F6F8', dark: '#1C1916' });
   });
 });
 
@@ -80,7 +80,7 @@ describe('resolveThemedColor', () => {
   });
 
   it('picks the matching variant from a themed color object', () => {
-    expect(resolveThemedColor(DesignTokens.color.bg, 'light')).toBe('#FFFFFF');
-    expect(resolveThemedColor(DesignTokens.color.bg, 'dark')).toBe('#000000');
+    expect(resolveThemedColor(DesignTokens.color.canvas, 'light')).toBe('#F6F6F8');
+    expect(resolveThemedColor(DesignTokens.color.canvas, 'dark')).toBe('#1C1916');
   });
 });

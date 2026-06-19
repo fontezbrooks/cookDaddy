@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.one,
     borderRadius: DesignTokens.radius.pill,
-    backgroundColor: DesignTokens.color.bgElevated.light,
+    backgroundColor: DesignTokens.color.canvas.light,
     borderWidth: 1,
     borderColor: DesignTokens.color.borderMuted.light,
   },

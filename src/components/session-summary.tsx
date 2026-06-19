@@ -239,13 +239,13 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     borderRadius: DesignTokens.radius.md,
-    backgroundColor: DesignTokens.color.bgElevated.light,
+    backgroundColor: DesignTokens.color.canvas.light,
   },
   tilePlaceholder: {
     width: '100%',
     aspectRatio: 1,
     borderRadius: DesignTokens.radius.md,
-    backgroundColor: DesignTokens.color.bgElevated.light,
+    backgroundColor: DesignTokens.color.canvas.light,
   },
   primaryCta: {
     alignSelf: 'flex-start',
