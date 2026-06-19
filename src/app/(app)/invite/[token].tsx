@@ -118,7 +118,7 @@ export default function InviteTokenScreen() {
     return (
       <SafeAreaView style={styles.safe} testID={`invite-error-${code}`}>
         <View style={styles.container}>
-          <ThemedText type="title">{copy.title}</ThemedText>
+          <ThemedText type="subtitle">{copy.title}</ThemedText>
           <ThemedText type="small">{copy.body}</ThemedText>
           <PrimaryButton
             testID="invite-home-cta"

@@ -1,7 +1,7 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useColorScheme } from 'react-native';
 
+import { TabBarIcon } from '@/components/tab-bar-icon';
 import { DesignTokens, resolveThemedColor } from '@/constants/design-tokens';
 
 export default function TabsLayout() {
@@ -22,8 +22,9 @@ export default function TabsLayout() {
           tabBarLabel: 'Home',
           tabBarButtonTestID: 'tab-home',
           tabBarIcon: ({ focused, color, size }) => (
-            <MaterialCommunityIcons
+            <TabBarIcon
               name={focused ? 'home' : 'home-outline'}
+              focused={focused}
               size={size}
               color={color}
             />
@@ -36,8 +37,9 @@ export default function TabsLayout() {
           tabBarLabel: 'Cookbook',
           tabBarButtonTestID: 'tab-cookbook',
           tabBarIcon: ({ focused, color, size }) => (
-            <MaterialCommunityIcons
+            <TabBarIcon
               name={focused ? 'notebook' : 'notebook-outline'}
+              focused={focused}
               size={size}
               color={color}
             />
@@ -50,8 +52,9 @@ export default function TabsLayout() {
           tabBarLabel: 'Fridge',
           tabBarButtonTestID: 'tab-fridge',
           tabBarIcon: ({ focused, color, size }) => (
-            <MaterialCommunityIcons
+            <TabBarIcon
               name={focused ? 'fridge' : 'fridge-outline'}
+              focused={focused}
               size={size}
               color={color}
             />
@@ -64,8 +67,9 @@ export default function TabsLayout() {
           tabBarLabel: 'Shopping',
           tabBarButtonTestID: 'tab-shopping',
           tabBarIcon: ({ focused, color, size }) => (
-            <MaterialCommunityIcons
+            <TabBarIcon
               name={focused ? 'cart' : 'cart-outline'}
+              focused={focused}
               size={size}
               color={color}
             />
@@ -78,8 +82,9 @@ export default function TabsLayout() {
           tabBarLabel: 'Settings',
           tabBarButtonTestID: 'tab-settings',
           tabBarIcon: ({ focused, color, size }) => (
-            <MaterialCommunityIcons
+            <TabBarIcon
               name={focused ? 'cog' : 'cog-outline'}
+              focused={focused}
               size={size}
               color={color}
             />

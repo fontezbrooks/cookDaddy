@@ -64,7 +64,7 @@ export default function OnboardingScreen() {
 function IntroStep({ onNext }: { onNext: () => void }) {
   return (
     <View style={styles.step} testID="onboarding-intro">
-      <ThemedText type="title">Cook together without the dinner debate</ThemedText>
+      <ThemedText type="subtitle">Cook together without the dinner debate</ThemedText>
       <View style={styles.cardRow}>
         <ValueCard title="Swipe" copy="Browse dinner ideas in a shared session." />
         <ValueCard title="Match" copy="See the recipes you both want." />
@@ -80,7 +80,7 @@ function PodStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void })
 
   return (
     <View style={styles.step} testID="onboarding-pod">
-      <ThemedText type="title">Invite your cooking partner</ThemedText>
+      <ThemedText type="subtitle">Invite your cooking partner</ThemedText>
       <ThemedText type="small">
         Create an invite link and share it. Your partner joins your pod when they open the link.
       </ThemedText>
@@ -108,7 +108,7 @@ function PodStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void })
 function DietaryStep({ onDone, onSkip }: { onDone: () => void; onSkip: () => void }) {
   return (
     <View style={styles.step} testID="onboarding-dietary">
-      <ThemedText type="title">Set dietary preferences</ThemedText>
+      <ThemedText type="subtitle">Set dietary preferences</ThemedText>
       <ThemedText type="small">
         Recipes that conflict with these will be filtered out of your decks.
       </ThemedText>
