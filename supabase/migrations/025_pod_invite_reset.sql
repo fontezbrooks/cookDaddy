@@ -1,6 +1,12 @@
 -- 025_pod_invite_reset.sql
 -- Production fix: make solo invite creation idempotent, reject archived-pod
 -- invites, and expire outstanding links when a pod is dissolved.
+--
+-- Concurrency: every function that reads-then-mutates pod membership or
+-- archival state first locks the pods row with SELECT ... FOR UPDATE. Because
+-- all three RPCs acquire that same lock before touching pod_members / invites,
+-- their member-count and archived_at checks are race-free (and deadlock-free,
+-- since the pods row is always the first lock taken).
 
 create or replace function create_pod_invite()
 returns table(token text, expires_at timestamptz, pod_id uuid)
@@ -21,6 +27,7 @@ begin
     raise exception 'unauthenticated' using errcode = 'P0001';
   end if;
 
+  -- Find the caller's current active pod (if any).
   select pm.pod_id
     into v_pod
     from pod_members pm
@@ -30,38 +37,50 @@ begin
    limit 1;
 
   if v_pod is not null then
-    select count(*)::int
-      into v_member_count
-      from pod_members
-     where pod_members.pod_id = v_pod;
-
-    if v_member_count >= 2 then
-      raise exception 'already_in_a_pod' using errcode = 'P0001';
-    end if;
-
+    -- Lock the pod row BEFORE reading the member count so a concurrent
+    -- consume_pod_invite()/dissolve_pod() cannot mutate membership between the
+    -- count and our decision. If the pod was archived (dissolved) between the
+    -- lookup and the lock, FOUND is false here and we fall through to create a
+    -- fresh solo pod below.
     perform 1
       from pods
      where pods.id = v_pod
+       and pods.archived_at is null
        for update;
 
-    update pod_invites
-       set expires_at = now()
-     where pod_invites.pod_id = v_pod
-       and pod_invites.consumed_at is null
-       and pod_invites.expires_at > now();
-  else
+    if not found then
+      v_pod := null;
+    else
+      select count(*)::int
+        into v_member_count
+        from pod_members
+       where pod_members.pod_id = v_pod;
+
+      if v_member_count >= 2 then
+        raise exception 'already_in_a_pod' using errcode = 'P0001';
+      end if;
+
+      update pod_invites
+         set expires_at = now()
+       where pod_invites.pod_id = v_pod
+         and pod_invites.consumed_at is null
+         and pod_invites.expires_at > now();
+    end if;
+  end if;
+
+  if v_pod is null then
     insert into pods default values returning id into v_pod;
     insert into pod_members(pod_id, user_id) values (v_pod, v_user);
   end if;
 
-  -- base64url of 32 random bytes → 43-char URL-safe token, 256-bit entropy.
+  -- base64url of 32 random bytes -> 43-char URL-safe token, 256-bit entropy.
   v_token := translate(
     encode(extensions.gen_random_bytes(32), 'base64'),
     '+/=',
     '-_'
   );
-  -- 24h default lifetime per DESIGN §8.2. Long enough for "send link, go to
-  -- work, partner taps after dinner"; short enough that lost links die quickly.
+  -- 24h default lifetime per DESIGN section 8.2. Long enough for "send link, go
+  -- to work, partner taps after dinner"; short enough that lost links die fast.
   v_ttl     := interval '24 hours';
   v_expires := now() + v_ttl;
 
@@ -110,6 +129,12 @@ begin
     raise exception 'cannot_consume_own_invite' using errcode = 'P0001';
   end if;
 
+  -- Lock the invite's pod so the archival re-check, the consumer-in-another-pod
+  -- guard, the member-count cap, and the member insert below all evaluate
+  -- against a stable row -- serialized with concurrent create_pod_invite()/
+  -- consume_pod_invite()/dissolve_pod() on the same pod.
+  perform 1 from pods where pods.id = v_invite.pod_id for update;
+
   if exists (
     select 1
     from pods
@@ -119,7 +144,8 @@ begin
     raise exception 'invite_expired' using errcode = 'P0001';
   end if;
 
-  -- Same-user re-tap → idempotent success.
+  -- Same-user re-tap -> idempotent success (only after confirming the pod is
+  -- still active above, so a re-tap on a dissolved pod reports invite_expired).
   if v_invite.consumed_at is not null and v_invite.consumed_by = v_user then
     pod_id          := v_invite.pod_id;
     already_member  := true;
@@ -180,6 +206,10 @@ begin
   if v_user = '' then
     raise exception 'unauthenticated' using errcode = 'P0001';
   end if;
+
+  -- Lock the pod first so a concurrent create/consume cannot interleave a new
+  -- member or invite between our checks and the archive+delete below.
+  perform 1 from pods where pods.id = p_pod_id for update;
 
   if not exists (
     select 1 from pod_members
