@@ -48,7 +48,7 @@ select is(
 select tests.as_user('user_alice');
 select * from public.create_pod_invite() \gset alice2_
 
-select isnt(:'alice2_token', :'alice_token', 'second solo call returns a fresh token');
+select isnt(:'alice2_token'::text, :'alice_token'::text, 'second solo call returns a fresh token');
 select is(
   (:'alice2_pod_id')::uuid,
   (:'alice_pod_id')::uuid,
