@@ -16,10 +16,11 @@ import { useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { MatchOverlay, type MatchOverlayPayload } from '@/components/match-overlay';
+import { PrimaryButton } from '@/components/primary-button';
 import { SessionSummary } from '@/components/session-summary';
 import { SwipeDeck, type OnLocalCommitPayload, type OnMatchPayload } from '@/components/swipe-deck';
 import { ThemedText } from '@/components/themed-text';
@@ -256,11 +257,11 @@ export default function SessionScreen() {
         <View style={styles.container} testID="session-not-found">
           <ThemedText type="title">Session not found</ThemedText>
           <ThemedText type="small">It may have been ended or you don’t have access.</ThemedText>
-          <Pressable style={styles.cta} onPress={() => router.replace('/home')}>
-            <ThemedText type="small" style={styles.ctaText}>
-              Back to home
-            </ThemedText>
-          </Pressable>
+          <PrimaryButton
+            onPress={() => router.replace('/home')}
+            title="Back to home"
+            style={{ marginTop: Spacing.three }}
+          />
         </View>
       </SafeAreaView>
     );
@@ -277,16 +278,13 @@ export default function SessionScreen() {
             {deckSize} recipes ready to swipe through with your partner.
           </ThemedText>
 
-          <Pressable
+          <PrimaryButton
             testID="session-start-swiping"
-            style={[styles.cta, activateMutation.isPending && styles.ctaDisabled]}
             disabled={activateMutation.isPending}
             onPress={() => activateMutation.mutate()}
-          >
-            <ThemedText type="small" style={styles.ctaText}>
-              {activateMutation.isPending ? 'Starting…' : 'Start swiping'}
-            </ThemedText>
-          </Pressable>
+            title={activateMutation.isPending ? 'Starting…' : 'Start swiping'}
+            style={{ marginTop: Spacing.three }}
+          />
 
           {activateMutation.isError ? (
             <ThemedText type="small" testID="session-activate-error">
@@ -379,16 +377,6 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: DesignTokens.color.canvas.light },
   container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  cta: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: DesignTokens.radius.md,
-    backgroundColor: DesignTokens.color.persimmonDeep,
-    marginTop: Spacing.three,
-  },
-  ctaDisabled: { opacity: 0.6 },
-  ctaText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
   dotRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',

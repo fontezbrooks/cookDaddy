@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -173,22 +174,18 @@ export default function ShoppingScreen() {
                 style={[styles.input, styles.compactInput]}
               />
             </View>
-            <Pressable
+            <PrimaryButton
               testID="shopping-add"
-              style={[styles.cta, (!name.trim() || addMutation.isPending) && styles.ctaDisabled]}
               disabled={!name.trim() || addMutation.isPending}
               onPress={() => addMutation.mutate()}
-            >
-              <ThemedText type="small" style={styles.ctaText}>
-                Add
-              </ThemedText>
-            </Pressable>
+              title="Add"
+            />
           </View>
 
           {checkedCount > 0 ? (
             <Pressable
               testID="shopping-clear-checked"
-              style={[styles.secondaryCta, clearMutation.isPending && styles.ctaDisabled]}
+              style={[styles.secondaryCta, clearMutation.isPending && styles.disabled]}
               disabled={clearMutation.isPending}
               onPress={() => clearMutation.mutate()}
             >
@@ -263,7 +260,7 @@ function ShoppingRow({
       {checked ? (
         <Pressable
           testID={`shopping-move-${item.id}`}
-          style={[styles.secondaryCta, busy && styles.ctaDisabled]}
+          style={[styles.secondaryCta, busy && styles.disabled]}
           disabled={busy}
           onPress={onMove}
         >
@@ -327,13 +324,6 @@ const styles = StyleSheet.create({
     backgroundColor: DesignTokens.color.surface.light,
   },
   compactInput: { flex: 1 },
-  cta: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: DesignTokens.radius.md,
-    backgroundColor: DesignTokens.color.persimmonDeep,
-  },
   secondaryCta: {
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
@@ -341,8 +331,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: DesignTokens.color.borderStrong.light,
   },
-  ctaDisabled: { opacity: 0.6 },
-  ctaText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
+  disabled: { opacity: 0.6 },
   secondaryCtaText: { color: DesignTokens.color.ink.light, fontWeight: '600' },
   empty: { gap: Spacing.two },
   list: { gap: Spacing.four },

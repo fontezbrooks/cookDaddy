@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -104,15 +105,11 @@ export default function CookbookDetailScreen() {
         <View style={styles.container} testID="cookbook-detail-not-found">
           <ThemedText type="title">Recipe not found</ThemedText>
           <ThemedText type="small">It may have been removed or you don’t have access.</ThemedText>
-          <Pressable
+          <PrimaryButton
             testID="cookbook-detail-back-home"
-            style={styles.cta}
             onPress={() => router.replace('/home')}
-          >
-            <ThemedText type="small" style={styles.ctaText}>
-              Back to home
-            </ThemedText>
-          </Pressable>
+            title="Back to home"
+          />
         </View>
       </SafeAreaView>
     );
@@ -187,20 +184,16 @@ export default function CookbookDetailScreen() {
           ) : null}
 
           <View style={styles.actions}>
-            <Pressable
+            <PrimaryButton
               testID="cookbook-mark-cooked"
-              style={[styles.cta, cooked && styles.ctaDisabled]}
               disabled={cooked || markCookedMutation.isPending}
               onPress={() => markCookedMutation.mutate()}
-            >
-              <ThemedText type="small" style={styles.ctaText}>
-                {cooked ? 'Cooked ✓' : 'Mark cooked'}
-              </ThemedText>
-            </Pressable>
+              title={cooked ? 'Cooked ✓' : 'Mark cooked'}
+            />
 
             <Pressable
               testID="cookbook-remove"
-              style={[styles.secondaryCta, removeMutation.isPending && styles.ctaDisabled]}
+              style={[styles.secondaryCta, removeMutation.isPending && styles.disabled]}
               disabled={removeMutation.isPending}
               onPress={() => removeMutation.mutate()}
             >
@@ -215,7 +208,7 @@ export default function CookbookDetailScreen() {
                 style={[
                   styles.secondaryCta,
                   (!podId || addShoppingMutation.isPending || shoppingResult !== null) &&
-                    styles.ctaDisabled,
+                    styles.disabled,
                 ]}
                 disabled={!podId || addShoppingMutation.isPending || shoppingResult !== null}
                 onPress={() => addShoppingMutation.mutate()}
@@ -294,13 +287,6 @@ const styles = StyleSheet.create({
   nutrients: { gap: Spacing.two },
   nutrientRow: { flexDirection: 'row', justifyContent: 'space-between', gap: Spacing.two },
   actions: { gap: Spacing.three, paddingTop: Spacing.two },
-  cta: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: DesignTokens.radius.md,
-    backgroundColor: DesignTokens.color.persimmonDeep,
-  },
   secondaryCta: {
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.three,
@@ -309,8 +295,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: DesignTokens.color.borderStrong.light,
   },
-  ctaDisabled: { opacity: 0.6 },
-  ctaText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
+  disabled: { opacity: 0.6 },
   secondaryCtaText: { color: DesignTokens.color.ink.light, fontWeight: '600' },
   shoppingGroup: { gap: Spacing.one },
 });
