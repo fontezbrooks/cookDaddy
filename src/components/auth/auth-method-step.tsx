@@ -35,9 +35,11 @@ export function AuthMethodStep({
         <Pressable
           testID="auth-mode-signin"
           accessibilityRole="button"
+          disabled={disabled}
           style={[
             styles.modeSegment,
             mode === 'signin' ? styles.modeSegmentActive : styles.modeSegmentInactive,
+            disabled && styles.disabled,
           ]}
           onPress={() => onToggleMode('signin')}
         >
@@ -52,9 +54,11 @@ export function AuthMethodStep({
         <Pressable
           testID="auth-mode-signup"
           accessibilityRole="button"
+          disabled={disabled}
           style={[
             styles.modeSegment,
             mode === 'signup' ? styles.modeSegmentActive : styles.modeSegmentInactive,
+            disabled && styles.disabled,
           ]}
           onPress={() => onToggleMode('signup')}
         >

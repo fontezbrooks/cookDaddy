@@ -257,6 +257,33 @@ describe('SignInScreen', () => {
     });
   });
 
+  it('does not redirect when the code attempt is not complete', async () => {
+    const attemptFirstFactor = jest.fn().mockResolvedValue({ status: 'needs_second_factor' });
+    const setActive = jest.fn();
+    jest.mocked(useSignIn).mockReturnValue({
+      isLoaded: true,
+      signIn: { create: jest.fn().mockResolvedValue(undefined), attemptFirstFactor },
+      setActive,
+    } as never);
+    render(<SignInScreen />);
+    fireEvent.changeText(screen.getByTestId('sign-in-email-input'), 'me@example.com');
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('sign-in-email-submit'));
+    });
+    await waitFor(() => expect(screen.getByTestId('auth-code-input')).toBeOnTheScreen());
+    fireEvent.changeText(screen.getByTestId('auth-code-input'), '222222');
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('auth-code-verify'));
+    });
+    await waitFor(() => {
+      expect(setActive).not.toHaveBeenCalled();
+      expect(mockReplace).not.toHaveBeenCalled();
+      expect(mockCapture).not.toHaveBeenCalledWith('signed_in', { provider: 'email' });
+      expect(screen.getByTestId('sign-in-error')).toBeOnTheScreen();
+      expect(screen.getByTestId('auth-code-input')).toBeOnTheScreen();
+    });
+  });
+
   it('wrong code shows error, stays on code step', async () => {
     const create = jest.fn().mockResolvedValue(undefined);
     const attemptFirstFactor = jest.fn().mockRejectedValue({

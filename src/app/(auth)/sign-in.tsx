@@ -123,19 +123,26 @@ export default function SignInScreen() {
       return;
     }
     try {
+      let completed = false;
       if (mode === 'signup') {
         const res = await signUp!.attemptEmailAddressVerification({ code });
-        if (res.status === 'complete') {
+        if (res.status === 'complete' && res.createdSessionId) {
           await setActiveSignUp!({ session: res.createdSessionId });
+          completed = true;
         }
       } else {
         const res = await signIn!.attemptFirstFactor({ strategy: 'email_code', code });
-        if (res.status === 'complete') {
+        if (res.status === 'complete' && res.createdSessionId) {
           await setActiveSignIn!({ session: res.createdSessionId });
+          completed = true;
         }
       }
-      analytics.capture('signed_in', { provider: 'email' });
-      router.replace(postSignInTarget as never);
+      if (completed) {
+        analytics.capture('signed_in', { provider: 'email' });
+        router.replace(postSignInTarget as never);
+      } else {
+        setError('Could not complete sign-in. Please request a new code and try again.');
+      }
     } catch (err) {
       setError(mapClerkError(err).message);
     } finally {
