@@ -1,18 +1,16 @@
-// Sign-in screen per DESIGN §4 + WORKFLOW §7.
-//
-// Three sign-in routes: Apple OAuth, Google OAuth, Email (Clerk magic-code).
-// OAuth flows complete inside Clerk's SDK — on `createdSessionId`, we
-// activate the session and redirect to /home.
-
-import { useOAuth, useSignIn } from '@clerk/clerk-expo';
+import { useOAuth, useSignIn, useSignUp } from '@clerk/clerk-expo';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { AuthMethodStep, type AuthMode } from '@/components/auth/auth-method-step';
+import { AuthCodeStep } from '@/components/auth/auth-code-step';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { DesignTokens } from '@/constants/design-tokens';
 import { useAnalytics } from '@/lib/analytics';
+import { mapClerkError } from '@/lib/auth/clerk-errors';
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -20,8 +18,8 @@ export default function SignInScreen() {
   const { redirect } = useLocalSearchParams<{ redirect?: string }>();
   const { startOAuthFlow: startApple } = useOAuth({ strategy: 'oauth_apple' });
   const { startOAuthFlow: startGoogle } = useOAuth({ strategy: 'oauth_google' });
-  // setActive on the email flow is used after the code-entry step (P5).
-  const { signIn } = useSignIn();
+  const { signIn, setActive: setActiveSignIn } = useSignIn();
+  const { signUp, setActive: setActiveSignUp } = useSignUp();
 
   // Only honor in-app paths ("/invite/foo"). Reject empty, schemeful, and
   // protocol-relative ("//foo") values so a malicious link can't bounce the
@@ -33,9 +31,37 @@ export default function SignInScreen() {
     return '/home';
   }, [redirect]);
 
+  const [mode, setMode] = useState<AuthMode>('signin');
+  const [step, setStep] = useState<'method' | 'code'>('method');
   const [email, setEmail] = useState('');
-  const [pending, setPending] = useState<'idle' | 'apple' | 'google' | 'email'>('idle');
+  const [code, setCode] = useState('');
+  const [pending, setPending] = useState<
+    'idle' | 'apple' | 'google' | 'email' | 'verify' | 'resend'
+  >('idle');
   const [error, setError] = useState<string | null>(null);
+  const [switchTo, setSwitchTo] = useState<'signin' | 'signup' | undefined>(undefined);
+  const [resendCooldown, setResendCooldown] = useState<number>(0);
+  const cooldownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (cooldownIntervalRef.current) {
+      clearInterval(cooldownIntervalRef.current);
+      cooldownIntervalRef.current = null;
+    }
+
+    if (resendCooldown <= 0) return undefined;
+
+    cooldownIntervalRef.current = setInterval(() => {
+      setResendCooldown((current) => Math.max(0, current - 1));
+    }, 1000);
+
+    return () => {
+      if (cooldownIntervalRef.current) {
+        clearInterval(cooldownIntervalRef.current);
+        cooldownIntervalRef.current = null;
+      }
+    };
+  }, [resendCooldown]);
 
   const handleOAuth = useCallback(
     async (
@@ -55,7 +81,7 @@ export default function SignInScreen() {
           router.replace(postSignInTarget as never);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Sign-in failed');
+        setError(mapClerkError(err).message);
       } finally {
         setPending('idle');
       }
@@ -63,21 +89,118 @@ export default function SignInScreen() {
     [analytics, router, postSignInTarget],
   );
 
-  const handleEmail = useCallback(async () => {
-    if (!signIn) return;
+  const startEmail = useCallback(async () => {
     setError(null);
+    setSwitchTo(undefined);
     setPending('email');
+    if (mode === 'signup' ? !signUp : !signIn) {
+      setPending('idle');
+      return;
+    }
     try {
-      await signIn.create({ identifier: email, strategy: 'email_code' });
-      // The actual code-entry step lands in a follow-up screen; for P4
-      // shell we surface "check your email" and leave the rest as P5 work.
-      setError('Check your email for a sign-in code.');
+      if (mode === 'signup') {
+        await signUp!.create({ emailAddress: email });
+        await signUp!.prepareEmailAddressVerification({ strategy: 'email_code' });
+      } else {
+        await signIn!.create({ identifier: email, strategy: 'email_code' });
+      }
+      setStep('code');
+      setResendCooldown(30);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Email sign-in failed');
+      const mapped = mapClerkError(err);
+      setError(mapped.message);
+      setSwitchTo(mapped.switchTo);
     } finally {
       setPending('idle');
     }
-  }, [email, signIn]);
+  }, [email, mode, signIn, signUp]);
+
+  const verify = useCallback(async () => {
+    setError(null);
+    setPending('verify');
+    if (mode === 'signup' ? !signUp || !setActiveSignUp : !signIn || !setActiveSignIn) {
+      setPending('idle');
+      return;
+    }
+    try {
+      let completed = false;
+      if (mode === 'signup') {
+        const res = await signUp!.attemptEmailAddressVerification({ code });
+        if (res.status === 'complete' && res.createdSessionId) {
+          await setActiveSignUp!({ session: res.createdSessionId });
+          completed = true;
+        }
+      } else {
+        const res = await signIn!.attemptFirstFactor({ strategy: 'email_code', code });
+        if (res.status === 'complete' && res.createdSessionId) {
+          await setActiveSignIn!({ session: res.createdSessionId });
+          completed = true;
+        }
+      }
+      if (completed) {
+        analytics.capture('signed_in', { provider: 'email' });
+        router.replace(postSignInTarget as never);
+      } else {
+        setError('Could not complete sign-in. Please request a new code and try again.');
+      }
+    } catch (err) {
+      setError(mapClerkError(err).message);
+    } finally {
+      setPending('idle');
+    }
+  }, [
+    analytics,
+    code,
+    mode,
+    postSignInTarget,
+    router,
+    setActiveSignIn,
+    setActiveSignUp,
+    signIn,
+    signUp,
+  ]);
+
+  const resend = useCallback(async () => {
+    setPending('resend');
+    if (mode === 'signup' ? !signUp : !signIn) {
+      setPending('idle');
+      return;
+    }
+    try {
+      if (mode === 'signup') {
+        await signUp!.prepareEmailAddressVerification({ strategy: 'email_code' });
+      } else {
+        await signIn!.create({ identifier: email, strategy: 'email_code' });
+      }
+      setResendCooldown(30);
+      setError(null);
+    } catch (err) {
+      setError(mapClerkError(err).message);
+    } finally {
+      setPending('idle');
+    }
+  }, [email, mode, signIn, signUp]);
+
+  const changeEmail = useCallback(() => {
+    setStep('method');
+    setCode('');
+    setError(null);
+  }, []);
+
+  const toggleMode = useCallback((next: AuthMode) => {
+    setMode(next);
+    setError(null);
+    setSwitchTo(undefined);
+  }, []);
+
+  const applySwitch = useCallback(() => {
+    if (switchTo) {
+      setMode(switchTo);
+      setError(null);
+      setSwitchTo(undefined);
+      setStep('method');
+    }
+  }, [switchTo]);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -87,55 +210,45 @@ export default function SignInScreen() {
         </ThemedText>
         <ThemedText type="small">Sign in to start swiping with your partner.</ThemedText>
 
-        <View style={styles.actions}>
-          <Pressable
-            testID="sign-in-apple"
-            style={styles.oauthButton}
+        {step === 'method' ? (
+          <AuthMethodStep
+            mode={mode}
+            onToggleMode={toggleMode}
+            email={email}
+            onChangeEmail={setEmail}
+            onSubmitEmail={startEmail}
+            onOAuth={(provider) =>
+              handleOAuth(provider, provider === 'apple' ? startApple : startGoogle)
+            }
+            pending={
+              pending === 'apple' || pending === 'google' || pending === 'email' ? pending : 'idle'
+            }
             disabled={pending !== 'idle'}
-            onPress={() => handleOAuth('apple', startApple)}
-          >
-            <Text style={styles.oauthButtonText}>
-              {pending === 'apple' ? 'Signing in…' : 'Continue with Apple'}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            testID="sign-in-google"
-            style={styles.oauthButton}
-            disabled={pending !== 'idle'}
-            onPress={() => handleOAuth('google', startGoogle)}
-          >
-            <Text style={styles.oauthButtonText}>
-              {pending === 'google' ? 'Signing in…' : 'Continue with Google'}
-            </Text>
-          </Pressable>
-
-          <TextInput
-            testID="sign-in-email-input"
-            placeholder="you@example.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            style={styles.emailInput}
           />
-          <Pressable
-            testID="sign-in-email-submit"
-            style={styles.oauthButton}
-            disabled={pending !== 'idle' || email.length === 0}
-            onPress={handleEmail}
-          >
-            <Text style={styles.oauthButtonText}>
-              {pending === 'email' ? 'Sending…' : 'Email me a sign-in code'}
-            </Text>
-          </Pressable>
-        </View>
+        ) : (
+          <AuthCodeStep
+            email={email}
+            code={code}
+            onChangeCode={setCode}
+            onVerify={verify}
+            onResend={resend}
+            onChangeEmail={changeEmail}
+            resendCooldown={resendCooldown}
+            pending={pending === 'verify' || pending === 'resend'}
+          />
+        )}
 
         {error ? (
           <Text testID="sign-in-error" style={styles.error}>
             {error}
           </Text>
+        ) : null}
+        {switchTo ? (
+          <Pressable testID="auth-switch-mode" accessibilityRole="button" onPress={applySwitch}>
+            <ThemedText type="smallBold" style={styles.switchLink}>
+              {switchTo === 'signin' ? 'Switch to Sign in' : 'Switch to Sign up'}
+            </ThemedText>
+          </Pressable>
         ) : null}
       </View>
     </SafeAreaView>
@@ -150,22 +263,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.three,
   },
-  actions: { gap: Spacing.two, marginTop: Spacing.four },
-  oauthButton: {
-    backgroundColor: '#111',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  oauthButtonText: { color: '#fff', fontWeight: '600' },
-  emailInput: {
-    borderWidth: 1,
-    borderColor: '#888',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderRadius: 12,
-    color: '#000',
-    backgroundColor: '#fff',
-  },
-  error: { color: '#b00020', marginTop: Spacing.two },
+  error: { color: DesignTokens.color.dangerDeep, marginTop: Spacing.two },
+  switchLink: { color: DesignTokens.color.persimmonDeep, marginTop: Spacing.one },
 });
