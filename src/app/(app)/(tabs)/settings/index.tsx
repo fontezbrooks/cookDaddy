@@ -16,6 +16,7 @@ const SETTINGS_LINKS = [
     testID: 'settings-link-notifications',
   },
   { href: '/settings/pod', label: 'Pod', testID: 'settings-link-pod' },
+  { href: '/settings/account', label: 'Account', testID: 'settings-link-account' },
 ] as const;
 
 export default function SettingsHubScreen() {

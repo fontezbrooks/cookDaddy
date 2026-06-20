@@ -85,6 +85,15 @@ jest.mock('@clerk/clerk-expo', () => {
       },
       setActive: jest.fn(),
     })),
+    useSignUp: jest.fn(() => ({
+      isLoaded: true,
+      signUp: {
+        create: jest.fn(),
+        prepareEmailAddressVerification: jest.fn(),
+        attemptEmailAddressVerification: jest.fn(),
+      },
+      setActive: jest.fn(),
+    })),
     useOAuth: jest.fn(() => ({
       startOAuthFlow: jest.fn().mockResolvedValue({ createdSessionId: null, setActive: jest.fn() }),
     })),
