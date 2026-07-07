@@ -1,10 +1,8 @@
-// Design tokens generated from the pencil-MCP design pass (2026-05-23).
+// Design tokens for the Warm Arcade Kitchen redesign.
 //
-// Source of truth: the cookDaddy `.pen` file (pencil-new.pen, opened via
-// `mcp__pencil__open_document`). Variables defined via set_variables; this
-// TS file mirrors them for the React Native side. The shape is additive
-// to constants/theme.ts — adopt incrementally per surface, do NOT clobber
-// the legacy palette during the design pass.
+// Source of truth: docs/REDESIGN/README.md. Legacy pencil/Arcade keys are
+// retained for un-migrated screens and will be retired in later redesign
+// slices.
 //
 // Naming convention:
 //   • Themed colors expose { light, dark } — caller picks via useTheme.
@@ -52,10 +50,22 @@ export const DesignTokens = {
     successDeep: '#15803D',
     dangerChili: '#E23A2C',
     dangerDeep: '#B00020', // AA-safe destructive fill with white label (~7.3:1); dangerChili is 4.31:1.
-    ink: { light: '#2A2521', dark: '#F5F4F2' },
-    inkMuted: { light: '#5E5B55', dark: '#A8A39B' },
-    canvas: { light: '#F6F6F8', dark: '#1C1916' },
-    surface: { light: '#FFFFFF', dark: '#2A2622' },
+    ink: { light: '#1F1A1D', dark: '#F5F4F2' },
+    inkMuted: { light: '#4F444A', dark: '#A8A39B' },
+    canvas: { light: '#FFF8F9', dark: '#FFF8F9' },
+    surface: { light: '#FFFFFF', dark: '#FFFFFF' },
+    brand: { light: '#491E3D', dark: '#491E3D' },
+    brandDeep: { light: '#300827', dark: '#300827' },
+    accent: '#FF850B',
+    accentPressBorder: '#412909',
+    accentBorderAlt: '#311E09',
+    onAccent: '#602E00',
+    accentGlow: 'rgba(248,128,0,0.25)',
+    inkBody: { light: '#4F444A', dark: '#4F444A' },
+    inkPlaceholder: '#D3C2CA',
+    badgeGradientStart: '#F88000',
+    badgeGradientEnd: '#620B49',
+    elevationTint: 'rgba(98,11,73,0.1)',
   },
 
   space: {
@@ -82,14 +92,15 @@ export const DesignTokens = {
 
   fontFamily: {
     // Loaded via useFonts in app/_layout.tsx — see DESIGN.md §3
-    sans: 'Inter',
-    display: 'SpaceGrotesk_700Bold',
-    displaySemibold: 'SpaceGrotesk_600SemiBold',
-    body: 'Inter_400Regular',
-    bodyMedium: 'Inter_500Medium',
-    bodySemibold: 'Inter_600SemiBold',
-    bodyBold: 'Inter_700Bold',
+    sans: 'BeVietnamPro_400Regular',
+    display: 'PlusJakartaSans_800ExtraBold',
+    displaySemibold: 'PlusJakartaSans_700Bold',
+    body: 'BeVietnamPro_400Regular',
+    bodyMedium: 'BeVietnamPro_500Medium',
+    bodySemibold: 'BeVietnamPro_600SemiBold',
+    bodyBold: 'BeVietnamPro_700Bold',
     mono: 'JetBrainsMono_500Medium',
+    jakartaSemibold: 'PlusJakartaSans_600SemiBold',
   },
 
   motion: {
@@ -111,6 +122,37 @@ export const DesignTokens = {
       ctaTappableFromCommitMs: 1200,
       overlayAutoCloseMs: 2500,
       reducedMotionCrossfadeMs: 250,
+    },
+  },
+
+  elevation: {
+    card: {
+      shadowColor: '#620B49',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 12,
+      elevation: 3,
+    },
+    buttonGlow: {
+      shadowColor: '#F88000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 6,
+      elevation: 4,
+    },
+    nav: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: -4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    appBar: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
     },
   },
 } as const;

@@ -1,62 +1,52 @@
-import { type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
 
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 
-type PrimaryButtonProps = {
+type SecondaryButtonProps = {
   title: string;
   onPress: () => void;
   disabled?: boolean;
   testID?: string;
   style?: StyleProp<ViewStyle>;
   fullWidth?: boolean;
-  trailingIcon?: ReactNode;
 };
 
-export function PrimaryButton({
+export function SecondaryButton({
   title,
   onPress,
   disabled = false,
   testID,
   style,
   fullWidth = false,
-  trailingIcon,
-}: PrimaryButtonProps) {
+}: SecondaryButtonProps) {
   return (
     <Pressable
-      testID={testID}
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
+      style={[
         styles.button,
         fullWidth ? styles.fullWidth : styles.inline,
-        pressed && !disabled && styles.pressed,
         disabled && styles.disabled,
         style,
       ]}
+      testID={testID}
     >
       <Text style={styles.label}>{title}</Text>
-      {trailingIcon}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.two,
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.three,
     borderRadius: DesignTokens.radius.pill,
-    backgroundColor: DesignTokens.color.accent,
-    borderBottomWidth: 2,
-    borderBottomColor: DesignTokens.color.accentPressBorder,
-    ...DesignTokens.elevation.buttonGlow,
+    backgroundColor: 'transparent',
   },
   inline: {
     alignSelf: 'flex-start',
@@ -64,16 +54,13 @@ const styles = StyleSheet.create({
   fullWidth: {
     width: '100%',
   },
-  pressed: {
-    borderBottomWidth: 0,
-    transform: [{ translateY: 2 }],
+  disabled: {
+    opacity: 0.6,
   },
-  disabled: { opacity: 0.6 },
   label: {
-    color: DesignTokens.color.onAccent,
+    color: DesignTokens.color.brand.light,
     fontFamily: DesignTokens.fontFamily.bodySemibold,
     fontSize: 14,
     lineHeight: 20,
-    letterSpacing: 0.14,
   },
 });

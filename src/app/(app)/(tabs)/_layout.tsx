@@ -11,15 +11,19 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor:
-          scheme === 'dark' ? DesignTokens.color.persimmon : DesignTokens.color.persimmonDeep,
-        tabBarInactiveTintColor: resolveThemedColor(DesignTokens.color.inkMuted, scheme),
+        tabBarActiveTintColor: DesignTokens.color.accent,
+        tabBarInactiveTintColor: resolveThemedColor(DesignTokens.color.inkBody, scheme),
+        tabBarStyle: {
+          backgroundColor: 'rgba(255,248,249,0.95)',
+          borderTopColor: DesignTokens.color.inkPlaceholder,
+          borderTopWidth: 1,
+        },
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: 'Recipes',
           tabBarButtonTestID: 'tab-home',
           tabBarIcon: ({ focused, color, size }) => (
             <TabBarIcon

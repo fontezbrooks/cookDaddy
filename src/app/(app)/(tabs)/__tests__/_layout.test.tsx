@@ -39,7 +39,7 @@ describe('(tabs)/_layout', () => {
       'settings',
     ]);
     expect(mockTabsScreen.mock.calls.map(([props]) => props.options.tabBarLabel)).toEqual([
-      'Home',
+      'Recipes',
       'Cookbook',
       'Fridge',
       'Shopping',

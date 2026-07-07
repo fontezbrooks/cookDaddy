@@ -33,7 +33,21 @@ describe('DesignTokens', () => {
     expect(DesignTokens.color.successFresh).toBe('#1FAE55');
     expect(DesignTokens.color.successDeep).toBe('#15803D');
     expect(DesignTokens.color.dangerDeep).toBe('#B00020');
-    expect(DesignTokens.color.ink).toEqual({ light: '#2A2521', dark: '#F5F4F2' });
+    expect(DesignTokens.color.ink).toEqual({ light: '#1F1A1D', dark: '#F5F4F2' });
+  });
+
+  it('exposes the Warm Arcade Kitchen redesign tokens', () => {
+    expect(DesignTokens.color.brand.light).toBe('#491E3D');
+    expect(DesignTokens.color.brandDeep.light).toBe('#300827');
+    expect(DesignTokens.color.accent).toBe('#FF850B');
+    expect(DesignTokens.color.onAccent).toBe('#602E00');
+    expect(DesignTokens.color.accentPressBorder).toBe('#412909');
+    expect(DesignTokens.color.surface.light).toBe('#FFFFFF');
+  });
+
+  it('exposes the Warm Arcade Kitchen font families', () => {
+    expect(DesignTokens.fontFamily.display).toBe('PlusJakartaSans_800ExtraBold');
+    expect(DesignTokens.fontFamily.body).toBe('BeVietnamPro_400Regular');
   });
 
   it('preserves the match-overlay timing budget (MATCH-UX §3)', () => {
@@ -69,7 +83,7 @@ describe('DesignTokens', () => {
   });
 
   it('exposes themed colors with both light and dark variants', () => {
-    expect(DesignTokens.color.canvas).toEqual({ light: '#F6F6F8', dark: '#1C1916' });
+    expect(DesignTokens.color.canvas).toEqual({ light: '#FFF8F9', dark: '#FFF8F9' });
   });
 });
 
@@ -80,7 +94,7 @@ describe('resolveThemedColor', () => {
   });
 
   it('picks the matching variant from a themed color object', () => {
-    expect(resolveThemedColor(DesignTokens.color.canvas, 'light')).toBe('#F6F6F8');
-    expect(resolveThemedColor(DesignTokens.color.canvas, 'dark')).toBe('#1C1916');
+    expect(resolveThemedColor(DesignTokens.color.canvas, 'light')).toBe('#FFF8F9');
+    expect(resolveThemedColor(DesignTokens.color.canvas, 'dark')).toBe('#FFF8F9');
   });
 });
