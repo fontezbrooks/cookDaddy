@@ -76,6 +76,7 @@ $query = @(
     "excludeIngredients=$([uri]::EscapeDataString('seafood,shellfish,peanut'))",
     'sort=popularity',
     'number=3',
+    'instructionsRequired=true',
     'addRecipeInformation=true',
     'addRecipeInstructions=true',
     'addRecipeNutrition=true',

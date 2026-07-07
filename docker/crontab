@@ -1,4 +1,4 @@
 # Hourly recipe-seeding tick (~7 pts/call × 24 ≈ 168 pts/day, ~72 recipes/day)
-0  * * * *   /app/docker/cron-step.sh
+0 */2 * * *  /app/docker/cron-step.sh
 # Nightly self-update: git pull + reinstall if lockfile changed
 30 3 * * *   /app/docker/auto-update.sh

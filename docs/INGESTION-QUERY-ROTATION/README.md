@@ -22,11 +22,11 @@ keeping the existing per-file `{recipes:[…]}` pipeline and its normalizer
 | Setting | Value |
 |---|---|
 | Endpoint | `GET /recipes/complexSearch` |
-| Cadence | 12 ticks/day (cron every 2h) |
+| Cadence | 12 ticks/day (cron every 2h; container cron `0 */2 * * *`) |
 | `number` | 3 per tick |
 | `sort` | `popularity` |
 | Enrichment | `addRecipeInformation=true&addRecipeInstructions=true&addRecipeNutrition=true` |
-| Global filters | `excludeIngredients=seafood,shellfish,peanut`, no dessert, dinner-appropriate courses only |
+| Global filters | `excludeIngredients=seafood,shellfish,peanut`, `instructionsRequired=true`, no dessert, dinner-appropriate courses only |
 | Wrap/offset | Not needed — 12 unique themes for 12 ticks |
 
 ### Day → Cuisine (from ingestion server local clock)
@@ -37,6 +37,9 @@ keeping the existing per-file `{recipes:[…]}` pipeline and its normalizer
 ### Tick → Course theme
 Tick index derived statelessly from run time: **`index = floor(hourOfDay / 2)`**
 → 0–11 across the 2-hourly schedule (restart-safe, deterministic).
+The container cron must run every 2 hours (`0 */2 * * *`) to match this index;
+an hourly cron double-fires each tick. `docker/crontab` is aligned to
+`0 */2 * * *`.
 
 | # | Theme | Param |
 |---|-------|-------|
@@ -68,6 +71,7 @@ Tick index derived statelessly from run time: **`index = floor(hourOfDay / 2)`**
 - **NFR2** Zero changes to `import-spoon.ts` / `normalize.ts`.
 - **NFR3** Stateless, time-derived tick-index (survives container restarts).
 - **NFR4** Same (weekday, hour) → same (cuisine, course) pair.
+- **NFR5** Container cron MUST use `0 */2 * * *`; hourly cron duplicates each tick.
 
 ### Acceptance Criteria
 1. Monday hour 0 → 3 popular **Italian frying-pan** recipes, `{recipes:[…]}` shape.
@@ -80,6 +84,7 @@ Tick index derived statelessly from run time: **`index = floor(hourOfDay / 2)`**
 ### Known risks
 - **Sparse combos** (e.g. Italian + rice cooker) may return few/zero recipes → FR8 handles gracefully; daily intake volume varies.
 - **Popularity staleness**: same top-3 per (cuisine, course) recur over weeks; importer `external_id` dedup absorbs it, but net-new intake tapers. Future enhancement: `offset`-by-week.
+- **Schedule drift**: if container cron is changed back to hourly, each `floor(hour/2)` tick double-fires. `docker/crontab` is aligned to `0 */2 * * *`.
 
 ---
 
@@ -126,10 +131,14 @@ Query parts (all values via `[uri]::EscapeDataString` — several contain spaces
 - `excludeIngredients=seafood,shellfish,peanut`
 - `sort=popularity`
 - `number=3`
+- `instructionsRequired=true`
 - `addRecipeInformation=true`
 - `addRecipeInstructions=true`
 - `addRecipeNutrition=true`
 - `apiKey=<key>`
+
+`instructionsRequired=true` avoids spending quota on step-less recipes that
+`normalize.ts` would mark `is_complete=false`.
 
 > "No dessert" is enforced structurally for type-based themes because the cycle
 > contains no dessert/breakfast/bread course. Equipment-based themes additionally
