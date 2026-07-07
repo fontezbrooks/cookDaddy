@@ -62,9 +62,17 @@ $cuisine = $CuisineByDay[[int](Get-Date).DayOfWeek]
 $tickIndex = [math]::Floor((Get-Date).Hour / 2)
 $course = $CourseCycle[$tickIndex]
 
+$courseParams = @("$($course.Param)=$([uri]::EscapeDataString($course.Value))")
+if ($course.Param -eq 'equipment') {
+    # equipment is orthogonal to meal type in complexSearch, so dessert/
+    # breakfast recipes made with this equipment could slip through. Constrain
+    # to a dinner-appropriate meal type to preserve the no-dessert guarantee.
+    $courseParams += "type=$([uri]::EscapeDataString('main course'))"
+}
+
 $query = @(
-    "cuisine=$([uri]::EscapeDataString($cuisine))",
-    "$($course.Param)=$([uri]::EscapeDataString($course.Value))",
+    "cuisine=$([uri]::EscapeDataString($cuisine))"
+) + $courseParams + @(
     "excludeIngredients=$([uri]::EscapeDataString('seafood,shellfish,peanut'))",
     'sort=popularity',
     'number=3',

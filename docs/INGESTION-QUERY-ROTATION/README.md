@@ -57,7 +57,7 @@ Tick index derived statelessly from run time: **`index = floor(hourOfDay / 2)`**
 - **FR1** Endpoint = `complexSearch` with the 3 enrichment flags.
 - **FR2** Remap `results[]` → wrap each as `{recipes:[<result>]}`; keep per-file output + filename sanitization.
 - **FR3** `cuisine` from local weekday (table above).
-- **FR4** Course theme from `floor(hour/2)`; one `type` **or** `equipment` param per tick.
+- **FR4** Course theme from `floor(hour/2)`; one `type` **or** `equipment` param per tick, with equipment ticks also guarded by `type=main course`.
 - **FR5** Global allergen + no-dessert filters on every query.
 - **FR6** `sort=popularity`, `number=3`.
 - **FR7** Preserve `X-API-Quota-*` header logging on final line.
@@ -122,6 +122,7 @@ Query parts (all values via `[uri]::EscapeDataString` — several contain spaces
 "rice cooker"):
 - `cuisine=<cuisine>`
 - `<course.Param>=<course.Value>`  (one of `type=` / `equipment=`)
+- Equipment-based ticks also add `type=main course` because equipment is orthogonal to meal type in `complexSearch`.
 - `excludeIngredients=seafood,shellfish,peanut`
 - `sort=popularity`
 - `number=3`
@@ -130,8 +131,10 @@ Query parts (all values via `[uri]::EscapeDataString` — several contain spaces
 - `addRecipeNutrition=true`
 - `apiKey=<key>`
 
-> "No dessert" is enforced structurally: the 12-theme cycle contains no dessert/
-> breakfast/bread course, so a dessert `type` is never requested.
+> "No dessert" is enforced structurally for type-based themes because the cycle
+> contains no dessert/breakfast/bread course. Equipment-based themes additionally
+> carry `type=main course`, so dessert/breakfast/bread recipes made with that
+> equipment are excluded across all 12 ticks.
 
 ### Response shape contract (why enrichment flags are mandatory)
 `complexSearch` returns `{ results: [...] }` with **minimal** objects by default.
