@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -74,7 +75,7 @@ export function AuthMethodStep({
       <TextInput
         testID="sign-in-email-input"
         placeholder="you@example.com"
-        placeholderTextColor={DesignTokens.color.inkMuted.light}
+        placeholderTextColor={DesignTokens.color.inkPlaceholder}
         value={email}
         onChangeText={onChangeEmail}
         keyboardType="email-address"
@@ -83,17 +84,13 @@ export function AuthMethodStep({
         style={styles.emailInput}
       />
 
-      <Pressable
+      <PrimaryButton
         testID="sign-in-email-submit"
-        accessibilityRole="button"
+        fullWidth
         disabled={emailDisabled}
         onPress={onSubmitEmail}
-        style={[styles.primaryButton, emailDisabled && styles.disabled]}
-      >
-        <Text style={styles.primaryButtonText}>
-          {pending === 'email' ? 'Sending…' : 'Email me a code'}
-        </Text>
-      </Pressable>
+        title={pending === 'email' ? 'Sending…' : 'Email me a code'}
+      />
 
       <Pressable
         testID="sign-in-apple"
@@ -134,39 +131,35 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   modeSegmentActive: {
-    borderColor: DesignTokens.color.persimmonDeep,
-    backgroundColor: DesignTokens.color.persimmonDeep,
+    borderColor: DesignTokens.color.accent,
+    backgroundColor: DesignTokens.color.accent,
   },
   modeSegmentInactive: {
-    borderColor: DesignTokens.color.borderMuted.light,
+    borderColor: DesignTokens.color.inkPlaceholder,
     backgroundColor: DesignTokens.color.surface.light,
   },
-  modeTextActive: { color: DesignTokens.color.textOnDark },
-  modeTextInactive: { color: DesignTokens.color.ink.light },
+  modeTextActive: { color: DesignTokens.color.onAccent },
+  modeTextInactive: { color: DesignTokens.color.inkBody.light },
   emailInput: {
     borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderRadius: 12,
+    borderColor: DesignTokens.color.accentBorderAlt,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: DesignTokens.radius.md,
     color: DesignTokens.color.ink.light,
     backgroundColor: DesignTokens.color.surface.light,
   },
-  primaryButton: {
-    alignItems: 'center',
-    borderRadius: 12,
-    paddingVertical: 14,
-    backgroundColor: DesignTokens.color.persimmonDeep,
-  },
-  primaryButtonText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
   secondaryButton: {
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
-    borderRadius: 12,
+    borderColor: DesignTokens.color.inkPlaceholder,
+    borderRadius: DesignTokens.radius.pill,
     paddingVertical: 14,
     backgroundColor: DesignTokens.color.surface.light,
   },
-  secondaryButtonText: { color: DesignTokens.color.ink.light, fontWeight: '600' },
+  secondaryButtonText: {
+    color: DesignTokens.color.ink.light,
+    fontFamily: DesignTokens.fontFamily.bodySemibold,
+  },
   disabled: { opacity: 0.6 },
 });
