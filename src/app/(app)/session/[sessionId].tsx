@@ -390,13 +390,13 @@ const styles = StyleSheet.create({
     borderRadius: DesignTokens.radius.sm,
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: DesignTokens.color.dotEmptyBorder,
+    borderColor: DesignTokens.color.borderWarm.light,
   },
   // One side swiped: half-tone fill (partial commitment).
-  dotHalf: { backgroundColor: DesignTokens.color.dotHalfFill },
+  dotHalf: { backgroundColor: DesignTokens.color.accent },
   // Both swiped: full neutral fill — color-blind safe (no green/red split).
   dotFull: {
-    backgroundColor: DesignTokens.color.dotFullFill,
-    borderColor: DesignTokens.color.dotFullFill,
+    backgroundColor: DesignTokens.color.brandDeep.light,
+    borderColor: DesignTokens.color.brandDeep.light,
   },
 });
