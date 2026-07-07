@@ -8,7 +8,7 @@ import { DietaryChips } from '@/components/dietary-chips';
 import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useAnalytics } from '@/lib/analytics';
 import { useCreatePodInvite } from '@/lib/use-create-pod-invite';
 import { useOnboardingStore } from '@/state/useOnboardingStore';
@@ -141,8 +141,9 @@ const styles = StyleSheet.create({
   cardRow: { gap: Spacing.two },
   valueCard: {
     borderWidth: 1,
-    borderColor: Colors.light.backgroundSelected,
-    borderRadius: 8,
+    borderColor: DesignTokens.color.inkPlaceholder,
+    borderRadius: DesignTokens.radius.md,
+    backgroundColor: DesignTokens.color.surface.light,
     padding: Spacing.three,
     gap: Spacing.one,
   },

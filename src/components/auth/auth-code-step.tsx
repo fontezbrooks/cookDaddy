@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, TextInput, useColorScheme, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
+import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
-import { DesignTokens, resolveThemedColor } from '@/constants/design-tokens';
+import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 
 export interface AuthCodeStepProps {
@@ -25,7 +26,6 @@ export function AuthCodeStep({
   resendCooldown,
   pending,
 }: AuthCodeStepProps) {
-  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const verifyDisabled = pending || code.length < 6;
   const resendDisabled = resendCooldown > 0 || pending;
 
@@ -43,28 +43,17 @@ export function AuthCodeStep({
         maxLength={6}
         autoFocus
         placeholder="123456"
-        placeholderTextColor={resolveThemedColor(DesignTokens.color.inkMuted, scheme)}
-        style={[
-          styles.input,
-          {
-            backgroundColor: resolveThemedColor(DesignTokens.color.surface, scheme),
-            borderColor: resolveThemedColor(DesignTokens.color.borderMuted, scheme),
-            color: resolveThemedColor(DesignTokens.color.ink, scheme),
-          },
-        ]}
+        placeholderTextColor={DesignTokens.color.inkPlaceholder}
+        style={styles.input}
       />
 
-      <Pressable
+      <PrimaryButton
         testID="auth-code-verify"
-        accessibilityRole="button"
+        fullWidth
         disabled={verifyDisabled}
         onPress={onVerify}
-        style={[styles.verifyButton, verifyDisabled && styles.disabled]}
-      >
-        <ThemedText type="smallBold" style={styles.verifyText}>
-          {pending ? 'Verifying…' : 'Verify'}
-        </ThemedText>
-      </Pressable>
+        title={pending ? 'Verifying…' : 'Verify'}
+      />
 
       <Pressable
         testID="auth-code-resend"
@@ -84,13 +73,7 @@ export function AuthCodeStep({
         onPress={onChangeEmail}
         style={styles.textButton}
       >
-        <ThemedText
-          type="small"
-          style={[
-            styles.linkText,
-            { color: resolveThemedColor(DesignTokens.color.inkMuted, scheme) },
-          ]}
-        >
+        <ThemedText type="small" style={[styles.linkText, styles.secondaryText]}>
           Use a different email
         </ThemedText>
       </Pressable>
@@ -104,22 +87,15 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
+    borderColor: DesignTokens.color.accentBorderAlt,
     borderRadius: DesignTokens.radius.md,
+    backgroundColor: DesignTokens.color.surface.light,
+    color: DesignTokens.color.ink.light,
     fontFamily: DesignTokens.fontFamily.mono,
     fontSize: 20,
     fontWeight: '600',
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.three,
-  },
-  verifyButton: {
-    alignItems: 'center',
-    backgroundColor: DesignTokens.color.persimmonDeep,
-    borderRadius: DesignTokens.radius.md,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.three,
-  },
-  verifyText: {
-    color: DesignTokens.color.textOnDark,
   },
   textButton: {
     alignItems: 'center',
@@ -127,7 +103,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
   },
   secondaryText: {
-    color: DesignTokens.color.persimmonDeep,
+    color: DesignTokens.color.brand.light,
   },
   linkText: {
     textDecorationLine: 'underline',
