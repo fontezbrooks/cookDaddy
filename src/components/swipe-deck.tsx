@@ -353,7 +353,9 @@ export function SwipeDeck({
             ]}
             testID="swipe-deck-card-current"
           >
-            <ThemedText type="subtitle">{current.title}</ThemedText>
+            <ThemedText type="subtitle" style={styles.cardTitle}>
+              {current.title}
+            </ThemedText>
           </Animated.View>
         </GestureDetector>
       </View>
@@ -401,7 +403,9 @@ export function SwipeDeck({
 function CardBack({ recipe }: { recipe: DeckRecipe }) {
   return (
     <View style={[styles.card, styles.cardBehind]} testID="swipe-deck-card-next">
-      <ThemedText type="subtitle">{recipe.title}</ThemedText>
+      <ThemedText type="subtitle" style={styles.cardTitle}>
+        {recipe.title}
+      </ThemedText>
     </View>
   );
 }
@@ -456,6 +460,7 @@ const styles = StyleSheet.create({
   },
   cardFlashRight: { borderColor: DesignTokens.color.accent },
   cardFlashLeft: { borderColor: DesignTokens.color.passRed },
+  cardTitle: { color: DesignTokens.color.ink.light },
   cardBehind: {
     transform: [{ scale: 0.96 }, { translateY: 10 }],
     opacity: 0.7,

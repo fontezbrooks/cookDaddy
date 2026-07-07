@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     borderRadius: DesignTokens.radius.sm,
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: DesignTokens.color.borderWarm.light,
+    borderColor: DesignTokens.color.borderStrong.light,
   },
   // One side swiped: half-tone fill (partial commitment).
   dotHalf: { backgroundColor: DesignTokens.color.accent },
