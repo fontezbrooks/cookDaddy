@@ -1,16 +1,37 @@
 # Spoonacular batch fetch.
 #
-# Pulls 5 random dinner recipes per tick and writes each one as its own JSON file
-# (RecipeJson/<title>.json) wrapped in {recipes:[<single>]} — the shape
-# import-spoon.ts's per-file normalizer expects.
+# Uses complexSearch with weekday-cuisine x per-tick-course rotation. Each
+# 2-hour tick selects today's cuisine and one of 12 course/equipment themes,
+# then writes number=3 results as individual JSON files (RecipeJson/<title>.json)
+# wrapped in {recipes:[<single>]} -- the shape import-spoon.ts's per-file
+# normalizer expects.
 #
 # Cost model (Spoonacular Starter, 200 pts/day cap):
-#   1 pt base + 5 recipes + 5 nutrition = ~11 pts/call.
-#   Cron fires every 2h = 12 calls/day = ~132 pts/day, ~60 recipes/day,
-#   leaving 68 pts/day of headroom.
+#   complexSearch + 3 enriched results = ~1.3 pts/tick.
+#   Cron fires every 2h = 12 ticks/day at number=3 = ~16 pts/day,
+#   leaving substantial headroom under the daily cap.
+#
+# Enrichment flags are mandatory so normalize.ts receives nutrition,
+# extendedIngredients, and analyzedInstructions.
 #
 # The X-API-Quota-* headers are surfaced on the last line so cron's log
 # captures real-time usage for the 24h capacity re-check.
+
+$CuisineByDay = @('French', 'Italian', 'Mexican', 'Asian', 'Indian', 'Mediterranean', 'American')
+$CourseCycle = @(
+    @{ Param = 'equipment'; Value = 'frying pan' },
+    @{ Param = 'type'; Value = 'soup' },
+    @{ Param = 'type'; Value = 'salad' },
+    @{ Param = 'equipment'; Value = 'slow cooker' },
+    @{ Param = 'equipment'; Value = 'pressure cooker' },
+    @{ Param = 'equipment'; Value = 'airfryer' },
+    @{ Param = 'type'; Value = 'main course' },
+    @{ Param = 'type'; Value = 'appetizer' },
+    @{ Param = 'equipment'; Value = 'rice cooker' },
+    @{ Param = 'equipment'; Value = 'stove' },
+    @{ Param = 'type'; Value = 'side dish' },
+    @{ Param = 'type'; Value = 'fingerfood' }
+)
 
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $RecipeDir = Join-Path $RepoRoot 'RecipeJson'
@@ -37,12 +58,31 @@ if (-not $ApiKey) {
     exit 1
 }
 
-$Uri = 'https://api.spoonacular.com/recipes/random?' +
-'number=3' +
-'&include-tags=dinner' +
-'&exclude-tags=seafood,shellfish,peanut,dessert' +
-'&includeNutrition=true' +
-"&apiKey=$ApiKey"
+$cuisine = $CuisineByDay[[int](Get-Date).DayOfWeek]
+$tickIndex = [math]::Floor((Get-Date).Hour / 2)
+$course = $CourseCycle[$tickIndex]
+
+$courseParams = @("$($course.Param)=$([uri]::EscapeDataString($course.Value))")
+if ($course.Param -eq 'equipment') {
+    # equipment is orthogonal to meal type in complexSearch, so dessert/
+    # breakfast recipes made with this equipment could slip through. Constrain
+    # to a dinner-appropriate meal type to preserve the no-dessert guarantee.
+    $courseParams += "type=$([uri]::EscapeDataString('main course'))"
+}
+
+$query = @(
+    "cuisine=$([uri]::EscapeDataString($cuisine))"
+) + $courseParams + @(
+    "excludeIngredients=$([uri]::EscapeDataString('seafood,shellfish,peanut'))",
+    'sort=popularity',
+    'number=3',
+    'instructionsRequired=true',
+    'addRecipeInformation=true',
+    'addRecipeInstructions=true',
+    'addRecipeNutrition=true',
+    "apiKey=$([uri]::EscapeDataString($ApiKey))"
+)
+$Uri = 'https://api.spoonacular.com/recipes/complexSearch?' + ($query -join '&')
 
 # Invoke-WebRequest (not Invoke-RestMethod) so we can read response headers
 # for X-API-Quota-* — Invoke-RestMethod discards them.
@@ -55,16 +95,16 @@ catch {
 }
 
 $body = $response.Content | ConvertFrom-Json
-if (-not $body.recipes -or $body.recipes.Count -eq 0) {
-    Write-Host '[spoon] response contained no recipes'
-    exit 1
+if (-not $body.results -or $body.results.Count -eq 0) {
+    Write-Host "[spoon] response contained no results cuisine=$cuisine course=$($course.Value) tick=$tickIndex"
+    exit 0
 }
 
 # Per-recipe file so the importer's per-file ledger + per-file error isolation
 # both keep working. Filename sanitization mirrors the original script.
 $written = 0
-foreach ($recipe in $body.recipes) {
-    $title = $recipe.title
+foreach ($result in $body.results) {
+    $title = $result.title
     if (-not $title) {
         Write-Host '[spoon] skipped recipe with no title'
         continue
@@ -72,7 +112,7 @@ foreach ($recipe in $body.recipes) {
     $safeTitle = $title.Replace(' ', '_') -replace '[\\/:*?"<>|&]', '_'
     $outPath = Join-Path $RecipeDir "$safeTitle.json"
 
-    $wrapped = [pscustomobject]@{ recipes = @($recipe) }
+    $wrapped = [pscustomobject]@{ recipes = @($result) }
     $wrapped | ConvertTo-Json -Depth 100 | Out-File -FilePath $outPath -Encoding utf8
     Write-Host "[spoon] wrote $safeTitle.json"
     $written++
@@ -89,4 +129,4 @@ $quotaRequest = Get-Header 'X-API-Quota-Request'
 $quotaUsed = Get-Header 'X-API-Quota-Used'
 $quotaLeft = Get-Header 'X-API-Quota-Left'
 
-Write-Host "[spoon] wrote=$written quota_request=$quotaRequest quota_used=$quotaUsed quota_left=$quotaLeft"
+Write-Host "[spoon] wrote=$written cuisine=$cuisine course=$($course.Value) tick=$tickIndex quota_request=$quotaRequest quota_used=$quotaUsed quota_left=$quotaLeft"
