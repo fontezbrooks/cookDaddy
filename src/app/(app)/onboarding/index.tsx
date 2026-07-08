@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DietaryChips } from '@/components/dietary-chips';
+import { InviteShareCard } from '@/components/invite-share-card';
 import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
@@ -76,7 +77,7 @@ function IntroStep({ onNext }: { onNext: () => void }) {
 }
 
 function PodStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }) {
-  const { createInvite, hint, isPending } = useCreatePodInvite();
+  const { createInvite, invite, share, hint, isPending } = useCreatePodInvite();
 
   return (
     <View style={styles.step} testID="onboarding-pod">
@@ -84,17 +85,30 @@ function PodStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void })
       <ThemedText type="small">
         Create an invite link and share it. Your partner joins your pod when they open the link.
       </ThemedText>
-      <PrimaryButton
-        testID="onboarding-create-invite"
-        disabled={isPending}
-        onPress={() => createInvite()}
-        title={isPending ? 'Creating link…' : 'Create invite link'}
-      />
-      {hint ? (
-        <ThemedText type="small" testID="onboarding-invite-hint">
-          {hint}
-        </ThemedText>
-      ) : null}
+      {invite ? (
+        <>
+          <InviteShareCard code={invite.code} onShare={share} testID="onboarding-invite-share" />
+          {hint ? (
+            <ThemedText type="small" testID="onboarding-invite-hint">
+              {hint}
+            </ThemedText>
+          ) : null}
+        </>
+      ) : (
+        <>
+          <PrimaryButton
+            testID="onboarding-create-invite"
+            disabled={isPending}
+            onPress={() => createInvite()}
+            title={isPending ? 'Creating link…' : 'Create invite link'}
+          />
+          {hint ? (
+            <ThemedText type="small" testID="onboarding-invite-hint">
+              {hint}
+            </ThemedText>
+          ) : null}
+        </>
+      )}
       <View style={styles.actions}>
         <Pressable testID="onboarding-skip" style={styles.secondaryCta} onPress={onSkip}>
           <ThemedText type="small">Skip for now</ThemedText>

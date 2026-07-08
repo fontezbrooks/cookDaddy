@@ -32,7 +32,59 @@ describe('useCreatePodInvite', () => {
     mockCreateInvite.mockReset();
   });
 
-  it('shares a successful invite link and sets the waiting hint', async () => {
+  it('stores a successful invite without opening the share sheet', async () => {
+    mockCreateInvite.mockResolvedValueOnce({
+      token: 'tok-xyz',
+      expiresAt: '2099-01-01T00:00:00Z',
+      podId: 'pod-123',
+    });
+    const shareSpy = jest.spyOn(Share, 'share');
+
+    const { result } = renderHook(() => useCreatePodInvite(), { wrapper });
+
+    await act(async () => {
+      result.current.createInvite();
+    });
+
+    await waitFor(() => {
+      expect(mockCreateInvite).toHaveBeenCalledTimes(1);
+      expect(result.current.invite).toEqual({
+        code: 'tok-xyz',
+        expiresAt: '2099-01-01T00:00:00Z',
+      });
+      expect(result.current.hint).toMatch(/Share this code/);
+    });
+    expect(shareSpy).not.toHaveBeenCalled();
+
+    shareSpy.mockRestore();
+  });
+
+  it('invalidates membership after creating an invite', async () => {
+    mockCreateInvite.mockResolvedValueOnce({
+      token: 'tok-xyz',
+      expiresAt: '2099-01-01T00:00:00Z',
+      podId: 'pod-123',
+    });
+    const invalidateSpy = jest.spyOn(QueryClient.prototype, 'invalidateQueries');
+
+    try {
+      const { result } = renderHook(() => useCreatePodInvite(), { wrapper });
+
+      await act(async () => {
+        result.current.createInvite();
+      });
+
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ queryKey: expect.arrayContaining(['pod-membership']) }),
+        );
+      });
+    } finally {
+      invalidateSpy.mockRestore();
+    }
+  });
+
+  it('shares the stored invite from the explicit share action', async () => {
     mockCreateInvite.mockResolvedValueOnce({
       token: 'tok-xyz',
       expiresAt: '2099-01-01T00:00:00Z',
@@ -49,15 +101,22 @@ describe('useCreatePodInvite', () => {
     });
 
     await waitFor(() => {
-      expect(mockCreateInvite).toHaveBeenCalledTimes(1);
-      expect(shareSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          url: 'https://cookdaddy.app/invite/tok-xyz',
-          message: expect.stringContaining('https://cookdaddy.app/invite/tok-xyz'),
-        }),
-      );
-      expect(result.current.hint).toMatch(/Waiting for your partner/);
+      expect(result.current.invite).toEqual({
+        code: 'tok-xyz',
+        expiresAt: '2099-01-01T00:00:00Z',
+      });
     });
+
+    act(() => {
+      result.current.share();
+    });
+
+    expect(shareSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: 'https://cookdaddy.app/invite/tok-xyz',
+        message: expect.stringContaining('https://cookdaddy.app/invite/tok-xyz'),
+      }),
+    );
 
     shareSpy.mockRestore();
   });
@@ -77,7 +136,7 @@ describe('useCreatePodInvite', () => {
     expect(shareSpy).not.toHaveBeenCalled();
   });
 
-  it('keeps the invite-created hint when the share sheet is dismissed', async () => {
+  it('keeps the invite hint when the explicit share sheet is dismissed', async () => {
     mockCreateInvite.mockResolvedValueOnce({
       token: 'tok-xyz',
       expiresAt: '2099-01-01T00:00:00Z',
@@ -91,7 +150,10 @@ describe('useCreatePodInvite', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.hint).toMatch(/Invite created/);
+      expect(result.current.hint).toMatch(/Share this code/);
+    });
+    act(() => {
+      result.current.share();
     });
     expect(shareSpy).toHaveBeenCalledTimes(1);
 

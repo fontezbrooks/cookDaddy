@@ -13,7 +13,7 @@ select tests.seed_three_users();
 select tests.as_user('user_alice');
 select * from public.create_pod_invite() \gset alice_
 
-select ok(length(:'alice_token') >= 16, 'token is at least 16 chars');
+select ok(length(:'alice_token') = 8, 'token is an 8-char code');
 select ok((:'alice_expires_at')::timestamptz > now(), 'expires in the future');
 
 -- Pod created and alice is the sole member.

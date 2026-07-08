@@ -1,7 +1,7 @@
 // Home — minimal P5 landing. Reads the signed-in user's display_name from
-// Supabase, surfaces a "No pod yet" empty state with a Create-invite CTA that
-// mints a token via create_pod_invite() and opens the native Share sheet so
-// the inviter can hand the link to their partner.
+// Supabase, renders a pairing hub (Invite / Join), shows InviteShareCard for
+// a freshly minted or pending solo-pod invite, and only shows the paired
+// "start a session" view once a partner has actually joined.
 
 import { useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -15,6 +15,7 @@ import {
   hasAnyDietaryFlag,
   type DietaryRow,
 } from '@/components/dietary-chips';
+import { InviteShareCard } from '@/components/invite-share-card';
 import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
@@ -30,14 +31,23 @@ export default function HomeScreen() {
   const { userId, getToken } = useAuth();
   const router = useRouter();
   const activePodId = usePodStore((s) => s.activePodId);
+  const partnerId = usePodStore((s) => s.partnerId);
   const partnerRemoved = usePodStore((s) => s.partnerRemoved);
   const partnerDisplayName = usePodStore((s) => s.partnerDisplayName);
   const clearActivePod = usePodStore((s) => s.clearActivePod);
   const acknowledgePartnerRemoved = usePodStore((s) => s.acknowledgePartnerRemoved);
   const deckSize = useDeckSizeFlag();
-  const { createInvite, hint: inviteHint, isPending: isInvitePending } = useCreatePodInvite();
+  const {
+    createInvite,
+    invite,
+    share,
+    hint: inviteHint,
+    isPending: isInvitePending,
+  } = useCreatePodInvite();
 
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
+  const isPaired = Boolean(activePodId && partnerId);
+  const isSoloPending = Boolean(activePodId && !partnerId);
 
   const { data, isLoading } = useQuery({
     queryKey: ['users', userId],
@@ -121,7 +131,7 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
-        {activePodId ? (
+        {isPaired ? (
           <View style={styles.paired} testID="home-paired">
             <ThemedText type="small">Pod active. Ready to swipe?</ThemedText>
 
@@ -161,29 +171,73 @@ export default function HomeScreen() {
             ) : null}
           </View>
         ) : (
-          <View style={styles.emptyState} testID="home-empty-state">
-            <ThemedText type="small">No pod yet.</ThemedText>
-            <ThemedText type="small">
-              Invite your partner to start deciding what&apos;s for dinner.
-            </ThemedText>
+          <View style={styles.emptyStateHub} testID="home-empty-state">
+            {invite ? (
+              <>
+                <InviteShareCard code={invite.code} onShare={share} testID="home-invite-share" />
+                <ThemedText type="small" testID="home-invite-hint">
+                  {inviteHint ?? 'Waiting for your partner to join…'}
+                </ThemedText>
+              </>
+            ) : isSoloPending ? (
+              <View style={styles.emptyState} testID="home-pending-invite">
+                <ThemedText type="small">Your pod is waiting for your partner.</ThemedText>
+                <ThemedText type="small">Show your code so they can join.</ThemedText>
+                <PrimaryButton
+                  testID="home-show-invite"
+                  disabled={isInvitePending}
+                  onPress={() => createInvite()}
+                  title={isInvitePending ? 'Getting code…' : 'Show invite code'}
+                  style={{ marginTop: Spacing.two }}
+                />
+                {inviteHint ? (
+                  <ThemedText type="small" testID="home-invite-hint">
+                    {inviteHint}
+                  </ThemedText>
+                ) : null}
+              </View>
+            ) : (
+              <View style={styles.emptyState}>
+                <ThemedText type="small">No pod yet.</ThemedText>
+                <ThemedText type="small">
+                  Invite your partner to start deciding what&apos;s for dinner.
+                </ThemedText>
 
-            <PrimaryButton
-              testID="home-create-invite"
-              disabled={isInvitePending}
-              onPress={() => createInvite()}
-              title={isInvitePending ? 'Creating link…' : 'Create invite link'}
-              style={{ marginTop: Spacing.two }}
-            />
+                <PrimaryButton
+                  testID="home-invite-partner"
+                  disabled={isInvitePending}
+                  onPress={() => createInvite()}
+                  title={isInvitePending ? 'Creating…' : 'Invite your partner'}
+                  style={{ marginTop: Spacing.two }}
+                />
 
-            {inviteHint ? (
-              <ThemedText type="small" testID="home-invite-hint">
-                {inviteHint}
-              </ThemedText>
+                <Pressable testID="home-join-pod" onPress={() => router.push('/join')}>
+                  <ThemedText type="small">→ Have a code? Join a pod</ThemedText>
+                </Pressable>
+
+                {inviteHint ? (
+                  <ThemedText type="small" testID="home-invite-hint">
+                    {inviteHint}
+                  </ThemedText>
+                ) : null}
+
+                <Link href="/settings/profile" testID="home-cta-profile">
+                  <ThemedText type="small">→ Set up your profile</ThemedText>
+                </Link>
+              </View>
+            )}
+            {isSoloPending ? (
+              <Pressable
+                testID="home-cancel-invite"
+                style={[styles.leavePod, leavePodMutation.isPending && styles.leavePodDisabled]}
+                disabled={leavePodMutation.isPending}
+                onPress={confirmLeavePod}
+              >
+                <ThemedText type="small" style={styles.leavePodText}>
+                  {leavePodMutation.isPending ? 'Leaving…' : 'Cancel & leave pod'}
+                </ThemedText>
+              </Pressable>
             ) : null}
-
-            <Link href="/settings/profile" testID="home-cta-profile">
-              <ThemedText type="small">→ Set up your profile</ThemedText>
-            </Link>
           </View>
         )}
 
@@ -216,8 +270,11 @@ const styles = StyleSheet.create({
     backgroundColor: DesignTokens.color.surface.light,
     ...DesignTokens.elevation.card,
   },
-  emptyState: {
+  emptyStateHub: {
     marginTop: Spacing.four,
+    gap: Spacing.two,
+  },
+  emptyState: {
     gap: Spacing.two,
     padding: Spacing.three,
     borderRadius: DesignTokens.radius.md,

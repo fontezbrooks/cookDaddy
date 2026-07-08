@@ -18,6 +18,8 @@ jest.mock('@/lib/analytics', () => ({
 jest.mock('@/lib/use-create-pod-invite', () => ({
   useCreatePodInvite: () => ({
     createInvite: jest.fn(),
+    invite: null,
+    share: jest.fn(),
     hint: null,
     isPending: false,
     isError: false,

@@ -4,7 +4,7 @@
  *
  *   • remote pod ≠ local pod → push partner into store
  *   • remote empty + local pod set → raise partner-removed flag
- *   • remote = local → no-op
+ *   • remote = local → no-op unless the local partner is unknown
  */
 
 /* eslint-disable import/first */
@@ -131,6 +131,30 @@ describe('usePodSync', () => {
     // fetchPartnerForPod should NOT be re-called for an in-sync pod.
     expect(mockFetchPartner).not.toHaveBeenCalled();
     expect(usePodStore.getState().activePodId).toBe('pod-1');
+  });
+
+  it('refetches partner for the same pod when partnerId is empty (solo pod gains a partner)', async () => {
+    usePodStore.getState().setActivePod({
+      podId: 'pod-1',
+      partnerId: '',
+      partnerDisplayName: 'Your partner',
+    });
+    mockMaybeSingle.mockResolvedValue({ data: { pod_id: 'pod-1' }, error: null });
+    mockFetchPartner.mockResolvedValueOnce({
+      partnerId: 'user_alice',
+      partnerDisplayName: 'Alice',
+    });
+
+    render(wrap(<Harness />));
+
+    await waitFor(() => {
+      expect(usePodStore.getState()).toMatchObject({
+        activePodId: 'pod-1',
+        partnerId: 'user_alice',
+        partnerDisplayName: 'Alice',
+      });
+    });
+    expect(mockFetchPartner).toHaveBeenCalled();
   });
 
   it('does nothing when there is no Clerk session', async () => {
