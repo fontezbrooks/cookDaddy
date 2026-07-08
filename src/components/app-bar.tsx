@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -18,7 +17,6 @@ export function AppBar({ title, onBack, right, testID }: AppBarProps) {
 
   return (
     <View style={styles.container} testID={testID}>
-      <BlurView intensity={24} tint="light" style={styles.backdrop} />
       <View pointerEvents="none" style={styles.overlay} />
       <View style={styles.side}>
         {onBack ? (
@@ -65,14 +63,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    backgroundColor: 'rgba(255,248,249,0.8)',
-  },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+    backgroundColor: 'rgba(255,248,249,0.96)',
   },
   side: {
     width: 40,

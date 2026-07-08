@@ -4,7 +4,7 @@
 // foreground via usePodSync.
 
 import { useAuth } from '@clerk/clerk-expo';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
@@ -16,24 +16,29 @@ import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { dissolvePod, PodRpcError } from '@/lib/pod-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
+import { usePodMembershipQuery } from '@/lib/use-pod-membership';
 import { usePodStore } from '@/state/usePodStore';
 
 export default function PodSettingsScreen() {
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
 
   const activePodId = usePodStore((s) => s.activePodId);
   const partnerDisplayName = usePodStore((s) => s.partnerDisplayName);
   const clearActivePod = usePodStore((s) => s.clearActivePod);
+  const { data: membership } = usePodMembershipQuery();
+  const effectivePodId = activePodId ?? membership?.podId ?? null;
 
   const dissolveMutation = useMutation({
     mutationFn: async () => {
-      if (!activePodId) throw new PodRpcError('unknown', 'no active pod to dissolve');
-      await dissolvePod(supabase, activePodId);
+      if (!effectivePodId) throw new PodRpcError('unknown', 'no active pod to dissolve');
+      await dissolvePod(supabase, effectivePodId);
     },
     onSuccess: () => {
       clearActivePod();
+      queryClient.invalidateQueries({ queryKey: ['pod-membership', userId] });
       router.replace('/home');
     },
   });
@@ -56,7 +61,7 @@ export default function PodSettingsScreen() {
     );
   };
 
-  if (!activePodId) {
+  if (!effectivePodId) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.container} testID="pod-settings-empty">
