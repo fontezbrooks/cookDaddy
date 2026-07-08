@@ -9,6 +9,8 @@ allowBuilds:
   msgpackr-extract: false
   unrs-resolver: false
   utf-8-validate: false
+overrides:
+  expo-auth-session: 56.0.10
 minimumReleaseAgeExclude:
   - '@expo/cli@56.1.10'
   - '@expo/fingerprint@0.19.1'
@@ -27,3 +29,14 @@ minimumReleaseAgeExclude:
   - expo-system-ui@56.0.5
   - expo-web-browser@56.0.5
   - expo@56.0.3
+  - '@expo/cli@56.1.19'
+  - '@expo/config-plugins@56.0.12'
+  - '@expo/fingerprint@0.19.7'
+  - '@expo/prebuild-config@56.0.19'
+  - '@expo/router-server@56.0.16'
+  - babel-preset-expo@56.0.17
+  - expo-asset@56.0.19
+  - expo-modules-autolinking@56.0.19
+  - expo-modules-core@56.0.20
+  - expo-modules-jsi@56.0.12
+  - expo@56.0.15

@@ -53,14 +53,14 @@ type AppExtra = {
 const extra = (Constants.expoConfig?.extra ?? {}) as AppExtra;
 
 // Sentry must init at module load so it captures errors during the provider
-// tree's first render. DSN is optional — local dev / CI run without one.
-if (extra.sentryDsn) {
-  Sentry.init({
-    dsn: extra.sentryDsn,
-    enableAutoSessionTracking: true,
-    debug: __DEV__,
-  });
-}
+// tree's first render, and so Sentry.wrap() below has an initialized client.
+// DSN is optional — with no DSN (local dev / CI) enabled:false keeps it inert.
+Sentry.init({
+  dsn: extra.sentryDsn,
+  enabled: !!extra.sentryDsn,
+  enableAutoSessionTracking: true,
+  debug: __DEV__,
+});
 
 SplashScreen.preventAutoHideAsync();
 
@@ -134,16 +134,22 @@ function RootLayout() {
     </ClerkProvider>
   );
 
-  // PostHog is optional in local dev / CI; gate on key so tests don't need
-  // the provider in their tree.
-  if (posthogKey) {
-    return (
-      <PostHogProvider apiKey={posthogKey} autocapture={false}>
-        {tree}
-      </PostHogProvider>
-    );
-  }
-  return tree;
+  // Always mount PostHogProvider so the analytics hooks (usePostHog /
+  // useFeatureFlag) always find a client in context. Without a key (local dev /
+  // CI) the provider is mounted with a non-empty placeholder key and
+  // disabled: true, making the client fully inert (no network, no capture).
+  // The placeholder key matters: an empty key makes the SDK log
+  // "You must pass your PostHog project's api key" — the exact boot-time
+  // console.error this clean-boot change exists to remove.
+  return (
+    <PostHogProvider
+      apiKey={posthogKey || 'phc_disabled_local_dev'}
+      autocapture={false}
+      options={posthogKey ? undefined : { disabled: true }}
+    >
+      {tree}
+    </PostHogProvider>
+  );
 }
 
 export default Sentry.wrap(RootLayout);

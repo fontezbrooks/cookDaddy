@@ -52,8 +52,7 @@ export function usePushDeepLink(): void {
 
     const handle = (response: Notifications.NotificationResponse | null) => {
       const data = response?.notification?.request?.content?.data as
-        | Record<string, unknown>
-        | undefined;
+        Record<string, unknown> | undefined;
       const path = resolveDeepLinkPath(data);
       if (path) router.push(path as never);
     };
