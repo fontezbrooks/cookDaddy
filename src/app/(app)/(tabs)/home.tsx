@@ -15,6 +15,7 @@ import {
   hasAnyDietaryFlag,
   type DietaryRow,
 } from '@/components/dietary-chips';
+import { InviteShareCard } from '@/components/invite-share-card';
 import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
@@ -35,7 +36,13 @@ export default function HomeScreen() {
   const clearActivePod = usePodStore((s) => s.clearActivePod);
   const acknowledgePartnerRemoved = usePodStore((s) => s.acknowledgePartnerRemoved);
   const deckSize = useDeckSizeFlag();
-  const { createInvite, hint: inviteHint, isPending: isInvitePending } = useCreatePodInvite();
+  const {
+    createInvite,
+    invite,
+    share,
+    hint: inviteHint,
+    isPending: isInvitePending,
+  } = useCreatePodInvite();
 
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
 
@@ -161,29 +168,46 @@ export default function HomeScreen() {
             ) : null}
           </View>
         ) : (
-          <View style={styles.emptyState} testID="home-empty-state">
-            <ThemedText type="small">No pod yet.</ThemedText>
-            <ThemedText type="small">
-              Invite your partner to start deciding what&apos;s for dinner.
-            </ThemedText>
+          <View style={styles.emptyStateHub} testID="home-empty-state">
+            {invite ? (
+              <>
+                <InviteShareCard code={invite.code} onShare={share} testID="home-invite-share" />
+                {inviteHint ? (
+                  <ThemedText type="small" testID="home-invite-hint">
+                    {inviteHint}
+                  </ThemedText>
+                ) : null}
+              </>
+            ) : (
+              <View style={styles.emptyState}>
+                <ThemedText type="small">No pod yet.</ThemedText>
+                <ThemedText type="small">
+                  Invite your partner to start deciding what&apos;s for dinner.
+                </ThemedText>
 
-            <PrimaryButton
-              testID="home-create-invite"
-              disabled={isInvitePending}
-              onPress={() => createInvite()}
-              title={isInvitePending ? 'Creating link…' : 'Create invite link'}
-              style={{ marginTop: Spacing.two }}
-            />
+                <PrimaryButton
+                  testID="home-invite-partner"
+                  disabled={isInvitePending}
+                  onPress={() => createInvite()}
+                  title={isInvitePending ? 'Creating…' : 'Invite your partner'}
+                  style={{ marginTop: Spacing.two }}
+                />
 
-            {inviteHint ? (
-              <ThemedText type="small" testID="home-invite-hint">
-                {inviteHint}
-              </ThemedText>
-            ) : null}
+                <Pressable testID="home-join-pod" onPress={() => router.push('/join')}>
+                  <ThemedText type="small">→ Have a code? Join a pod</ThemedText>
+                </Pressable>
 
-            <Link href="/settings/profile" testID="home-cta-profile">
-              <ThemedText type="small">→ Set up your profile</ThemedText>
-            </Link>
+                {inviteHint ? (
+                  <ThemedText type="small" testID="home-invite-hint">
+                    {inviteHint}
+                  </ThemedText>
+                ) : null}
+
+                <Link href="/settings/profile" testID="home-cta-profile">
+                  <ThemedText type="small">→ Set up your profile</ThemedText>
+                </Link>
+              </View>
+            )}
           </View>
         )}
 
@@ -216,8 +240,11 @@ const styles = StyleSheet.create({
     backgroundColor: DesignTokens.color.surface.light,
     ...DesignTokens.elevation.card,
   },
-  emptyState: {
+  emptyStateHub: {
     marginTop: Spacing.four,
+    gap: Spacing.two,
+  },
+  emptyState: {
     gap: Spacing.two,
     padding: Spacing.three,
     borderRadius: DesignTokens.radius.md,

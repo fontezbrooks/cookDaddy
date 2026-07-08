@@ -15,6 +15,15 @@ import { __resetPodStoreForTests } from '@/state/usePodStore';
 
 import HomeScreen from '../home';
 
+jest.mock('qrcode-generator', () =>
+  jest.fn(() => ({
+    addData: jest.fn(),
+    make: jest.fn(),
+    getModuleCount: () => 3,
+    isDark: () => false,
+  })),
+);
+
 // Supabase factory is mocked so the home screen never needs a real network.
 const mockSingle = jest.fn();
 const mockMaybeSingle = jest.fn();
@@ -318,7 +327,7 @@ describe('HomeScreen', () => {
     });
   });
 
-  it('renders the Create invite link CTA in the empty state', async () => {
+  it('renders the pairing hub actions in the empty state', async () => {
     mockSingle.mockResolvedValue({
       data: { display_name: 'Solo User', avatar_url: null },
       error: null,
@@ -327,11 +336,12 @@ describe('HomeScreen', () => {
     render(wrap(<HomeScreen />));
 
     await waitFor(() => {
-      expect(screen.getByTestId('home-create-invite')).toBeOnTheScreen();
+      expect(screen.getByTestId('home-invite-partner')).toBeOnTheScreen();
     });
+    expect(screen.getByTestId('home-join-pod')).toBeOnTheScreen();
   });
 
-  it('mints a token via create_pod_invite and opens the Share sheet on tap', async () => {
+  it('mints a token via create_pod_invite, renders the share card, and shares from the card', async () => {
     mockSingle.mockResolvedValue({
       data: { display_name: 'Solo User', avatar_url: null },
       error: null,
@@ -346,18 +356,25 @@ describe('HomeScreen', () => {
       .mockResolvedValue({ action: 'sharedAction' } as never);
 
     render(wrap(<HomeScreen />));
-    await waitFor(() => expect(screen.getByTestId('home-create-invite')).toBeOnTheScreen());
-    fireEvent.press(screen.getByTestId('home-create-invite'));
+    await waitFor(() => expect(screen.getByTestId('home-invite-partner')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-invite-partner'));
 
     await waitFor(() => {
       expect(mockCreateInvite).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('home-invite-share')).toBeOnTheScreen();
+      expect(screen.getByTestId('home-invite-hint')).toHaveTextContent(/Share this code/);
+    });
+    expect(shareSpy).not.toHaveBeenCalled();
+
+    fireEvent.press(screen.getByTestId('invite-share-button'));
+
+    await waitFor(() => {
       expect(shareSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           url: 'https://cookdaddy.app/invite/tok-xyz',
           message: expect.stringContaining('https://cookdaddy.app/invite/tok-xyz'),
         }),
       );
-      expect(screen.getByTestId('home-invite-hint')).toHaveTextContent(/Waiting for your partner/);
     });
 
     shareSpy.mockRestore();
@@ -372,8 +389,8 @@ describe('HomeScreen', () => {
     const shareSpy = jest.spyOn(Share, 'share');
 
     render(wrap(<HomeScreen />));
-    await waitFor(() => expect(screen.getByTestId('home-create-invite')).toBeOnTheScreen());
-    fireEvent.press(screen.getByTestId('home-create-invite'));
+    await waitFor(() => expect(screen.getByTestId('home-invite-partner')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('home-invite-partner'));
 
     await waitFor(() => {
       expect(screen.getByTestId('home-invite-hint')).toHaveTextContent(/already paired/i);

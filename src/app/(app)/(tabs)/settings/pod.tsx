@@ -65,6 +65,9 @@ export default function PodSettingsScreen() {
           <Link href="/home" testID="pod-settings-empty-cta">
             <ThemedText type="small">→ Create an invite from Home</ThemedText>
           </Link>
+          <Link href="/join" testID="pod-settings-join">
+            <ThemedText type="small">→ Join a pod with a code</ThemedText>
+          </Link>
         </View>
       </SafeAreaView>
     );

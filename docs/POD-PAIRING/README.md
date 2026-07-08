@@ -1,7 +1,32 @@
 # Pod Pairing Redesign — Hybrid (code + QR + link)
 
-Status: **Design.** Phase 2 of the troubleshooting spike (`docs/TROUBLESHOOTING-SPIKE/README.md`).
-Prereq Phase 1 committed on `fix/launch-errors`. Next: `/sc:workflow` / `/sc:implement`.
+Status: **Implemented (increment 1)** — see "As-built" below. Phase 2 of the troubleshooting spike.
+
+## As-built (increment 1)
+
+Shipped: 8-char Crockford code end-to-end. **Backend** migration `026_pod_invite_short_code.sql`
+(`normalize_invite_code`, `generate_invite_code`, `create_pod_invite` mints a code + retry,
+`consume_pod_invite` normalizes typed input before hashing — same raising contract as 025) + pgTAP
+(`create_*` length assertion → 8; new `consume_pod_invite_normalizes_code`). **Client**: `invite-code.ts`
+(format/link/sanitize), `qr-code.tsx` (pure-RN View grid via `qrcode-generator`, **no native module**),
+`invite-share-card.tsx`, `join.tsx` (typed entry), `invite-error-copy.ts` (extracted shared map),
+`use-create-pod-invite.ts` (surfaces the code + `share()`, no auto-Share), Home hub (Invite / Join),
+Settings→Pod join link. 85 suites / 589 tests green.
+
+**Two design items DEFERRED (documented follow-ups), for good reasons:**
+1. **In-app QR camera scanner** — needs `expo-camera` (native), which would crash the current dev client
+   (broken native build). The QR encodes the deep link, so it's already scannable by the phone's built-in
+   camera. Add the in-app scanner once the native build is healthy.
+2. **DB brute-force rate-limiting (`pod_join_attempts`, `too_many_attempts`)** — requires converting
+   `consume_pod_invite` to a non-raising, error-code-returning contract (a `RAISE` rolls back the audit
+   row the limiter counts). The 8-char code is ~2^40 with 24h single-use expiry, so online guessing is
+   already impractical; this is defense-in-depth, better reviewed on its own.
+3. Dedicated Copy-to-clipboard buttons — need `expo-clipboard` (native); the code is selectable and the
+   native Share sheet offers copy, so deferred with the scanner.
+
+---
+
+Prereq Phase 1 merged (PR #23). Next: `/sc:test` (run pgTAP once applied), then `/sc:git`.
 
 Replaces the Share-sheet-only invite (`use-create-pod-invite.ts`, `invite/[token].tsx`) with a
 hybrid flow: the inviter sees a **short code + QR + copy-link**; the invitee **types the code OR
