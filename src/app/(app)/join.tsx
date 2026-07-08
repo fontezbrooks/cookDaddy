@@ -61,7 +61,6 @@ export default function JoinScreen() {
             accessibilityLabel={`Invite code ${formatInviteCode(code)}`}
             value={code}
             placeholder="ABCD-1234"
-            maxLength={8}
             onChangeText={(t) => setCode(sanitizeCodeInput(t))}
             style={styles.input}
           />

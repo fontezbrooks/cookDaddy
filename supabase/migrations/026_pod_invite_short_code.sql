@@ -136,8 +136,9 @@ security definer
 set search_path = public, extensions
 as $$
 declare
-  v_user   text;
-  v_hash   text;
+  v_user      text;
+  v_hash_norm text;
+  v_hash_raw  text;
   v_invite record;
 begin
   v_user := auth_user_id();
@@ -145,13 +146,19 @@ begin
     raise exception 'unauthenticated' using errcode = 'P0001';
   end if;
 
-  v_hash := hash_invite_token(normalize_invite_code(p_token));
+  -- Look up by the normalized-code hash (new short codes) OR the raw-token
+  -- hash (pre-026 base64url links still in flight, and pgTAP rows that insert
+  -- hash_invite_token(<raw>) directly). normalize_invite_code is a no-op for a
+  -- canonical code, so both hashes coincide for invites created by 026.
+  v_hash_norm := hash_invite_token(normalize_invite_code(p_token));
+  v_hash_raw  := hash_invite_token(p_token);
 
   select pi.id, pi.pod_id, pi.inviter_user_id, pi.expires_at,
          pi.consumed_at, pi.consumed_by
     into v_invite
     from pod_invites pi
-   where pi.token_hash = v_hash;
+   where pi.token_hash = v_hash_norm
+      or pi.token_hash = v_hash_raw;
 
   if v_invite.id is null then
     raise exception 'invite_not_found' using errcode = 'P0001';
