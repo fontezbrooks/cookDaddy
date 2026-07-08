@@ -6,7 +6,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { createMmkvStorage } from './mmkv';
+import { createPersistentStorage } from './persistent-storage';
 
 type AuthUser = {
   id: string;
@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-store',
-      storage: createJSONStorage(() => createMmkvStorage('cookdaddy-auth')),
+      storage: createJSONStorage(() => createPersistentStorage()),
     },
   ),
 );

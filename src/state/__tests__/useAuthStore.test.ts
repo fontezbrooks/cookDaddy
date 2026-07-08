@@ -1,23 +1,25 @@
 /**
  * Auth store contract tests. The store mirrors the slice of Clerk identity
  * we keep client-side for fast cold-start (no flash of "Welcome" before the
- * users-row network fetch). Persistence to MMKV must round-trip.
+ * users-row network fetch). Persistence to secure-store must round-trip.
  */
+
+import * as SecureStore from 'expo-secure-store';
 
 import { __resetAuthStoreForTests, useAuthStore } from '../useAuthStore';
 
-const { __getMmkvMockStore } = require('react-native-mmkv') as {
-  __getMmkvMockStore: (id: string) => Map<string, string>;
+const { __getSecureStoreMockMemory } = SecureStore as typeof SecureStore & {
+  __getSecureStoreMockMemory: () => Map<string, string>;
 };
 
 function getMockStore(): Map<string, string> {
-  return __getMmkvMockStore('cookdaddy-auth');
+  return __getSecureStoreMockMemory();
 }
 
 describe('useAuthStore', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     getMockStore().clear();
-    __resetAuthStoreForTests();
+    await __resetAuthStoreForTests();
   });
 
   it('initializes empty', () => {
@@ -27,7 +29,7 @@ describe('useAuthStore', () => {
     expect(avatarUrl).toBeNull();
   });
 
-  it('setUser persists to MMKV with all three fields', () => {
+  it('setUser persists to secure-store with all three fields', async () => {
     useAuthStore.getState().setUser({
       id: 'user_clerk_abc',
       displayName: 'Fontez',
@@ -39,7 +41,9 @@ describe('useAuthStore', () => {
     expect(state.displayName).toBe('Fontez');
     expect(state.avatarUrl).toBe('https://img.example/x.png');
 
-    // Persistence — Zustand stores the slice under a known key in MMKV.
+    await Promise.resolve();
+
+    // Persistence — Zustand stores the slice under a known secure-store key.
     const raw = getMockStore().get('auth-store');
     expect(raw).toBeDefined();
     const parsed = JSON.parse(raw!);
@@ -55,19 +59,21 @@ describe('useAuthStore', () => {
     expect(useAuthStore.getState().avatarUrl).toBeNull();
   });
 
-  it('clearUser zeroes out and persists the cleared state', () => {
+  it('clearUser zeroes out and persists the cleared state', async () => {
     useAuthStore.getState().setUser({ id: 'u1', displayName: 'X' });
     useAuthStore.getState().clearUser();
 
     expect(useAuthStore.getState().userId).toBeNull();
     expect(useAuthStore.getState().displayName).toBeNull();
 
+    await Promise.resolve();
+
     const raw = getMockStore().get('auth-store');
     const parsed = JSON.parse(raw!);
     expect(parsed.state.userId).toBeNull();
   });
 
-  it('hydrates from existing MMKV state', () => {
+  it('hydrates from existing secure-store state', async () => {
     // Seed the mock storage BEFORE the store module is re-evaluated, so the
     // persist middleware reads the seeded blob during its init pass.
     getMockStore().set(
@@ -87,6 +93,7 @@ describe('useAuthStore', () => {
       freshStore = require('../useAuthStore').useAuthStore;
     });
 
+    await freshStore!.persist.rehydrate();
     const state = freshStore!.getState();
     expect(state.userId).toBe('pre_existing');
     expect(state.displayName).toBe('Returning User');
