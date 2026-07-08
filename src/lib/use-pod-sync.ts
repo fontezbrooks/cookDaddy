@@ -12,37 +12,21 @@
 // Spec: docs/DESIGN/README.md §16.1, docs/WORKFLOW/README.md §8.
 
 import { useAuth } from '@clerk/clerk-expo';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
-import { fetchPartnerForPod, PodRpcError } from '@/lib/pod-rpcs';
+import { usePodMembershipQuery } from '@/lib/use-pod-membership';
+import { fetchPartnerForPod } from '@/lib/pod-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
 import { usePodStore } from '@/state/usePodStore';
-
-type Membership = { podId: string | null };
 
 export function usePodSync(): void {
   const { userId, getToken, isSignedIn } = useAuth();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
   const queryClient = useQueryClient();
 
-  const membership = useQuery({
-    queryKey: ['pod-membership', userId],
-    enabled: Boolean(isSignedIn && userId),
-    staleTime: 30_000,
-    queryFn: async (): Promise<Membership> => {
-      const { data, error } = await supabase
-        .from('pod_members')
-        .select('pod_id, pods!inner(archived_at)')
-        .eq('user_id', userId as string)
-        .is('pods.archived_at', null)
-        .maybeSingle();
-      if (error) throw new PodRpcError('unknown', error.message);
-      const row = data as { pod_id?: string } | null;
-      return { podId: row?.pod_id ?? null };
-    },
-  });
+  const membership = usePodMembershipQuery();
 
   useEffect(() => {
     if (membership.data === undefined) return;

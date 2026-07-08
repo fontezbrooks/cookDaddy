@@ -15,7 +15,6 @@
 // "Cook this!" + "Keep swiping" CTAs, reduced-motion crossfade fallback,
 // 2.5s auto-close hard cap (§14), a11y label per §10.
 
-import * as Sentry from '@sentry/react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -81,23 +80,16 @@ export function MatchOverlay({
   const mountedAtRef = useRef(Date.now());
 
   // MATCH-UX §11: overlay first frame ≤100ms from broadcast event.
-  // Wrap the mount → first-paint window in a Sentry span so it shows
-  // up in the perf dashboard. PostHog mirrors the variant + payload IDs
-  // so we can correlate engagement against §13 metrics.
+  // PostHog mirrors the variant + payload IDs so we can correlate
+  // engagement against §13 metrics.
   useEffect(() => {
     const mountedAt = mountedAtRef.current;
-    const span = Sentry.startInactiveSpan({
-      name: 'match-overlay.mount',
-      op: 'ui.render',
-      attributes: { variant, matchId: payload.matchId, recipeId: payload.recipeId },
-    });
     analytics.capture('match_revealed', {
       variant,
       match_id: payload.matchId,
       recipe_id: payload.recipeId,
     });
     return () => {
-      span?.end();
       const action =
         dismissalReasonRef.current === 'primary'
           ? 'cook_this'

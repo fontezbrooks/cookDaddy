@@ -1,6 +1,5 @@
 allowBuilds:
   '@clerk/shared': false
-  '@sentry/cli': true
   '@shopify/react-native-skia': true
   browser-tabs-lock: false
   bufferutil: false

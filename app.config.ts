@@ -64,7 +64,6 @@ const config: ExpoConfig = {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     posthogKey: process.env.EXPO_PUBLIC_POSTHOG_KEY,
-    sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
     eas: {
       projectId: process.env.EAS_PROJECT_ID,
     },

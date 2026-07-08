@@ -1,7 +1,6 @@
 // Root app layout — provider composition for the entire mobile app.
 //
 // Order matters:
-//   • Sentry.init runs at module load so errors during provider boot are caught.
 //   • ClerkProvider owns identity; nothing below it can use useAuth/useUser
 //     until Clerk hydrates from its token cache (expo-secure-store).
 //   • QueryClientProvider wraps below Clerk so queries can read the Clerk
@@ -30,7 +29,6 @@ import {
   BeVietnamPro_600SemiBold,
   BeVietnamPro_700Bold,
 } from '@expo-google-fonts/be-vietnam-pro';
-import * as Sentry from '@sentry/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Constants from 'expo-constants';
 import { useFonts } from 'expo-font';
@@ -38,7 +36,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SecureStore from 'expo-secure-store';
-import { PostHogProvider } from 'posthog-react-native';
+import { PostHogErrorBoundary, PostHogProvider } from 'posthog-react-native';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
@@ -46,21 +44,10 @@ import { useAnalyticsIdentity } from '@/lib/use-analytics-identity';
 
 type AppExtra = {
   clerkPublishableKey?: string;
-  sentryDsn?: string;
   posthogKey?: string;
 };
 
 const extra = (Constants.expoConfig?.extra ?? {}) as AppExtra;
-
-// Sentry must init at module load so it captures errors during the provider
-// tree's first render, and so Sentry.wrap() below has an initialized client.
-// DSN is optional — with no DSN (local dev / CI) enabled:false keeps it inert.
-Sentry.init({
-  dsn: extra.sentryDsn,
-  enabled: !!extra.sentryDsn,
-  enableAutoSessionTracking: true,
-  debug: __DEV__,
-});
 
 SplashScreen.preventAutoHideAsync();
 
@@ -145,11 +132,19 @@ function RootLayout() {
     <PostHogProvider
       apiKey={posthogKey || 'phc_disabled_local_dev'}
       autocapture={false}
-      options={posthogKey ? undefined : { disabled: true }}
+      options={
+        posthogKey
+          ? {
+              errorTracking: {
+                autocapture: { uncaughtExceptions: true, unhandledRejections: true },
+              },
+            }
+          : { disabled: true }
+      }
     >
-      {tree}
+      <PostHogErrorBoundary>{tree}</PostHogErrorBoundary>
     </PostHogProvider>
   );
 }
 
-export default Sentry.wrap(RootLayout);
+export default RootLayout;

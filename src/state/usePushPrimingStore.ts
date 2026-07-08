@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { createMmkvStorage } from './mmkv';
+import { createPersistentStorage } from './persistent-storage';
 
 type PushPrimingState = {
   promptedAt: number | null;
@@ -18,7 +18,7 @@ export const usePushPrimingStore = create<PushPrimingState>()(
     }),
     {
       name: 'push-priming-store',
-      storage: createJSONStorage(() => createMmkvStorage('cookdaddy-push-priming')),
+      storage: createJSONStorage(() => createPersistentStorage()),
     },
   ),
 );

@@ -1,22 +1,6 @@
 const matchers = require('@testing-library/react-native/matchers');
 expect.extend(matchers);
 
-// Sentry's native module isn't available in Jest; stub init and wrap so the
-// root layout module can be imported without crashing.
-jest.mock('@sentry/react-native', () => ({
-  init: jest.fn(),
-  wrap: (component) => component,
-  captureException: jest.fn(),
-  captureMessage: jest.fn(),
-  setUser: jest.fn(),
-  // P8 Slice 6: MatchOverlay uses startInactiveSpan to mark its mount
-  // window for the §11 ≤100ms first-frame perf budget. The mock returns
-  // an object whose .end() is a jest.fn() so tests can assert that the
-  // span is closed when the overlay unmounts.
-  startInactiveSpan: jest.fn(() => ({ end: jest.fn() })),
-  startSpan: jest.fn((_ctx, fn) => fn({ end: jest.fn() })),
-}));
-
 jest.mock('expo-font', () => ({
   useFonts: () => [true, null],
   loadAsync: jest.fn(),
@@ -50,6 +34,7 @@ jest.mock('posthog-react-native', () => {
   };
   return {
     PostHogProvider: ({ children }) => React.createElement(React.Fragment, null, children),
+    PostHogErrorBoundary: ({ children }) => React.createElement(React.Fragment, null, children),
     PostHog: jest.fn().mockImplementation(() => fakeClient),
     usePostHog: () => fakeClient,
   };
@@ -307,5 +292,11 @@ jest.mock('expo-secure-store', () => {
       memory.delete(key);
       return Promise.resolve();
     }),
+    __getSecureStoreMockMemory: () => memory,
   };
+});
+
+beforeEach(() => {
+  const { __getSecureStoreMockMemory } = require('expo-secure-store');
+  __getSecureStoreMockMemory().clear();
 });

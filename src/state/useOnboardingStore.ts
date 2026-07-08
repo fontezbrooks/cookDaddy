@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { createMmkvStorage } from './mmkv';
+import { createPersistentStorage } from './persistent-storage';
 
 type OnboardingProgress = {
   completed: boolean;
@@ -63,7 +63,7 @@ export const useOnboardingStore = create<OnboardingState>()(
     }),
     {
       name: 'onboarding-store',
-      storage: createJSONStorage(() => createMmkvStorage('cookdaddy-onboarding')),
+      storage: createJSONStorage(() => createPersistentStorage()),
     },
   ),
 );

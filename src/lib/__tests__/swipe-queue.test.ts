@@ -1,5 +1,5 @@
 /**
- * MMKV-backed swipe retry queue (NFR-R1).
+ * In-memory swipe retry queue (NFR-R1).
  *
  * Contract:
  *   • enqueueSwipe appends (recipeId, direction) under key `swipe-queue:<sid>`
@@ -9,41 +9,32 @@
  *   • duplicate enqueue (same recipeId, direction) is collapsed — one entry
  *   • queue is bounded at QUEUE_CAP — overflow drops oldest entries first
  *   • per-session isolation — sessions don't see each other's queues
- *   • corrupted JSON is recovered (drops the row, returns [])
  */
 
 import {
   __SWIPE_QUEUE_INTERNAL__,
+  __resetSwipeQueueForTests,
   clearSwipeQueue,
   enqueueSwipe,
   peekSwipeQueue,
   removeFromSwipeQueue,
 } from '@/lib/swipe-queue';
 
-const { __getMmkvMockStore } = require('react-native-mmkv') as {
-  __getMmkvMockStore: (id: string) => Map<string, string>;
-};
-
-function rawStore() {
-  return __getMmkvMockStore(__SWIPE_QUEUE_INTERNAL__.STORAGE_ID);
-}
-
 describe('swipe-queue', () => {
   beforeEach(() => {
-    rawStore().clear();
+    __resetSwipeQueueForTests();
   });
 
   it('returns [] for an empty session queue', () => {
     expect(peekSwipeQueue('sess-1')).toEqual([]);
   });
 
-  it('enqueueSwipe persists one item under key swipe-queue:<sessionId>', () => {
+  it('enqueueSwipe persists one item under the sessionId', () => {
     enqueueSwipe('sess-1', { recipeId: 'r-1', direction: 'right' });
     const queue = peekSwipeQueue('sess-1');
     expect(queue).toHaveLength(1);
     expect(queue[0]).toMatchObject({ recipeId: 'r-1', direction: 'right' });
     expect(typeof queue[0]?.enqueuedAt).toBe('number');
-    expect(rawStore().has('swipe-queue:sess-1')).toBe(true);
   });
 
   it('collapses a duplicate enqueue of the same (recipeId, direction)', () => {
@@ -83,18 +74,17 @@ describe('swipe-queue', () => {
     expect(peekSwipeQueue('sess-1')).toHaveLength(1);
   });
 
-  it('clearSwipeQueue empties the session and removes the underlying key', () => {
+  it('clearSwipeQueue empties the session', () => {
     enqueueSwipe('sess-1', { recipeId: 'r-1', direction: 'right' });
     enqueueSwipe('sess-1', { recipeId: 'r-2', direction: 'left' });
     clearSwipeQueue('sess-1');
     expect(peekSwipeQueue('sess-1')).toEqual([]);
-    expect(rawStore().has('swipe-queue:sess-1')).toBe(false);
   });
 
-  it('removing the last entry deletes the row instead of leaving "[]"', () => {
+  it('removing the last entry empties the queue', () => {
     enqueueSwipe('sess-1', { recipeId: 'r-1', direction: 'right' });
     removeFromSwipeQueue('sess-1', { recipeId: 'r-1', direction: 'right' });
-    expect(rawStore().has('swipe-queue:sess-1')).toBe(false);
+    expect(peekSwipeQueue('sess-1')).toEqual([]);
   });
 
   it('caps the queue at QUEUE_CAP entries, dropping oldest first', () => {
@@ -109,9 +99,10 @@ describe('swipe-queue', () => {
     expect(queue[queue.length - 1]?.recipeId).toBe(`r-${cap + 4}`);
   });
 
-  it('recovers from a corrupted entry by returning [] (and dropping the row)', () => {
-    rawStore().set('swipe-queue:sess-1', '{ not valid json');
-    expect(peekSwipeQueue('sess-1')).toEqual([]);
-    expect(rawStore().has('swipe-queue:sess-1')).toBe(false);
+  it('returns a defensive copy so callers cannot mutate the queue', () => {
+    enqueueSwipe('sess-1', { recipeId: 'r-1', direction: 'right' });
+    const queue = peekSwipeQueue('sess-1');
+    queue.push({ recipeId: 'r-mutated', direction: 'left', enqueuedAt: Date.now() });
+    expect(peekSwipeQueue('sess-1')).toHaveLength(1);
   });
 });

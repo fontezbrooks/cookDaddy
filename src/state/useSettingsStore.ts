@@ -11,7 +11,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { createMmkvStorage } from './mmkv';
+import { createPersistentStorage } from './persistent-storage';
 
 type SettingsState = {
   hapticsEnabled: boolean;
@@ -42,7 +42,7 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'settings-store',
-      storage: createJSONStorage(() => createMmkvStorage('cookdaddy-settings')),
+      storage: createJSONStorage(() => createPersistentStorage()),
     },
   ),
 );

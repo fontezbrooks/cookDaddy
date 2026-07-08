@@ -29,9 +29,7 @@ jest.mock('@/lib/supabase', () => ({
   createSupabaseClient: () => ({
     from: () => ({
       select: () => ({
-        eq: () => ({
-          is: () => ({ maybeSingle: mockMaybeSingle }),
-        }),
+        is: () => ({ limit: () => ({ maybeSingle: mockMaybeSingle }) }),
       }),
     }),
   }),

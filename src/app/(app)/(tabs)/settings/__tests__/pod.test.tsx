@@ -27,8 +27,15 @@ jest.mock('@/lib/pod-rpcs', () => {
   };
 });
 
+const mockMaybeSingle = jest.fn();
 jest.mock('@/lib/supabase', () => ({
-  createSupabaseClient: () => ({}),
+  createSupabaseClient: () => ({
+    from: () => ({
+      select: () => ({
+        is: () => ({ limit: () => ({ maybeSingle: mockMaybeSingle }) }),
+      }),
+    }),
+  }),
 }));
 
 const mockReplace = jest.fn();
@@ -62,6 +69,8 @@ describe('PodSettingsScreen', () => {
   beforeEach(() => {
     __resetPodStoreForTests();
     mockDissolve.mockReset();
+    mockMaybeSingle.mockReset();
+    mockMaybeSingle.mockResolvedValue({ data: null, error: null });
     mockReplace.mockClear();
     setSignedIn();
   });
