@@ -205,6 +205,27 @@ describe('HomeScreen', () => {
     });
   });
 
+  it('keeps a solo pending pod in the pairing hub with an invite delivery path', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().setActivePod({
+      podId: 'pod_solo',
+      partnerId: '',
+      partnerDisplayName: 'Your partner',
+    });
+
+    render(wrap(<HomeScreen />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-pending-invite')).toBeOnTheScreen();
+    });
+    expect(screen.queryByTestId('home-paired')).toBeNull();
+    expect(screen.getByTestId('home-show-invite')).toBeOnTheScreen();
+  });
+
   it('leaves the active pod from the paired view after confirmation', async () => {
     mockSingle.mockResolvedValue({
       data: { display_name: 'Paired User', avatar_url: null },

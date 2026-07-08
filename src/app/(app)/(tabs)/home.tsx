@@ -1,7 +1,7 @@
 // Home — minimal P5 landing. Reads the signed-in user's display_name from
-// Supabase, surfaces a "No pod yet" empty state with a Create-invite CTA that
-// mints a token via create_pod_invite() and opens the native Share sheet so
-// the inviter can hand the link to their partner.
+// Supabase, renders a pairing hub (Invite / Join), shows InviteShareCard for
+// a freshly minted or pending solo-pod invite, and only shows the paired
+// "start a session" view once a partner has actually joined.
 
 import { useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -31,6 +31,7 @@ export default function HomeScreen() {
   const { userId, getToken } = useAuth();
   const router = useRouter();
   const activePodId = usePodStore((s) => s.activePodId);
+  const partnerId = usePodStore((s) => s.partnerId);
   const partnerRemoved = usePodStore((s) => s.partnerRemoved);
   const partnerDisplayName = usePodStore((s) => s.partnerDisplayName);
   const clearActivePod = usePodStore((s) => s.clearActivePod);
@@ -45,6 +46,8 @@ export default function HomeScreen() {
   } = useCreatePodInvite();
 
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
+  const isPaired = Boolean(activePodId && partnerId);
+  const isSoloPending = Boolean(activePodId && !partnerId);
 
   const { data, isLoading } = useQuery({
     queryKey: ['users', userId],
@@ -128,7 +131,7 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
-        {activePodId ? (
+        {isPaired ? (
           <View style={styles.paired} testID="home-paired">
             <ThemedText type="small">Pod active. Ready to swipe?</ThemedText>
 
@@ -172,12 +175,27 @@ export default function HomeScreen() {
             {invite ? (
               <>
                 <InviteShareCard code={invite.code} onShare={share} testID="home-invite-share" />
+                <ThemedText type="small" testID="home-invite-hint">
+                  {inviteHint ?? 'Waiting for your partner to join…'}
+                </ThemedText>
+              </>
+            ) : isSoloPending ? (
+              <View style={styles.emptyState} testID="home-pending-invite">
+                <ThemedText type="small">Your pod is waiting for your partner.</ThemedText>
+                <ThemedText type="small">Show your code so they can join.</ThemedText>
+                <PrimaryButton
+                  testID="home-show-invite"
+                  disabled={isInvitePending}
+                  onPress={() => createInvite()}
+                  title={isInvitePending ? 'Getting code…' : 'Show invite code'}
+                  style={{ marginTop: Spacing.two }}
+                />
                 {inviteHint ? (
                   <ThemedText type="small" testID="home-invite-hint">
                     {inviteHint}
                   </ThemedText>
                 ) : null}
-              </>
+              </View>
             ) : (
               <View style={styles.emptyState}>
                 <ThemedText type="small">No pod yet.</ThemedText>
@@ -208,6 +226,18 @@ export default function HomeScreen() {
                 </Link>
               </View>
             )}
+            {isSoloPending ? (
+              <Pressable
+                testID="home-cancel-invite"
+                style={[styles.leavePod, leavePodMutation.isPending && styles.leavePodDisabled]}
+                disabled={leavePodMutation.isPending}
+                onPress={confirmLeavePod}
+              >
+                <ThemedText type="small" style={styles.leavePodText}>
+                  {leavePodMutation.isPending ? 'Leaving…' : 'Cancel & leave pod'}
+                </ThemedText>
+              </Pressable>
+            ) : null}
           </View>
         )}
 
