@@ -5,6 +5,8 @@ import { useCallback } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppBar } from '@/components/app-bar';
+import { SecondaryButton } from '@/components/secondary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -57,19 +59,14 @@ export default function AccountSettingsScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <ThemedText type="title">Account</ThemedText>
+        <AppBar title="Account" onBack={() => router.back()} />
 
-        <Pressable
+        <SecondaryButton
           testID="account-sign-out"
-          accessibilityRole="button"
           disabled={signOutMutation.isPending}
           onPress={() => signOutMutation.mutate()}
-          style={[styles.secondary, signOutMutation.isPending && styles.disabled]}
-        >
-          <ThemedText type="small" style={styles.secondaryText}>
-            {signOutMutation.isPending ? 'Signing out…' : 'Sign out'}
-          </ThemedText>
-        </Pressable>
+          title={signOutMutation.isPending ? 'Signing out…' : 'Sign out'}
+        />
 
         <Pressable
           testID="account-delete"
@@ -99,21 +96,21 @@ const styles = StyleSheet.create({
   secondary: {
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
-    borderRadius: 12,
+    borderColor: DesignTokens.color.inkPlaceholder,
+    borderRadius: DesignTokens.radius.pill,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     backgroundColor: DesignTokens.color.surface.light,
   },
-  secondaryText: { color: DesignTokens.color.ink.light, fontWeight: '600' },
+  secondaryText: { color: DesignTokens.color.brand.light, fontWeight: '600' },
   destructive: {
     marginTop: Spacing.three,
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: 12,
+    borderRadius: DesignTokens.radius.pill,
     backgroundColor: DesignTokens.color.dangerDeep,
   },
-  destructiveText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
+  destructiveText: { color: DesignTokens.color.surface.light, fontWeight: '600' },
   disabled: { opacity: 0.6 },
 });

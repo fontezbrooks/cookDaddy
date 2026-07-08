@@ -5,9 +5,11 @@
 //   • Animations — ON (toggling OFF cascades to reduce-motion via
 //     useReducedMotion, MATCH-UX §10).
 
+import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppBar } from '@/components/app-bar';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -24,6 +26,7 @@ type Row = {
 };
 
 export default function VibesScreen() {
+  const router = useRouter();
   const analytics = useAnalytics();
   const hapticsEnabled = useSettingsStore((s) => s.hapticsEnabled);
   const soundsEnabled = useSettingsStore((s) => s.soundsEnabled);
@@ -70,7 +73,7 @@ export default function VibesScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <ThemedText type="title">Vibes</ThemedText>
+        <AppBar title="Vibes" onBack={() => router.back()} />
         <ThemedText type="small">Tune how the app feels.</ThemedText>
 
         <View style={styles.rows}>
@@ -94,6 +97,13 @@ export default function VibesScreen() {
                 value={row.value}
                 onValueChange={(newValue) => updateSetting(row, newValue)}
                 accessibilityLabel={`${row.label} toggle`}
+                trackColor={{
+                  false: DesignTokens.color.inkPlaceholder,
+                  true: DesignTokens.color.accent,
+                }}
+                thumbColor={
+                  row.value ? DesignTokens.color.accent : DesignTokens.color.surface.light
+                }
               />
             </Pressable>
           ))}
@@ -112,12 +122,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: DesignTokens.color.surface.light,
-    borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
     borderRadius: DesignTokens.radius.md,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.three,
     gap: Spacing.three,
+    ...DesignTokens.elevation.card,
   },
   rowText: { flex: 1, gap: Spacing.half },
 });

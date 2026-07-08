@@ -10,6 +10,7 @@ import { useMemo } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppBar } from '@/components/app-bar';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -59,7 +60,7 @@ export default function PodSettingsScreen() {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.container} testID="pod-settings-empty">
-          <ThemedText type="title">Pod</ThemedText>
+          <AppBar title="Pod" onBack={() => router.back()} />
           <ThemedText type="small">You’re not in a pod yet.</ThemedText>
           <Link href="/home" testID="pod-settings-empty-cta">
             <ThemedText type="small">→ Create an invite from Home</ThemedText>
@@ -72,7 +73,7 @@ export default function PodSettingsScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <ThemedText type="title">Pod</ThemedText>
+        <AppBar title="Pod" onBack={() => router.back()} />
         <ThemedText type="small" testID="pod-settings-partner">
           Paired with {partnerDisplayName ?? 'your partner'}.
         </ThemedText>
@@ -106,9 +107,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: 12,
+    borderRadius: DesignTokens.radius.pill,
     backgroundColor: DesignTokens.color.dangerDeep,
   },
-  destructiveText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
+  destructiveText: { color: DesignTokens.color.surface.light, fontWeight: '600' },
   disabled: { opacity: 0.6 },
 });

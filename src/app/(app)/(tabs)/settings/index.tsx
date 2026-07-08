@@ -2,6 +2,7 @@ import { Link } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppBar } from '@/components/app-bar';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -23,11 +24,13 @@ export default function SettingsHubScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container} testID="settings-hub">
-        <ThemedText type="title">Settings</ThemedText>
+        <AppBar title="Settings" />
         <View style={styles.links}>
           {SETTINGS_LINKS.map((item) => (
             <Link key={item.href} href={item.href} testID={item.testID} style={styles.link}>
-              <ThemedText type="smallBold">{item.label}</ThemedText>
+              <ThemedText type="smallBold" style={styles.linkText}>
+                {item.label}
+              </ThemedText>
             </Link>
           ))}
         </View>
@@ -49,9 +52,9 @@ const styles = StyleSheet.create({
   link: {
     paddingVertical: Spacing.three,
     paddingHorizontal: Spacing.three,
-    borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
     borderRadius: DesignTokens.radius.md,
     backgroundColor: DesignTokens.color.surface.light,
+    ...DesignTokens.elevation.card,
   },
+  linkText: { color: DesignTokens.color.ink.light },
 });
