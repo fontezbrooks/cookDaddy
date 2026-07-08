@@ -59,6 +59,31 @@ describe('useCreatePodInvite', () => {
     shareSpy.mockRestore();
   });
 
+  it('invalidates membership after creating an invite', async () => {
+    mockCreateInvite.mockResolvedValueOnce({
+      token: 'tok-xyz',
+      expiresAt: '2099-01-01T00:00:00Z',
+      podId: 'pod-123',
+    });
+    const invalidateSpy = jest.spyOn(QueryClient.prototype, 'invalidateQueries');
+
+    try {
+      const { result } = renderHook(() => useCreatePodInvite(), { wrapper });
+
+      await act(async () => {
+        result.current.createInvite();
+      });
+
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ queryKey: expect.arrayContaining(['pod-membership']) }),
+        );
+      });
+    } finally {
+      invalidateSpy.mockRestore();
+    }
+  });
+
   it('shares the stored invite from the explicit share action', async () => {
     mockCreateInvite.mockResolvedValueOnce({
       token: 'tok-xyz',

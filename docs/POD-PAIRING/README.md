@@ -12,6 +12,9 @@ Shipped: 8-char Crockford code end-to-end. **Backend** migration `026_pod_invite
 `invite-share-card.tsx`, `join.tsx` (typed entry), `invite-error-copy.ts` (extracted shared map),
 `use-create-pod-invite.ts` (surfaces the code + `share()`, no auto-Share), Home hub (Invite / Join),
 Settings→Pod join link. 85 suites / 589 tests green.
+Follow-up hardening: `sanitizeCodeInput` now parses the code out of a pasted share message or
+invite link, and creating an invite invalidates the `pod-membership` query so Home reconciles the
+solo pod immediately.
 
 **Two design items DEFERRED (documented follow-ups), for good reasons:**
 1. **In-app QR camera scanner** — needs `expo-camera` (native), which would crash the current dev client
