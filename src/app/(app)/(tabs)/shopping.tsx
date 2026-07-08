@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
+import { SecondaryButton } from '@/components/secondary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -148,6 +149,7 @@ export default function ShoppingScreen() {
               value={name}
               onChangeText={setName}
               placeholder="Item"
+              placeholderTextColor={DesignTokens.color.inkPlaceholder}
               style={styles.input}
             />
             <TextInput
@@ -155,6 +157,7 @@ export default function ShoppingScreen() {
               value={category}
               onChangeText={setCategory}
               placeholder="Category"
+              placeholderTextColor={DesignTokens.color.inkPlaceholder}
               style={styles.input}
             />
             <View style={styles.formRow}>
@@ -163,6 +166,7 @@ export default function ShoppingScreen() {
                 value={quantity}
                 onChangeText={setQuantity}
                 placeholder="Qty"
+                placeholderTextColor={DesignTokens.color.inkPlaceholder}
                 keyboardType="numeric"
                 style={[styles.input, styles.compactInput]}
               />
@@ -171,6 +175,7 @@ export default function ShoppingScreen() {
                 value={unit}
                 onChangeText={setUnit}
                 placeholder="Unit"
+                placeholderTextColor={DesignTokens.color.inkPlaceholder}
                 style={[styles.input, styles.compactInput]}
               />
             </View>
@@ -183,16 +188,12 @@ export default function ShoppingScreen() {
           </View>
 
           {checkedCount > 0 ? (
-            <Pressable
+            <SecondaryButton
               testID="shopping-clear-checked"
-              style={[styles.secondaryCta, clearMutation.isPending && styles.disabled]}
               disabled={clearMutation.isPending}
               onPress={() => clearMutation.mutate()}
-            >
-              <ThemedText type="small" style={styles.secondaryCtaText}>
-                Clear checked
-              </ThemedText>
-            </Pressable>
+              title="Clear checked"
+            />
           ) : null}
 
           {items.length === 0 ? (
@@ -243,11 +244,11 @@ function ShoppingRow({
     >
       <Pressable
         testID={`shopping-check-${item.id}`}
-        style={styles.check}
+        style={[styles.check, checked && styles.checkChecked]}
         disabled={busy}
         onPress={onToggle}
       >
-        <ThemedText type="small" style={styles.checkText}>
+        <ThemedText type="small" style={[styles.checkText, checked && styles.checkTextChecked]}>
           {checked ? '✓' : ''}
         </ThemedText>
       </Pressable>
@@ -255,19 +256,17 @@ function ShoppingRow({
         <ThemedText type="smallBold" style={checked && styles.checkedText}>
           {item.name}
         </ThemedText>
-        <ThemedText type="small">{formatQuantity(item)}</ThemedText>
+        <ThemedText type="small" style={styles.itemMeta}>
+          {formatQuantity(item)}
+        </ThemedText>
       </View>
       {checked ? (
-        <Pressable
+        <SecondaryButton
           testID={`shopping-move-${item.id}`}
-          style={[styles.secondaryCta, busy && styles.disabled]}
           disabled={busy}
           onPress={onMove}
-        >
-          <ThemedText type="small" style={styles.secondaryCtaText}>
-            Move to pantry
-          </ThemedText>
-        </Pressable>
+          title="Move to pantry"
+        />
       ) : null}
     </View>
   );
@@ -316,23 +315,25 @@ const styles = StyleSheet.create({
   formRow: { flexDirection: 'row', gap: Spacing.two },
   input: {
     borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
+    borderColor: DesignTokens.color.accentBorderAlt,
     borderRadius: DesignTokens.radius.md,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     minHeight: 44,
     backgroundColor: DesignTokens.color.surface.light,
+    color: DesignTokens.color.ink.light,
   },
   compactInput: { flex: 1 },
   secondaryCta: {
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: DesignTokens.radius.md,
+    borderRadius: DesignTokens.radius.pill,
     borderWidth: 1,
-    borderColor: DesignTokens.color.borderStrong.light,
+    borderColor: DesignTokens.color.inkPlaceholder,
+    backgroundColor: DesignTokens.color.surface.light,
   },
   disabled: { opacity: 0.6 },
-  secondaryCtaText: { color: DesignTokens.color.ink.light, fontWeight: '600' },
+  secondaryCtaText: { color: DesignTokens.color.brand.light, fontWeight: '600' },
   empty: { gap: Spacing.two },
   list: { gap: Spacing.four },
   group: { gap: Spacing.two },
@@ -340,9 +341,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderBottomWidth: 1,
-    borderBottomColor: DesignTokens.color.borderMuted.light,
+    padding: Spacing.three,
+    borderRadius: DesignTokens.radius.md,
+    backgroundColor: DesignTokens.color.surface.light,
+    ...DesignTokens.elevation.card,
   },
   itemRowChecked: { opacity: 0.65 },
   check: {
@@ -353,8 +355,15 @@ const styles = StyleSheet.create({
     borderRadius: DesignTokens.radius.pill,
     borderWidth: 1,
     borderColor: DesignTokens.color.borderStrong.light,
+    backgroundColor: DesignTokens.color.surface.light,
   },
-  checkText: { fontWeight: '700' },
+  checkChecked: {
+    borderColor: DesignTokens.color.accent,
+    backgroundColor: DesignTokens.color.accent,
+  },
+  checkText: { color: DesignTokens.color.accent, fontWeight: '700' },
+  checkTextChecked: { color: DesignTokens.color.onAccent },
   itemText: { flex: 1, gap: Spacing.one },
+  itemMeta: { color: DesignTokens.color.inkBody.light },
   checkedText: { textDecorationLine: 'line-through' },
 });

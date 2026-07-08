@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef } from 'react';
-import { ActivityIndicator, Pressable, SectionList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, SectionList, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -9,9 +9,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useAnalytics } from '@/lib/analytics';
 import { type FridgeGroup, useFridge } from '@/lib/use-fridge';
 import { type PantryItem } from '@/lib/use-pantry';
@@ -51,15 +52,7 @@ export default function FridgeScreen() {
             <ThemedText type="title">Fridge</ThemedText>
             <ThemedText type="small">Shared pantry items by aisle.</ThemedText>
           </View>
-          <Pressable
-            testID="fridge-edit"
-            style={styles.editButton}
-            onPress={() => router.push('/pantry')}
-          >
-            <ThemedText type="small" style={styles.editButtonText}>
-              Edit
-            </ThemedText>
-          </Pressable>
+          <PrimaryButton testID="fridge-edit" onPress={() => router.push('/pantry')} title="Edit" />
         </View>
 
         <View style={styles.revealFrame}>
@@ -80,7 +73,7 @@ export default function FridgeScreen() {
                 contentContainerStyle={styles.listContent}
                 renderSectionHeader={({ section }) => (
                   <View testID={`fridge-aisle-${section.title}`} style={styles.sectionHeader}>
-                    <ThemedText type="smallBold">{section.title}</ThemedText>
+                    <ThemedText type="subtitle">{section.title}</ThemedText>
                   </View>
                 )}
                 renderItem={({ item }) => <FridgeRow item={item} />}
@@ -166,10 +159,10 @@ const styles = StyleSheet.create({
   editButton: {
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: DesignTokens.radius.md,
-    backgroundColor: DesignTokens.color.persimmonDeep,
+    borderRadius: DesignTokens.radius.pill,
+    backgroundColor: DesignTokens.color.accent,
   },
-  editButtonText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
+  editButtonText: { color: DesignTokens.color.onAccent, fontWeight: '600' },
   revealFrame: { flex: 1 },
   revealContent: { flex: 1, overflow: 'hidden' },
   content: { flex: 1 },
@@ -179,21 +172,22 @@ const styles = StyleSheet.create({
   sectionHeader: {
     paddingTop: Spacing.three,
     paddingBottom: Spacing.two,
-    backgroundColor: DesignTokens.color.surface.light,
+    backgroundColor: DesignTokens.color.canvas.light,
   },
   itemRow: {
     gap: Spacing.one,
-    paddingVertical: Spacing.three,
-    borderBottomWidth: 1,
-    borderBottomColor: DesignTokens.color.borderMuted.light,
+    padding: Spacing.three,
+    borderRadius: DesignTokens.radius.md,
+    backgroundColor: DesignTokens.color.surface.light,
+    ...DesignTokens.elevation.card,
   },
   door: {
     position: 'absolute',
     top: 0,
     bottom: 0,
     width: '50%',
-    backgroundColor: Colors.light.backgroundElement,
-    borderColor: DesignTokens.color.borderMuted.light,
+    backgroundColor: DesignTokens.color.surfaceAlt.light,
+    borderColor: DesignTokens.color.borderStrong.light,
   },
   leftDoor: { left: 0, borderRightWidth: 1 },
   rightDoor: { right: 0, borderLeftWidth: 1 },

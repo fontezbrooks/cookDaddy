@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppBar } from '@/components/app-bar';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -29,7 +30,7 @@ export default function CookbookIndexScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <ThemedText type="title">Cookbook</ThemedText>
+        <AppBar title="Cookbook" />
         <FilterTabs selectedFilter={filter} onSelect={setFilter} />
         <CookbookContent
           entries={data ?? []}
@@ -167,15 +168,15 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     borderRadius: DesignTokens.radius.pill,
     borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
+    borderColor: DesignTokens.color.inkPlaceholder,
     backgroundColor: DesignTokens.color.surface.light,
   },
   filterTabActive: {
-    borderColor: DesignTokens.color.persimmonDeep,
-    backgroundColor: DesignTokens.color.persimmonDeep,
+    borderColor: DesignTokens.color.accent,
+    backgroundColor: DesignTokens.color.accent,
   },
-  filterText: { color: DesignTokens.color.ink.light, fontWeight: '600' },
-  filterTextActive: { color: DesignTokens.color.textOnDark, fontWeight: '700' },
+  filterText: { color: DesignTokens.color.inkBody.light, fontWeight: '600' },
+  filterTextActive: { color: DesignTokens.color.onAccent, fontWeight: '700' },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -187,18 +188,17 @@ const styles = StyleSheet.create({
     borderRadius: DesignTokens.radius.md,
     overflow: 'hidden',
     backgroundColor: DesignTokens.color.surface.light,
-    borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
+    ...DesignTokens.elevation.card,
   },
   image: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: DesignTokens.color.canvas.light,
+    backgroundColor: DesignTokens.color.surfaceAlt.light,
   },
   placeholder: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: DesignTokens.color.canvas.light,
+    backgroundColor: DesignTokens.color.surfaceAlt.light,
   },
   tileBody: { padding: Spacing.two, gap: Spacing.two },
   tileTitle: { color: DesignTokens.color.ink.light, fontWeight: '700' },
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     paddingVertical: DesignTokens.space.one,
     borderRadius: DesignTokens.radius.pill,
     overflow: 'hidden',
-    color: DesignTokens.color.textOnDark,
+    color: DesignTokens.color.surface.light,
     backgroundColor: DesignTokens.color.successDeep,
     fontWeight: '700',
   },
