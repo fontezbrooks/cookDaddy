@@ -1,6 +1,8 @@
+import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppBar } from '@/components/app-bar';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -15,6 +17,7 @@ type Row = {
 };
 
 export default function NotificationsScreen() {
+  const router = useRouter();
   const { prefs, isLoading, setPref } = useNotificationPrefs();
 
   const rows: Row[] = [
@@ -44,7 +47,7 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <ThemedText type="title">Notifications</ThemedText>
+        <AppBar title="Notifications" onBack={() => router.back()} />
         <ThemedText type="small">Choose what you hear about.</ThemedText>
 
         {isLoading ? (
@@ -71,6 +74,13 @@ export default function NotificationsScreen() {
                   value={row.value}
                   onValueChange={(value) => setPref(row.prefKey, value)}
                   accessibilityLabel={`${row.label} toggle`}
+                  trackColor={{
+                    false: DesignTokens.color.inkPlaceholder,
+                    true: DesignTokens.color.accent,
+                  }}
+                  thumbColor={
+                    row.value ? DesignTokens.color.accent : DesignTokens.color.surface.light
+                  }
                 />
               </Pressable>
             ))}
@@ -90,12 +100,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: DesignTokens.color.surface.light,
-    borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
     borderRadius: DesignTokens.radius.md,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.three,
     gap: Spacing.three,
+    ...DesignTokens.elevation.card,
   },
   rowText: { flex: 1, gap: Spacing.half },
 });

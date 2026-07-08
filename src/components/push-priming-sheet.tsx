@@ -1,7 +1,9 @@
 import { useAuth } from '@clerk/clerk-expo';
 import { useEffect, useMemo, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
+import { PrimaryButton } from '@/components/primary-button';
+import { SecondaryButton } from '@/components/secondary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -77,18 +79,13 @@ export function PushPrimingSheet(): React.ReactElement | null {
           Get notified when {partnerName} wants to swipe - and the moment you both match.
         </ThemedText>
         <View style={styles.actions}>
-          <Pressable
+          <PrimaryButton
             testID="push-priming-continue"
-            style={styles.cta}
             onPress={() => void onContinue()}
-          >
-            <ThemedText type="small" style={styles.ctaText}>
-              Turn on notifications
-            </ThemedText>
-          </Pressable>
-          <Pressable testID="push-priming-skip" style={styles.skip} onPress={onSkip}>
-            <ThemedText type="small">Not now</ThemedText>
-          </Pressable>
+            title="Turn on notifications"
+            fullWidth
+          />
+          <SecondaryButton testID="push-priming-skip" onPress={onSkip} title="Not now" fullWidth />
         </View>
       </View>
     </View>
@@ -108,6 +105,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     borderTopLeftRadius: DesignTokens.radius.lg,
     borderTopRightRadius: DesignTokens.radius.lg,
+    ...DesignTokens.elevation.card,
   },
   actions: { gap: Spacing.two, paddingTop: Spacing.two },
   cta: {
@@ -116,6 +114,5 @@ const styles = StyleSheet.create({
     borderRadius: DesignTokens.radius.md,
     backgroundColor: DesignTokens.color.accentSuccess,
   },
-  ctaText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
   skip: { alignItems: 'center', paddingVertical: Spacing.two },
 });

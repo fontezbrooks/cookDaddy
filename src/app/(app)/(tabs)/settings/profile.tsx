@@ -5,10 +5,13 @@
 
 import { useAuth } from '@clerk/clerk-expo';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppBar } from '@/components/app-bar';
+import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
@@ -18,6 +21,7 @@ type UserRow = { display_name: string | null; avatar_url: string | null };
 
 export default function ProfileScreen() {
   const { userId, getToken } = useAuth();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
 
@@ -65,7 +69,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <ThemedText type="title">Profile</ThemedText>
+        <AppBar title="Profile" onBack={() => router.back()} />
         <ThemedText type="small">Update how your partner sees you.</ThemedText>
 
         <View style={styles.field}>
@@ -75,6 +79,7 @@ export default function ProfileScreen() {
             value={displayName}
             onChangeText={setDisplayName}
             placeholder="Your name"
+            placeholderTextColor={DesignTokens.color.inkPlaceholder}
             style={styles.input}
             autoCorrect={false}
           />
@@ -87,22 +92,19 @@ export default function ProfileScreen() {
             value={avatarUrl}
             onChangeText={setAvatarUrl}
             placeholder="https://…"
+            placeholderTextColor={DesignTokens.color.inkPlaceholder}
             style={styles.input}
             autoCapitalize="none"
             autoCorrect={false}
           />
         </View>
 
-        <Pressable
+        <PrimaryButton
           testID="profile-save"
-          style={styles.saveButton}
           disabled={updateMutation.isPending || displayName.length === 0}
           onPress={() => updateMutation.mutate()}
-        >
-          <ThemedText type="small" style={styles.saveButtonText}>
-            {updateMutation.isPending ? 'Saving…' : 'Save changes'}
-          </ThemedText>
-        </Pressable>
+          title={updateMutation.isPending ? 'Saving…' : 'Save changes'}
+        />
       </View>
     </SafeAreaView>
   );
@@ -114,19 +116,11 @@ const styles = StyleSheet.create({
   field: { gap: Spacing.one },
   input: {
     borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
+    borderColor: DesignTokens.color.accentBorderAlt,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: DesignTokens.radius.md,
     color: DesignTokens.color.ink.light,
     backgroundColor: DesignTokens.color.surface.light,
   },
-  saveButton: {
-    marginTop: Spacing.three,
-    backgroundColor: DesignTokens.color.persimmonDeep,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  saveButtonText: { color: DesignTokens.color.textOnDark, fontWeight: '600' },
 });
