@@ -66,6 +66,9 @@ export const DesignTokens = {
     badgeGradientStart: '#F88000',
     badgeGradientEnd: '#620B49',
     elevationTint: 'rgba(98,11,73,0.1)',
+    borderWarm: { light: '#EAE0E3', dark: '#EAE0E3' },
+    surfaceAlt: { light: '#FCF1F4', dark: '#FCF1F4' },
+    passRed: '#BA1A1A',
   },
 
   space: {

@@ -43,6 +43,9 @@ describe('DesignTokens', () => {
     expect(DesignTokens.color.onAccent).toBe('#602E00');
     expect(DesignTokens.color.accentPressBorder).toBe('#412909');
     expect(DesignTokens.color.surface.light).toBe('#FFFFFF');
+    expect(DesignTokens.color.borderWarm.light).toBe('#EAE0E3');
+    expect(DesignTokens.color.surfaceAlt.light).toBe('#FCF1F4');
+    expect(DesignTokens.color.passRed).toBe('#BA1A1A');
   });
 
   it('exposes the Warm Arcade Kitchen font families', () => {

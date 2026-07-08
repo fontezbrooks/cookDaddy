@@ -353,7 +353,9 @@ export function SwipeDeck({
             ]}
             testID="swipe-deck-card-current"
           >
-            <ThemedText type="subtitle">{current.title}</ThemedText>
+            <ThemedText type="subtitle" style={styles.cardTitle}>
+              {current.title}
+            </ThemedText>
           </Animated.View>
         </GestureDetector>
       </View>
@@ -401,14 +403,27 @@ export function SwipeDeck({
 function CardBack({ recipe }: { recipe: DeckRecipe }) {
   return (
     <View style={[styles.card, styles.cardBehind]} testID="swipe-deck-card-next">
-      <ThemedText type="subtitle">{recipe.title}</ThemedText>
+      <ThemedText type="subtitle" style={styles.cardTitle}>
+        {recipe.title}
+      </ThemedText>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: Spacing.four, gap: Spacing.three },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.two },
+  container: {
+    flex: 1,
+    padding: Spacing.four,
+    gap: Spacing.three,
+    backgroundColor: DesignTokens.color.canvas.light,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.two,
+    backgroundColor: DesignTokens.color.canvas.light,
+  },
   stack: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   streakPill: {
     position: 'absolute',
@@ -418,40 +433,54 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.one,
     borderRadius: DesignTokens.radius.pill,
-    backgroundColor: DesignTokens.color.canvas.light,
+    backgroundColor: DesignTokens.color.surfaceAlt.light,
     borderWidth: 1,
-    borderColor: DesignTokens.color.borderMuted.light,
+    borderColor: DesignTokens.color.borderWarm.light,
   },
   streakText: {
-    color: DesignTokens.color.ink.light,
+    color: DesignTokens.color.brand.light,
     fontWeight: '700',
   },
   card: {
     position: 'absolute',
     width: '90%',
     aspectRatio: 3 / 4,
-    borderRadius: DesignTokens.radius.lg,
-    // Card surface — always dark in v1 regardless of OS theme; use the
-    // light-mode value of the themed token explicitly.
-    backgroundColor: DesignTokens.color.swipeCardSurface.light,
+    borderRadius: 24,
+    backgroundColor: DesignTokens.color.surface.light,
     padding: Spacing.four,
     justifyContent: 'flex-end',
     // Reserve border space at all times so the flash doesn't shift layout.
     borderWidth: 2,
     borderColor: 'transparent',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 15,
+    elevation: 8,
   },
-  cardFlashRight: { borderColor: DesignTokens.color.accentSuccess },
-  cardFlashLeft: { borderColor: DesignTokens.color.accentDanger },
-  cardBehind: { transform: [{ scale: 0.96 }, { translateY: 10 }], opacity: 0.7 },
+  cardFlashRight: { borderColor: DesignTokens.color.accent },
+  cardFlashLeft: { borderColor: DesignTokens.color.passRed },
+  cardTitle: { color: DesignTokens.color.ink.light },
+  cardBehind: {
+    transform: [{ scale: 0.96 }, { translateY: 10 }],
+    opacity: 0.7,
+    backgroundColor: DesignTokens.color.surfaceAlt.light,
+    borderColor: DesignTokens.color.borderWarm.light,
+  },
   actions: { flexDirection: 'row', gap: Spacing.three, justifyContent: 'center' },
   actionBtn: {
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.three,
-    borderRadius: DesignTokens.radius.md,
-    minWidth: 120,
+    width: 64,
+    height: 64,
+    borderRadius: DesignTokens.radius.pill,
+    borderWidth: 2,
+    borderColor: DesignTokens.color.borderWarm.light,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  likeBtn: { backgroundColor: DesignTokens.color.accentSuccess },
-  dislikeBtn: { backgroundColor: DesignTokens.color.accentDanger },
-  actionText: { color: DesignTokens.color.textOnDark, fontWeight: '700' },
+  likeBtn: {
+    backgroundColor: DesignTokens.color.accent,
+    borderColor: DesignTokens.color.accent,
+  },
+  dislikeBtn: { backgroundColor: DesignTokens.color.surfaceAlt.light },
+  actionText: { color: DesignTokens.color.onAccent, fontWeight: '700' },
 });

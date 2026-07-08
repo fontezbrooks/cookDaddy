@@ -79,9 +79,9 @@ type ConfettiProps = {
 const HEART_PATH =
   'M0,-10 C-10,-25 -30,-25 -30,-5 C-30,15 0,30 0,30 C0,30 30,15 30,-5 C30,-25 10,-25 0,-10 Z';
 const COLORS = [
-  DesignTokens.color.accentCelebration1,
-  DesignTokens.color.accentCelebration2,
-  DesignTokens.color.accentCelebration3,
+  DesignTokens.color.accent,
+  DesignTokens.color.brandDeep.light,
+  DesignTokens.color.poolTeal,
 ];
 
 // Deterministic-ish RNG seeded by the count so the particle layout is
