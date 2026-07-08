@@ -136,13 +136,16 @@ function RootLayout() {
 
   // Always mount PostHogProvider so the analytics hooks (usePostHog /
   // useFeatureFlag) always find a client in context. Without a key (local dev /
-  // CI) the provider is inert: defaultOptIn:false suppresses all capture and
-  // preloadFeatureFlags:false skips the flag fetch, so nothing is sent.
+  // CI) the provider is mounted with a non-empty placeholder key and
+  // disabled: true, making the client fully inert (no network, no capture).
+  // The placeholder key matters: an empty key makes the SDK log
+  // "You must pass your PostHog project's api key" — the exact boot-time
+  // console.error this clean-boot change exists to remove.
   return (
     <PostHogProvider
-      apiKey={posthogKey ?? ''}
+      apiKey={posthogKey || 'phc_disabled_local_dev'}
       autocapture={false}
-      options={posthogKey ? undefined : { defaultOptIn: false, preloadFeatureFlags: false }}
+      options={posthogKey ? undefined : { disabled: true }}
     >
       {tree}
     </PostHogProvider>
