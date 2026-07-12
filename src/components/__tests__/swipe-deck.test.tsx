@@ -165,6 +165,28 @@ describe('SwipeDeck', () => {
     expect(mockHapticsSelection).toHaveBeenCalledTimes(1);
   });
 
+  it('renders the recipe photo with a title scrim when imageUrl is present', () => {
+    mockUseDeck.mockReturnValue({
+      data: [
+        { id: 'r-1', title: 'Cacio e Pepe', imageUrl: 'https://img.example/cacio.jpg' },
+        { id: 'r-2', title: 'Roast Squash', imageUrl: null },
+        { id: 'r-3', title: 'Bibimbap', imageUrl: null },
+      ],
+      isLoading: false,
+    });
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+
+    // Front card (r-1) carries the photo; the imageless back card does not.
+    expect(screen.getAllByTestId('swipe-deck-card-image')).toHaveLength(1);
+    expect(screen.getByTestId('swipe-deck-card-current')).toHaveTextContent('Cacio e Pepe');
+  });
+
+  it('renders a plain card when the recipe has no image', () => {
+    mockUseDeck.mockReturnValue({ data: RECIPE_DATA, isLoading: false });
+    render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
+    expect(screen.queryByTestId('swipe-deck-card-image')).toBeNull();
+  });
+
   it('renders a loading placeholder while the deck metadata is loading', () => {
     mockUseDeck.mockReturnValue({ data: undefined, isLoading: true });
     render(wrap(<SwipeDeck sessionId="sess-1" recipeIds={DECK_IDS} />));
