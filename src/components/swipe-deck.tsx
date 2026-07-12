@@ -15,6 +15,7 @@
 
 import { useAuth } from '@clerk/clerk-expo';
 import { useMutation } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -209,6 +210,12 @@ export function SwipeDeck({
         time_since_prev_swipe_ms: timeSincePrevSwipeMs,
       });
       cardIndexRef.current += 1;
+      // Re-center the stack BEFORE the next card takes the top slot — the
+      // gesture commit flings translateX a full screen-width off-screen, and
+      // without this reset the next card mounts invisible (off-screen) with
+      // the GestureDetector attached to it: swipes appear "disabled" while
+      // the buttons (which never touch translateX) keep working.
+      translateX.value = 0;
       setIndex((i) => i + 1);
     },
     onError: (err, vars) => {
@@ -353,9 +360,7 @@ export function SwipeDeck({
             ]}
             testID="swipe-deck-card-current"
           >
-            <ThemedText type="subtitle" style={styles.cardTitle}>
-              {current.title}
-            </ThemedText>
+            <CardFace recipe={current} />
           </Animated.View>
         </GestureDetector>
       </View>
@@ -400,12 +405,39 @@ export function SwipeDeck({
   );
 }
 
-function CardBack({ recipe }: { recipe: DeckRecipe }) {
-  return (
-    <View style={[styles.card, styles.cardBehind]} testID="swipe-deck-card-next">
+// Shared face for the front and back cards: photo fills the card with the
+// title on a scrim for contrast; imageless recipes keep the plain-card look.
+function CardFace({ recipe }: { recipe: DeckRecipe }) {
+  if (!recipe.imageUrl) {
+    return (
       <ThemedText type="subtitle" style={styles.cardTitle}>
         {recipe.title}
       </ThemedText>
+    );
+  }
+  return (
+    <>
+      <Image
+        source={{ uri: recipe.imageUrl }}
+        style={styles.cardImage}
+        contentFit="cover"
+        transition={150}
+        testID="swipe-deck-card-image"
+        accessibilityIgnoresInvertColors
+      />
+      <View style={styles.titleScrim}>
+        <ThemedText type="subtitle" style={styles.cardTitleOnImage}>
+          {recipe.title}
+        </ThemedText>
+      </View>
+    </>
+  );
+}
+
+function CardBack({ recipe }: { recipe: DeckRecipe }) {
+  return (
+    <View style={[styles.card, styles.cardBehind]} testID="swipe-deck-card-next">
+      <CardFace recipe={recipe} />
     </View>
   );
 }
@@ -461,6 +493,23 @@ const styles = StyleSheet.create({
   cardFlashRight: { borderColor: DesignTokens.color.accent },
   cardFlashLeft: { borderColor: DesignTokens.color.passRed },
   cardTitle: { color: DesignTokens.color.ink.light },
+  // Inset by the card's 2px border so the photo never bleeds under the flash.
+  cardImage: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    borderRadius: 22,
+  },
+  titleScrim: {
+    alignSelf: 'stretch',
+    backgroundColor: 'rgba(30, 15, 8, 0.55)',
+    borderRadius: DesignTokens.radius.md,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+  },
+  cardTitleOnImage: { color: '#FFFFFF' },
   cardBehind: {
     transform: [{ scale: 0.96 }, { translateY: 10 }],
     opacity: 0.7,

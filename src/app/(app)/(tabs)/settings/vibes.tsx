@@ -14,6 +14,7 @@ import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { useAnalytics } from '@/lib/analytics';
+import { goBackOr } from '@/lib/navigation';
 import { useSettingsStore } from '@/state/useSettingsStore';
 
 type Row = {
@@ -73,7 +74,7 @@ export default function VibesScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <AppBar title="Vibes" onBack={() => router.back()} />
+        <AppBar title="Vibes" onBack={() => goBackOr(router, '/settings')} />
         <ThemedText type="small">Tune how the app feels.</ThemedText>
 
         <View style={styles.rows}>

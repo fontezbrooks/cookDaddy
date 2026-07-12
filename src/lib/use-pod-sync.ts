@@ -1,62 +1,61 @@
-// Keeps the in-memory usePodStore in sync with the server-side pod_members
-// truth: on mount and whenever the app foregrounds, query the caller's
-// active pod and reconcile. Three transitions matter:
+// Keeps the in-memory usePodStore in sync with server-side truth via the
+// get_my_pod() RPC (single authoritative read — docs/POD-READ-PATH/README.md).
+// Runs on mount and whenever the app foregrounds. Four transitions:
 //
-//   1. Remote pod present, store empty       → set the pod + partner.
-//   2. Remote pod differs from local pod     → re-set the pod + partner.
-//      Remote matches local but partner is unknown also refetches, covering a
-//      solo pod that gains a partner without changing pod id.
-//   3. Remote pod missing, local pod present → partner ran dissolve_pod;
+//   1. Remote pod present → set pod + partner (partner arrives inline with
+//      the membership row, so there is no second lookup to race).
+//   2. Remote pod missing, local pod present → partner ran dissolve_pod;
 //      raise partnerRemoved so the home screen can render the banner.
+//   3. Remote pod missing, local pod missing → server-confirmed podless
+//      (syncStatus 'ready'; Home may now safely show "No pod yet").
+//   4. Read failed → syncStatus 'error' (known pod state is preserved) and a
+//      pod_membership_read_failed analytics event so silent read failures
+//      are observable in prod (FR-6).
 //
 // Spec: docs/DESIGN/README.md §16.1, docs/WORKFLOW/README.md §8.
 
 import { useAuth } from '@clerk/clerk-expo';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
+import { useAnalytics } from '@/lib/analytics';
 import { usePodMembershipQuery } from '@/lib/use-pod-membership';
-import { fetchPartnerForPod } from '@/lib/pod-rpcs';
-import { createSupabaseClient } from '@/lib/supabase';
 import { usePodStore } from '@/state/usePodStore';
 
 export function usePodSync(): void {
-  const { userId, getToken, isSignedIn } = useAuth();
-  const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
+  const { userId, isSignedIn } = useAuth();
   const queryClient = useQueryClient();
+  const { capture } = useAnalytics();
 
   const membership = usePodMembershipQuery();
+  const membershipError = membership.isError ? membership.error : null;
 
   useEffect(() => {
-    if (membership.data === undefined) return;
-    const remotePodId = membership.data.podId;
-    const state = usePodStore.getState();
-    const localPodId = state.activePodId;
-    const localPartnerId = state.partnerId;
-
-    // Fetch/reconcile the partner when we see a NEW pod, OR when we're on the
-    // same pod but haven't resolved a partner yet. A solo pod the inviter
-    // already synced stores partnerId '' and keeps the same pod id after the
-    // partner joins, so a pod-id-only check would never fill the partner in and
-    // Home would stay stuck in the pending-invite state.
-    if (remotePodId && (remotePodId !== localPodId || !localPartnerId)) {
-      fetchPartnerForPod(supabase, remotePodId, userId as string)
-        .then((partner) => {
-          usePodStore.getState().setActivePod({
-            podId: remotePodId,
-            partnerId: partner?.partnerId ?? '',
-            partnerDisplayName: partner?.partnerDisplayName ?? 'Your partner',
-          });
-        })
-        .catch(() => {
-          // Partner row not yet visible (RLS race on a brand-new pod) — next
-          // refetch will retry. Leaving the store untouched is correct here.
-        });
-    } else if (!remotePodId && localPodId) {
-      usePodStore.getState().notePartnerRemoved();
+    if (membershipError) {
+      usePodStore.getState().noteSyncError();
+      capture('pod_membership_read_failed', {
+        message: membershipError instanceof Error ? membershipError.message : 'unknown',
+      });
+      return;
     }
-  }, [membership.data, supabase, userId]);
+    if (membership.data === undefined) return;
+
+    const { podId, partnerId, partnerDisplayName } = membership.data;
+    const state = usePodStore.getState();
+
+    if (podId) {
+      state.setActivePod({
+        podId,
+        partnerId: partnerId ?? '',
+        partnerDisplayName: partnerDisplayName || 'Your partner',
+      });
+    } else if (state.activePodId) {
+      state.notePartnerRemoved();
+    } else {
+      state.noteSyncedEmpty();
+    }
+  }, [membership.data, membershipError, capture]);
 
   useEffect(() => {
     if (!isSignedIn) return;

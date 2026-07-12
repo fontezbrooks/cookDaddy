@@ -42,6 +42,9 @@ export type AnalyticsEventProperties = {
   shopping_item_added: { source: 'recipe' | 'manual'; pantry_conflict: boolean };
   pantry_item_added: { source: 'manual' | 'shopping_move' };
   fridge_viewed: { item_count: number; aisle_count: number };
+  // Silent pod-membership read failures were invisible in prod and caused the
+  // "No pod yet" vs already_in_a_pod split-brain (docs/POD-READ-PATH FR-6).
+  pod_membership_read_failed: { message: string };
   onboarding_started: EmptyProperties;
   onboarding_step_completed: { step: number; skipped: boolean };
   onboarding_completed: { skipped_steps: number };

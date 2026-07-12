@@ -38,7 +38,8 @@ import { StatusBar } from 'expo-status-bar';
 import * as SecureStore from 'expo-secure-store';
 import { PostHogErrorBoundary, PostHogProvider } from 'posthog-react-native';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { StyleSheet, useColorScheme } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useAnalyticsIdentity } from '@/lib/use-analytics-identity';
 
@@ -128,23 +129,29 @@ function RootLayout() {
   // The placeholder key matters: an empty key makes the SDK log
   // "You must pass your PostHog project's api key" — the exact boot-time
   // console.error this clean-boot change exists to remove.
+  // GestureHandlerRootView must be the outermost view: SwipeDeck's
+  // GestureDetector throws on mount without it (RNGH installation contract).
   return (
-    <PostHogProvider
-      apiKey={posthogKey || 'phc_disabled_local_dev'}
-      autocapture={false}
-      options={
-        posthogKey
-          ? {
-              errorTracking: {
-                autocapture: { uncaughtExceptions: true, unhandledRejections: true },
-              },
-            }
-          : { disabled: true }
-      }
-    >
-      <PostHogErrorBoundary>{tree}</PostHogErrorBoundary>
-    </PostHogProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <PostHogProvider
+        apiKey={posthogKey || 'phc_disabled_local_dev'}
+        autocapture={false}
+        options={
+          posthogKey
+            ? {
+                errorTracking: {
+                  autocapture: { uncaughtExceptions: true, unhandledRejections: true },
+                },
+              }
+            : { disabled: true }
+        }
+      >
+        <PostHogErrorBoundary>{tree}</PostHogErrorBoundary>
+      </PostHogProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({ root: { flex: 1 } });
 
 export default RootLayout;

@@ -2,18 +2,29 @@ import { useAuth } from '@clerk/clerk-expo';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { PodRpcError } from '@/lib/pod-rpcs';
+import { getMyPod } from '@/lib/pod-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
 
-export type PodMembership = { podId: string | null };
+export type PodMembership = {
+  podId: string | null;
+  partnerId: string | null;
+  partnerDisplayName: string | null;
+  memberCount: number;
+};
 
-// Authoritative server read of the caller's active pod. RLS (pm_read /
-// pods_member_read) already scopes pod_members to the caller's own pod, so we
-// do NOT filter by user_id on the client — that filter assumed Clerk's userId
-// byte-matches the stored pod_members.user_id and could silently return null,
-// desyncing the client store from the server (Settings said "no pod" while the
-// server rejected joins with already_in_a_pod). limit(1) collapses the self+
-// partner rows (same pod_id) so maybeSingle never trips on 2 rows.
+const NO_POD: PodMembership = {
+  podId: null,
+  partnerId: null,
+  partnerDisplayName: null,
+  memberCount: 0,
+};
+
+// Single authoritative read of the caller's active pod via the get_my_pod()
+// SECURITY DEFINER RPC (migration 027) — the same identity-resolution path as
+// every pod mutation. The previous PostgREST + RLS read could silently return
+// zero rows and desync the client from the server (the "No pod yet" vs
+// already_in_a_pod split-brain); an RPC failure now surfaces as a query error
+// instead of masquerading as "no pod". docs/POD-READ-PATH/README.md FR-1.
 export function usePodMembershipQuery() {
   const { userId, getToken, isSignedIn } = useAuth();
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
@@ -21,16 +32,6 @@ export function usePodMembershipQuery() {
     queryKey: ['pod-membership', userId],
     enabled: Boolean(isSignedIn && userId),
     staleTime: 30_000,
-    queryFn: async (): Promise<PodMembership> => {
-      const { data, error } = await supabase
-        .from('pod_members')
-        .select('pod_id, pods!inner(archived_at)')
-        .is('pods.archived_at', null)
-        .limit(1)
-        .maybeSingle();
-      if (error) throw new PodRpcError('unknown', error.message);
-      const row = data as { pod_id?: string } | null;
-      return { podId: row?.pod_id ?? null };
-    },
+    queryFn: async (): Promise<PodMembership> => (await getMyPod(supabase)) ?? NO_POD,
   });
 }

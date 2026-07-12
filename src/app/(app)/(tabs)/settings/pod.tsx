@@ -14,7 +14,8 @@ import { AppBar } from '@/components/app-bar';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
-import { dissolvePod, PodRpcError } from '@/lib/pod-rpcs';
+import { goBackOr } from '@/lib/navigation';
+import { leaveMyPod } from '@/lib/pod-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
 import { usePodMembershipQuery } from '@/lib/use-pod-membership';
 import { usePodStore } from '@/state/usePodStore';
@@ -32,10 +33,9 @@ export default function PodSettingsScreen() {
   const effectivePodId = activePodId ?? membership?.podId ?? null;
 
   const dissolveMutation = useMutation({
-    mutationFn: async () => {
-      if (!effectivePodId) throw new PodRpcError('unknown', 'no active pod to dissolve');
-      await dissolvePod(supabase, effectivePodId);
-    },
+    // leave_my_pod resolves membership server-side (FR-4), so recovery works
+    // even when the local store never hydrated.
+    mutationFn: () => leaveMyPod(supabase),
     onSuccess: () => {
       clearActivePod();
       queryClient.invalidateQueries({ queryKey: ['pod-membership', userId] });
@@ -65,7 +65,7 @@ export default function PodSettingsScreen() {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.container} testID="pod-settings-empty">
-          <AppBar title="Pod" onBack={() => router.back()} />
+          <AppBar title="Pod" onBack={() => goBackOr(router, '/settings')} />
           <ThemedText type="small">You’re not in a pod yet.</ThemedText>
           <Link href="/home" testID="pod-settings-empty-cta">
             <ThemedText type="small">→ Create an invite from Home</ThemedText>
@@ -81,7 +81,7 @@ export default function PodSettingsScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <AppBar title="Pod" onBack={() => router.back()} />
+        <AppBar title="Pod" onBack={() => goBackOr(router, '/settings')} />
         <ThemedText type="small" testID="pod-settings-partner">
           Paired with {partnerDisplayName ?? 'your partner'}.
         </ThemedText>

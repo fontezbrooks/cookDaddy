@@ -28,19 +28,17 @@ import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { useAnalytics } from '@/lib/analytics';
 import { determineMatchVariant, type MatchVariant } from '@/lib/match-variant';
-import { markSessionActive, SessionRpcError } from '@/lib/session-rpcs';
+import {
+  getSession,
+  markSessionActive,
+  type SessionRead,
+  SessionRpcError,
+} from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
 import { usePodMatchCount } from '@/lib/use-pod-matches';
 import { useSwipeBroadcast } from '@/lib/use-swipe-broadcast';
 
-type SessionRow = {
-  id: string;
-  status: 'lobby' | 'active' | 'ended';
-  pod_id: string;
-  deck_recipe_ids: string[];
-  ended_reason: string | null;
-  pods?: { created_at: string } | null;
-};
+type SessionRow = SessionRead;
 
 export default function SessionScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
@@ -155,16 +153,12 @@ export default function SessionScreen() {
   const query = useQuery({
     queryKey: ['sessions', sessionId],
     enabled: Boolean(sessionId),
-    refetchInterval: 2000, // partner can flip to active any time — poll cheaply
-    queryFn: async (): Promise<SessionRow | null> => {
-      const { data, error } = await supabase
-        .from('sessions')
-        .select('id, status, pod_id, deck_recipe_ids, ended_reason, pods(created_at)')
-        .eq('id', sessionId as string)
-        .maybeSingle();
-      if (error) throw new Error(error.message);
-      return data as SessionRow | null;
-    },
+    // Partner can flip to active any time — poll cheaply. But stop hammering
+    // while errored (the retry card's invalidate resumes the poll).
+    refetchInterval: (q) => (q.state.status === 'error' ? false : 2000),
+    // get_session RPC (028): the RLS SELECT of sessions returns nothing on
+    // device while definer RPCs work — same class 027 fixed for membership.
+    queryFn: (): Promise<SessionRow | null> => getSession(supabase, sessionId as string),
   });
 
   const session = query.data;
@@ -246,6 +240,25 @@ export default function SessionScreen() {
       <SafeAreaView style={styles.safe}>
         <View style={styles.center} testID="session-loading">
           <ActivityIndicator />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // A failed read is NOT "not found" — offer a retry instead of a dead end
+  // (docs/POD-READ-PATH/README.md FR-2 pattern).
+  if (query.isError) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.container} testID="session-error">
+          <ThemedText type="title">Couldn’t load this session</ThemedText>
+          <ThemedText type="small">Check your connection and try again.</ThemedText>
+          <PrimaryButton
+            testID="session-error-retry"
+            onPress={() => queryClient.invalidateQueries({ queryKey: ['sessions', sessionId] })}
+            title="Try again"
+            style={{ marginTop: Spacing.three }}
+          />
         </View>
       </SafeAreaView>
     );

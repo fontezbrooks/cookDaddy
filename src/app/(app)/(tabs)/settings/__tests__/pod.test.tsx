@@ -3,7 +3,8 @@
  *   • No active pod → empty state with home CTA, no dissolve button.
  *   • Active pod   → partner name + Dissolve button.
  *   • Tap Dissolve → Alert.alert with destructive confirm.
- *   • Confirm     → dissolvePod RPC → clearActivePod + router.replace('/home').
+ *   • Confirm     → leave_my_pod RPC (no pod id — the server resolves the
+ *     caller's membership) → clearActivePod + router.replace('/home').
  *   • RPC reject  → inline error + store unchanged.
  */
 
@@ -19,23 +20,18 @@ import { __resetPodStoreForTests, usePodStore } from '@/state/usePodStore';
 import PodSettingsScreen from '../pod';
 
 const mockDissolve = jest.fn();
+const mockGetMyPod = jest.fn();
 jest.mock('@/lib/pod-rpcs', () => {
   const actual = jest.requireActual('@/lib/pod-rpcs');
   return {
     ...actual,
-    dissolvePod: (...args: unknown[]) => mockDissolve(...args),
+    leaveMyPod: (...args: unknown[]) => mockDissolve(...args),
+    getMyPod: (...args: unknown[]) => mockGetMyPod(...args),
   };
 });
 
-const mockMaybeSingle = jest.fn();
 jest.mock('@/lib/supabase', () => ({
-  createSupabaseClient: () => ({
-    from: () => ({
-      select: () => ({
-        is: () => ({ limit: () => ({ maybeSingle: mockMaybeSingle }) }),
-      }),
-    }),
-  }),
+  createSupabaseClient: () => ({ rpc: jest.fn() }),
 }));
 
 const mockReplace = jest.fn();
@@ -69,8 +65,8 @@ describe('PodSettingsScreen', () => {
   beforeEach(() => {
     __resetPodStoreForTests();
     mockDissolve.mockReset();
-    mockMaybeSingle.mockReset();
-    mockMaybeSingle.mockResolvedValue({ data: null, error: null });
+    mockGetMyPod.mockReset();
+    mockGetMyPod.mockResolvedValue(null);
     mockReplace.mockClear();
     setSignedIn();
   });
@@ -94,13 +90,13 @@ describe('PodSettingsScreen', () => {
     expect(screen.getByTestId('pod-settings-dissolve')).toBeOnTheScreen();
   });
 
-  it('opens a confirm Alert on Dissolve tap and calls dissolvePod + clears store on confirm', async () => {
+  it('opens a confirm Alert on Dissolve tap and calls leaveMyPod + clears store on confirm', async () => {
     usePodStore.getState().setActivePod({
       podId: 'pod-1',
       partnerId: 'user_alice',
       partnerDisplayName: 'Alice',
     });
-    mockDissolve.mockResolvedValueOnce(undefined);
+    mockDissolve.mockResolvedValueOnce(true);
 
     // Auto-press the destructive button when Alert is invoked.
     const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
@@ -112,7 +108,8 @@ describe('PodSettingsScreen', () => {
     fireEvent.press(screen.getByTestId('pod-settings-dissolve'));
 
     await waitFor(() => {
-      expect(mockDissolve).toHaveBeenCalledWith(expect.anything(), 'pod-1');
+      // leave_my_pod resolves membership server-side — no pod id argument.
+      expect(mockDissolve).toHaveBeenCalledTimes(1);
       expect(mockReplace).toHaveBeenCalledWith('/home');
     });
     expect(usePodStore.getState().activePodId).toBeNull();
@@ -120,7 +117,7 @@ describe('PodSettingsScreen', () => {
     alertSpy.mockRestore();
   });
 
-  it('does NOT call dissolvePod when the user cancels the Alert', async () => {
+  it('does NOT call leaveMyPod when the user cancels the Alert', async () => {
     usePodStore.getState().setActivePod({
       podId: 'pod-1',
       partnerId: 'user_alice',
@@ -142,7 +139,7 @@ describe('PodSettingsScreen', () => {
     alertSpy.mockRestore();
   });
 
-  it('shows the inline error and keeps the pod when dissolvePod rejects', async () => {
+  it('shows the inline error and keeps the pod when leaveMyPod rejects', async () => {
     usePodStore.getState().setActivePod({
       podId: 'pod-1',
       partnerId: 'user_alice',
