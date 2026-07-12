@@ -6,6 +6,7 @@ import { AppBar } from '@/components/app-bar';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
+import { goBackOr } from '@/lib/navigation';
 import { type NotificationPrefKey, useNotificationPrefs } from '@/lib/use-notification-prefs';
 
 type Row = {
@@ -47,7 +48,7 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <AppBar title="Notifications" onBack={() => router.back()} />
+        <AppBar title="Notifications" onBack={() => goBackOr(router, '/settings')} />
         <ThemedText type="small">Choose what you hear about.</ThemedText>
 
         {isLoading ? (

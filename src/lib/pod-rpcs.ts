@@ -1,8 +1,11 @@
-// Typed wrappers around the P5 pod-lifecycle RPCs (supabase/migrations/017).
+// Typed wrappers around the pod-lifecycle RPCs (supabase/migrations/017/025/
+// 026/027). Reads AND writes both go through SECURITY DEFINER RPCs so the
+// client never depends on RLS visibility for membership truth
+// (docs/POD-READ-PATH/README.md).
 //
-// Each RPC raises pgSQL exceptions with a stable message string (see 017);
-// the wrappers re-throw those as a PodRpcError carrying a discriminated
-// `code` so callers can render variant copy without parsing strings.
+// Each RPC raises pgSQL exceptions with a stable message string; the wrappers
+// re-throw those as a PodRpcError carrying a discriminated `code` so callers
+// can render variant copy without parsing strings.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -17,9 +20,11 @@ export type ConsumeResult = {
   alreadyMember: boolean;
 };
 
-export type Partner = {
-  partnerId: string;
-  partnerDisplayName: string;
+export type MyPod = {
+  podId: string;
+  partnerId: string | null;
+  partnerDisplayName: string | null;
+  memberCount: number;
 };
 
 export type PodRpcErrorCode =
@@ -90,38 +95,31 @@ export async function consumePodInvite(
   return { podId: row.pod_id, alreadyMember: Boolean(row.already_member) };
 }
 
-export async function dissolvePod(supabase: SupabaseClient, podId: string): Promise<void> {
-  const { error } = await supabase.rpc('dissolve_pod', { p_pod_id: podId });
+// getMyPod: authoritative read of the caller's active pod (027). Partner and
+// member count arrive inline, so there is no second lookup to race. Returns
+// null when the caller has no active pod.
+export async function getMyPod(supabase: SupabaseClient): Promise<MyPod | null> {
+  const { data, error } = await supabase.rpc('get_my_pod');
   if (error) {
     throw new PodRpcError(codeFromMessage(error.message), error.message);
   }
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row?.pod_id) return null;
+  return {
+    podId: row.pod_id,
+    partnerId: row.partner_user_id ?? null,
+    partnerDisplayName: row.partner_display_name ?? null,
+    memberCount: Number(row.member_count ?? 0),
+  };
 }
 
-// fetchPartnerForPod: returns the partner's row from pod_members + users for
-// the given pod. Returns null if the caller is the sole member (invite not yet
-// consumed) or the pod is empty. RLS allows reading partner rows because
-// users_self_or_partner_read covers it.
-export async function fetchPartnerForPod(
-  supabase: SupabaseClient,
-  podId: string,
-  selfClerkId: string,
-): Promise<Partner | null> {
-  const { data, error } = await supabase
-    .from('pod_members')
-    .select('user_id, users!inner(display_name)')
-    .eq('pod_id', podId)
-    .neq('user_id', selfClerkId)
-    .maybeSingle();
+// leaveMyPod: no-arg escape hatch (027). The server resolves the caller's
+// membership itself, so this works even when the client store is empty.
+// Resolves true when a pod was dissolved, false when there was none.
+export async function leaveMyPod(supabase: SupabaseClient): Promise<boolean> {
+  const { data, error } = await supabase.rpc('leave_my_pod');
   if (error) {
-    throw new PodRpcError('unknown', error.message);
+    throw new PodRpcError(codeFromMessage(error.message), error.message);
   }
-  if (!data) return null;
-  const partnerId = (data as { user_id: string }).user_id;
-  const usersField = (data as { users: unknown }).users;
-  const usersObj = Array.isArray(usersField) ? usersField[0] : usersField;
-  const displayName =
-    usersObj && typeof usersObj === 'object' && 'display_name' in usersObj
-      ? String((usersObj as { display_name: unknown }).display_name ?? '')
-      : '';
-  return { partnerId, partnerDisplayName: displayName };
+  return Boolean(data);
 }

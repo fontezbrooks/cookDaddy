@@ -8,8 +8,8 @@
 import {
   consumePodInvite,
   createPodInvite,
-  dissolvePod,
-  fetchPartnerForPod,
+  getMyPod,
+  leaveMyPod,
   PodRpcError,
 } from '@/lib/pod-rpcs';
 
@@ -17,23 +17,6 @@ type RpcMock = jest.Mock;
 
 function makeSupabase(rpc: RpcMock) {
   return { rpc } as unknown as Parameters<typeof createPodInvite>[0];
-}
-
-function makeQueryBuilder(result: { data: unknown; error: unknown }) {
-  // pod_members.select(...).eq(...).neq(...).maybeSingle()
-  const maybeSingle = jest.fn().mockResolvedValue(result);
-  const neq = jest.fn().mockReturnValue({ maybeSingle });
-  const eq = jest.fn().mockReturnValue({ neq });
-  const select = jest.fn().mockReturnValue({ eq });
-  const from = jest.fn().mockReturnValue({ select });
-  return {
-    client: { from } as unknown as Parameters<typeof fetchPartnerForPod>[0],
-    from,
-    select,
-    eq,
-    neq,
-    maybeSingle,
-  };
 }
 
 describe('createPodInvite', () => {
@@ -136,57 +119,90 @@ describe('consumePodInvite', () => {
   });
 });
 
-describe('dissolvePod', () => {
-  it('passes p_pod_id and resolves on success', async () => {
-    const rpc = jest.fn().mockResolvedValue({ data: null, error: null });
-    await expect(dissolvePod(makeSupabase(rpc), 'pod-aaa')).resolves.toBeUndefined();
-    expect(rpc).toHaveBeenCalledWith('dissolve_pod', { p_pod_id: 'pod-aaa' });
+describe('getMyPod', () => {
+  it('parses a paired membership row (array shape)', async () => {
+    const rpc = jest.fn().mockResolvedValue({
+      data: [
+        {
+          pod_id: 'pod-1',
+          partner_user_id: 'user_bob',
+          partner_display_name: 'Bob',
+          member_count: 2,
+        },
+      ],
+      error: null,
+    });
+    await expect(getMyPod(makeSupabase(rpc))).resolves.toEqual({
+      podId: 'pod-1',
+      partnerId: 'user_bob',
+      partnerDisplayName: 'Bob',
+      memberCount: 2,
+    });
+    expect(rpc).toHaveBeenCalledWith('get_my_pod');
   });
 
-  it('throws PodRpcError(not_member) when the caller is not in the pod', async () => {
+  it('parses a solo membership row with null partner columns', async () => {
+    const rpc = jest.fn().mockResolvedValue({
+      data: [
+        { pod_id: 'pod-1', partner_user_id: null, partner_display_name: null, member_count: 1 },
+      ],
+      error: null,
+    });
+    await expect(getMyPod(makeSupabase(rpc))).resolves.toEqual({
+      podId: 'pod-1',
+      partnerId: null,
+      partnerDisplayName: null,
+      memberCount: 1,
+    });
+  });
+
+  it('returns null when the caller has no active pod (empty rowset)', async () => {
+    const rpc = jest.fn().mockResolvedValue({ data: [], error: null });
+    await expect(getMyPod(makeSupabase(rpc))).resolves.toBeNull();
+  });
+
+  it('throws PodRpcError(unauthenticated) when the RPC raises', async () => {
     const rpc = jest.fn().mockResolvedValue({
       data: null,
-      error: { message: 'not_member', code: 'P0001' },
+      error: { message: 'unauthenticated', code: 'P0001' },
     });
-    await expect(dissolvePod(makeSupabase(rpc), 'pod-aaa')).rejects.toMatchObject({
-      code: 'not_member',
+    await expect(getMyPod(makeSupabase(rpc))).rejects.toMatchObject({
+      name: 'PodRpcError',
+      code: 'unauthenticated',
+    });
+  });
+
+  it('maps transport failures to code=unknown so callers get a discriminant', async () => {
+    const rpc = jest.fn().mockResolvedValue({
+      data: null,
+      error: { message: 'connection refused', code: '08000' },
+    });
+    await expect(getMyPod(makeSupabase(rpc))).rejects.toMatchObject({
+      code: 'unknown',
+      message: 'connection refused',
     });
   });
 });
 
-describe('fetchPartnerForPod', () => {
-  it('returns the partner row when the embed query returns a single object', async () => {
-    const { client, eq, neq } = makeQueryBuilder({
-      data: { user_id: 'user_bob', users: { display_name: 'Bob' } },
-      error: null,
-    });
-    const result = await fetchPartnerForPod(client, 'pod-1', 'user_alice');
-    expect(eq).toHaveBeenCalledWith('pod_id', 'pod-1');
-    expect(neq).toHaveBeenCalledWith('user_id', 'user_alice');
-    expect(result).toEqual({ partnerId: 'user_bob', partnerDisplayName: 'Bob' });
+describe('leaveMyPod', () => {
+  it('resolves true when a pod was dissolved', async () => {
+    const rpc = jest.fn().mockResolvedValue({ data: true, error: null });
+    await expect(leaveMyPod(makeSupabase(rpc))).resolves.toBe(true);
+    expect(rpc).toHaveBeenCalledWith('leave_my_pod');
   });
 
-  it('handles the embed returning an array shape (postgrest occasionally does this)', async () => {
-    const { client } = makeQueryBuilder({
-      data: { user_id: 'user_bob', users: [{ display_name: 'Bob' }] },
-      error: null,
-    });
-    await expect(fetchPartnerForPod(client, 'pod-1', 'user_alice')).resolves.toEqual({
-      partnerId: 'user_bob',
-      partnerDisplayName: 'Bob',
-    });
+  it('resolves false when the caller had no active pod (idempotent no-op)', async () => {
+    const rpc = jest.fn().mockResolvedValue({ data: false, error: null });
+    await expect(leaveMyPod(makeSupabase(rpc))).resolves.toBe(false);
   });
 
-  it('returns null when the pod has no other member yet', async () => {
-    const { client } = makeQueryBuilder({ data: null, error: null });
-    await expect(fetchPartnerForPod(client, 'pod-1', 'user_alice')).resolves.toBeNull();
-  });
-
-  it('throws PodRpcError(unknown) on a postgrest error', async () => {
-    const { client } = makeQueryBuilder({ data: null, error: { message: 'rls denied' } });
-    await expect(fetchPartnerForPod(client, 'pod-1', 'user_alice')).rejects.toMatchObject({
-      code: 'unknown',
-      message: 'rls denied',
+  it('throws PodRpcError with the raised code', async () => {
+    const rpc = jest.fn().mockResolvedValue({
+      data: null,
+      error: { message: 'unauthenticated', code: 'P0001' },
+    });
+    await expect(leaveMyPod(makeSupabase(rpc))).rejects.toMatchObject({
+      code: 'unauthenticated',
     });
   });
 });

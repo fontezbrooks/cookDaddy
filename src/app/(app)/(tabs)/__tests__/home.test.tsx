@@ -58,13 +58,13 @@ jest.mock('expo-router', () => ({
 }));
 
 const mockCreateInvite = jest.fn();
-const mockDissolvePod = jest.fn();
+const mockLeaveMyPod = jest.fn();
 jest.mock('@/lib/pod-rpcs', () => {
   const actual = jest.requireActual('@/lib/pod-rpcs');
   return {
     ...actual,
     createPodInvite: (...args: unknown[]) => mockCreateInvite(...args),
-    dissolvePod: (...args: unknown[]) => mockDissolvePod(...args),
+    leaveMyPod: (...args: unknown[]) => mockLeaveMyPod(...args),
   };
 });
 
@@ -96,7 +96,7 @@ describe('HomeScreen', () => {
     mockSingle.mockClear();
     mockMaybeSingle.mockResolvedValue({ data: null, error: null });
     mockCreateInvite.mockReset();
-    mockDissolvePod.mockReset();
+    mockLeaveMyPod.mockReset();
     mockStartSession.mockReset();
     mockDeckSize = undefined;
     mockPush.mockReset();
@@ -122,11 +122,13 @@ describe('HomeScreen', () => {
     });
   });
 
-  it('renders the "No pod yet" empty state when there is no active pod', async () => {
+  it('renders the "No pod yet" empty state once the server confirmed there is no pod', async () => {
     mockSingle.mockResolvedValue({
       data: { display_name: 'Solo User', avatar_url: null },
       error: null,
     });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().noteSyncedEmpty();
 
     render(wrap(<HomeScreen />));
 
@@ -241,14 +243,15 @@ describe('HomeScreen', () => {
       partnerId: 'partner_xyz',
       partnerDisplayName: 'Partner',
     });
-    mockDissolvePod.mockResolvedValueOnce(undefined);
+    mockLeaveMyPod.mockResolvedValueOnce(true);
 
     render(wrap(<HomeScreen />));
     await waitFor(() => expect(screen.getByTestId('home-leave-pod')).toBeOnTheScreen());
     fireEvent.press(screen.getByTestId('home-leave-pod'));
 
     await waitFor(() => {
-      expect(mockDissolvePod).toHaveBeenCalledWith(expect.anything(), 'pod_abc');
+      // leave_my_pod resolves membership server-side — no pod id argument.
+      expect(mockLeaveMyPod).toHaveBeenCalledTimes(1);
       expect(usePodStore.getState().activePodId).toBeNull();
     });
 
@@ -353,6 +356,8 @@ describe('HomeScreen', () => {
       data: { display_name: 'Solo User', avatar_url: null },
       error: null,
     });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().noteSyncedEmpty();
 
     render(wrap(<HomeScreen />));
 
@@ -367,6 +372,8 @@ describe('HomeScreen', () => {
       data: { display_name: 'Solo User', avatar_url: null },
       error: null,
     });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().noteSyncedEmpty();
     mockCreateInvite.mockResolvedValueOnce({
       token: 'tok-xyz',
       expiresAt: '2099-01-01T00:00:00Z',
@@ -406,6 +413,8 @@ describe('HomeScreen', () => {
       data: { display_name: 'Solo User', avatar_url: null },
       error: null,
     });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().noteSyncedEmpty();
     mockCreateInvite.mockRejectedValueOnce(new PodRpcError('already_in_a_pod', 'already_in_a_pod'));
     const shareSpy = jest.spyOn(Share, 'share');
 
@@ -417,6 +426,47 @@ describe('HomeScreen', () => {
       expect(screen.getByTestId('home-invite-hint')).toHaveTextContent(/already paired/i);
     });
     expect(shareSpy).not.toHaveBeenCalled();
+  });
+
+  it('holds a "Checking your pod…" placeholder until the first membership read resolves', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+
+    render(wrap(<HomeScreen />));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-pod-loading')).toBeOnTheScreen();
+    });
+    // The invite CTA must be unreachable before the server confirms "no pod".
+    expect(screen.queryByTestId('home-invite-partner')).toBeNull();
+  });
+
+  it('renders the retry card on a failed membership read, and retry refetches', async () => {
+    mockSingle.mockResolvedValue({
+      data: { display_name: 'Solo User', avatar_url: null },
+      error: null,
+    });
+    const { usePodStore } = require('@/state/usePodStore');
+    usePodStore.getState().noteSyncError();
+    const invalidateSpy = jest.spyOn(QueryClient.prototype, 'invalidateQueries');
+
+    try {
+      render(wrap(<HomeScreen />));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('home-pod-error')).toBeOnTheScreen();
+      });
+      expect(screen.queryByTestId('home-invite-partner')).toBeNull();
+
+      fireEvent.press(screen.getByTestId('home-pod-retry'));
+      expect(invalidateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ queryKey: expect.arrayContaining(['pod-membership']) }),
+      );
+    } finally {
+      invalidateSpy.mockRestore();
+    }
   });
 
   it('falls back to "there" when display_name is missing on the row', async () => {

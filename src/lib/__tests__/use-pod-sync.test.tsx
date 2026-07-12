@@ -1,10 +1,11 @@
 /**
- * Pod-sync hook contract (DESIGN §16.1 + WORKFLOW §8). Drives three
- * reconciliation paths from a server membership query:
+ * Pod-sync hook contract (docs/POD-READ-PATH/README.md + DESIGN §16.1).
+ * Drives four reconciliation paths from the get_my_pod() authoritative read:
  *
- *   • remote pod ≠ local pod → push partner into store
+ *   • remote pod present → pod + partner land in the store inline
  *   • remote empty + local pod set → raise partner-removed flag
- *   • remote = local → no-op unless the local partner is unknown
+ *   • remote empty + local empty → server-confirmed podless (syncStatus ready)
+ *   • read error → syncStatus 'error', pod state preserved, analytics event
  */
 
 /* eslint-disable import/first */
@@ -15,23 +16,26 @@ import type { ReactNode } from 'react';
 
 import { __resetPodStoreForTests, usePodStore } from '@/state/usePodStore';
 
-const mockFetchPartner = jest.fn();
+const mockGetMyPod = jest.fn();
 jest.mock('@/lib/pod-rpcs', () => {
   const actual = jest.requireActual('@/lib/pod-rpcs');
   return {
     ...actual,
-    fetchPartnerForPod: (...args: unknown[]) => mockFetchPartner(...args),
+    getMyPod: (...args: unknown[]) => mockGetMyPod(...args),
   };
 });
 
-const mockMaybeSingle = jest.fn();
 jest.mock('@/lib/supabase', () => ({
-  createSupabaseClient: () => ({
-    from: () => ({
-      select: () => ({
-        is: () => ({ limit: () => ({ maybeSingle: mockMaybeSingle }) }),
-      }),
-    }),
+  createSupabaseClient: () => ({ rpc: jest.fn() }),
+}));
+
+const mockCapture = jest.fn();
+jest.mock('@/lib/analytics', () => ({
+  useAnalytics: () => ({
+    capture: mockCapture,
+    identify: jest.fn(),
+    group: jest.fn(),
+    reset: jest.fn(),
   }),
 }));
 
@@ -62,16 +66,17 @@ function setSignedIn(): void {
 describe('usePodSync', () => {
   beforeEach(() => {
     __resetPodStoreForTests();
-    mockFetchPartner.mockReset();
-    mockMaybeSingle.mockReset();
+    mockGetMyPod.mockReset();
+    mockCapture.mockReset();
     setSignedIn();
   });
 
-  it('pushes the remote pod + partner into the store when the store is empty', async () => {
-    mockMaybeSingle.mockResolvedValue({ data: { pod_id: 'pod-1' }, error: null });
-    mockFetchPartner.mockResolvedValueOnce({
+  it('pushes the remote pod + inline partner into the store when the store is empty', async () => {
+    mockGetMyPod.mockResolvedValue({
+      podId: 'pod-1',
       partnerId: 'user_alice',
       partnerDisplayName: 'Alice',
+      memberCount: 2,
     });
 
     render(wrap(<Harness />));
@@ -81,18 +86,27 @@ describe('usePodSync', () => {
         activePodId: 'pod-1',
         partnerId: 'user_alice',
         partnerDisplayName: 'Alice',
+        syncStatus: 'ready',
       });
     });
   });
 
-  it('falls back to a placeholder name when the partner row is not visible yet', async () => {
-    mockMaybeSingle.mockResolvedValue({ data: { pod_id: 'pod-1' }, error: null });
-    mockFetchPartner.mockResolvedValueOnce(null);
+  it('falls back to a placeholder name for a solo pod (null partner columns)', async () => {
+    mockGetMyPod.mockResolvedValue({
+      podId: 'pod-1',
+      partnerId: null,
+      partnerDisplayName: null,
+      memberCount: 1,
+    });
 
     render(wrap(<Harness />));
 
     await waitFor(() => {
-      expect(usePodStore.getState().partnerDisplayName).toBe('Your partner');
+      expect(usePodStore.getState()).toMatchObject({
+        activePodId: 'pod-1',
+        partnerId: '',
+        partnerDisplayName: 'Your partner',
+      });
     });
   });
 
@@ -102,7 +116,7 @@ describe('usePodSync', () => {
       partnerId: 'user_alice',
       partnerDisplayName: 'Alice',
     });
-    mockMaybeSingle.mockResolvedValue({ data: null, error: null });
+    mockGetMyPod.mockResolvedValue(null);
 
     render(wrap(<Harness />));
 
@@ -110,49 +124,41 @@ describe('usePodSync', () => {
       const state = usePodStore.getState();
       expect(state.activePodId).toBeNull();
       expect(state.partnerRemoved).toBe(true);
+      expect(state.syncStatus).toBe('ready');
     });
   });
 
-  it('is a no-op when remote and local pods already match', async () => {
+  it('marks a confirmed podless state as ready WITHOUT raising partnerRemoved', async () => {
+    mockGetMyPod.mockResolvedValue(null);
+
+    render(wrap(<Harness />));
+
+    await waitFor(() => {
+      expect(usePodStore.getState().syncStatus).toBe('ready');
+    });
+    expect(usePodStore.getState().partnerRemoved).toBe(false);
+    expect(usePodStore.getState().activePodId).toBeNull();
+  });
+
+  it('flags a failed read as syncStatus=error, preserves pod state, and captures analytics', async () => {
     usePodStore.getState().setActivePod({
       podId: 'pod-1',
       partnerId: 'user_alice',
       partnerDisplayName: 'Alice',
     });
-    mockMaybeSingle.mockResolvedValue({ data: { pod_id: 'pod-1' }, error: null });
+    mockGetMyPod.mockRejectedValue(new Error('rpc unreachable'));
 
     render(wrap(<Harness />));
 
     await waitFor(() => {
-      expect(mockMaybeSingle).toHaveBeenCalled();
+      expect(usePodStore.getState().syncStatus).toBe('error');
     });
-    // fetchPartnerForPod should NOT be re-called for an in-sync pod.
-    expect(mockFetchPartner).not.toHaveBeenCalled();
+    // A failed read must NOT masquerade as "no pod".
     expect(usePodStore.getState().activePodId).toBe('pod-1');
-  });
-
-  it('refetches partner for the same pod when partnerId is empty (solo pod gains a partner)', async () => {
-    usePodStore.getState().setActivePod({
-      podId: 'pod-1',
-      partnerId: '',
-      partnerDisplayName: 'Your partner',
+    expect(usePodStore.getState().partnerRemoved).toBe(false);
+    expect(mockCapture).toHaveBeenCalledWith('pod_membership_read_failed', {
+      message: 'rpc unreachable',
     });
-    mockMaybeSingle.mockResolvedValue({ data: { pod_id: 'pod-1' }, error: null });
-    mockFetchPartner.mockResolvedValueOnce({
-      partnerId: 'user_alice',
-      partnerDisplayName: 'Alice',
-    });
-
-    render(wrap(<Harness />));
-
-    await waitFor(() => {
-      expect(usePodStore.getState()).toMatchObject({
-        activePodId: 'pod-1',
-        partnerId: 'user_alice',
-        partnerDisplayName: 'Alice',
-      });
-    });
-    expect(mockFetchPartner).toHaveBeenCalled();
   });
 
   it('does nothing when there is no Clerk session', async () => {
@@ -168,7 +174,8 @@ describe('usePodSync', () => {
 
     // Give the effect a chance to no-op.
     await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(mockMaybeSingle).not.toHaveBeenCalled();
+    expect(mockGetMyPod).not.toHaveBeenCalled();
     expect(usePodStore.getState().activePodId).toBeNull();
+    expect(usePodStore.getState().syncStatus).toBe('unknown');
   });
 });

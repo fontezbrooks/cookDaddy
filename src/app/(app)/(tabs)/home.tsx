@@ -4,7 +4,7 @@
 // "start a session" view once a partner has actually joined.
 
 import { useAuth } from '@clerk/clerk-expo';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
@@ -20,7 +20,7 @@ import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
-import { dissolvePod, PodRpcError } from '@/lib/pod-rpcs';
+import { leaveMyPod } from '@/lib/pod-rpcs';
 import { startSession } from '@/lib/session-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
 import { useCreatePodInvite } from '@/lib/use-create-pod-invite';
@@ -30,7 +30,9 @@ import { usePodStore } from '@/state/usePodStore';
 export default function HomeScreen() {
   const { userId, getToken } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const activePodId = usePodStore((s) => s.activePodId);
+  const syncStatus = usePodStore((s) => s.syncStatus);
   const partnerId = usePodStore((s) => s.partnerId);
   const partnerRemoved = usePodStore((s) => s.partnerRemoved);
   const partnerDisplayName = usePodStore((s) => s.partnerDisplayName);
@@ -90,12 +92,12 @@ export default function HomeScreen() {
   });
 
   const leavePodMutation = useMutation({
-    mutationFn: async () => {
-      if (!activePodId) throw new PodRpcError('unknown', 'no active pod to leave');
-      await dissolvePod(supabase, activePodId);
-    },
+    // leave_my_pod resolves the caller's membership server-side, so this works
+    // even if the local store desynced (FR-4).
+    mutationFn: () => leaveMyPod(supabase),
     onSuccess: () => {
       clearActivePod();
+      queryClient.invalidateQueries({ queryKey: ['pod-membership', userId] });
     },
   });
 
@@ -195,6 +197,22 @@ export default function HomeScreen() {
                     {inviteHint}
                   </ThemedText>
                 ) : null}
+              </View>
+            ) : syncStatus === 'unknown' ? (
+              <View style={styles.emptyState} testID="home-pod-loading">
+                <ThemedText type="small">Checking your pod…</ThemedText>
+              </View>
+            ) : syncStatus === 'error' ? (
+              <View style={styles.emptyState} testID="home-pod-error">
+                <ThemedText type="small">We couldn’t check your pod.</ThemedText>
+                <PrimaryButton
+                  testID="home-pod-retry"
+                  onPress={() =>
+                    queryClient.invalidateQueries({ queryKey: ['pod-membership', userId] })
+                  }
+                  title="Try again"
+                  style={{ marginTop: Spacing.two }}
+                />
               </View>
             ) : (
               <View style={styles.emptyState}>

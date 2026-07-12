@@ -15,6 +15,7 @@ import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
+import { goBackOr } from '@/lib/navigation';
 import { createSupabaseClient } from '@/lib/supabase';
 
 type UserRow = { display_name: string | null; avatar_url: string | null };
@@ -69,7 +70,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <AppBar title="Profile" onBack={() => router.back()} />
+        <AppBar title="Profile" onBack={() => goBackOr(router, '/settings')} />
         <ThemedText type="small">Update how your partner sees you.</ThemedText>
 
         <View style={styles.field}>

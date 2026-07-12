@@ -2,8 +2,9 @@
  * Invite consume-flow contract per WORKFLOW §8:
  *   • Unsigned user → <Redirect /> to sign-in with the invite path in
  *     ?redirect= so we return here after auth.
- *   • Signed-in user → call consume_pod_invite(token) on mount, fetch the
- *     partner row, push the pod into the store, replace to /home.
+ *   • Signed-in user → call consume_pod_invite(token) on mount, push a
+ *     provisional pod into the store, invalidate the membership query (the
+ *     get_my_pod refetch fills in the partner), replace to /home.
  *   • Each Postgres error code surfaces distinct copy via a per-code testID.
  */
 
@@ -18,13 +19,11 @@ import { __resetPodStoreForTests, usePodStore } from '@/state/usePodStore';
 import InviteTokenScreen from '../[token]';
 
 const mockConsume = jest.fn();
-const mockFetchPartner = jest.fn();
 jest.mock('@/lib/pod-rpcs', () => {
   const actual = jest.requireActual('@/lib/pod-rpcs');
   return {
     ...actual,
     consumePodInvite: (...args: unknown[]) => mockConsume(...args),
-    fetchPartnerForPod: (...args: unknown[]) => mockFetchPartner(...args),
   };
 });
 
@@ -68,7 +67,6 @@ describe('InviteTokenScreen', () => {
   beforeEach(() => {
     __resetPodStoreForTests();
     mockConsume.mockReset();
-    mockFetchPartner.mockReset();
     mockReplace.mockClear();
     mockRedirect.mockClear();
     mockParams.token = 'tok_abc';
@@ -83,34 +81,35 @@ describe('InviteTokenScreen', () => {
     expect(decodeURIComponent(href.split('redirect=')[1]!)).toBe('/invite/tok_abc');
   });
 
-  it('calls consume_pod_invite with the URL token and lands the partner in the store', async () => {
+  it('calls consume_pod_invite with the URL token, stores a provisional pod, and refetches membership', async () => {
     setSignedIn(true);
     mockConsume.mockResolvedValueOnce({ podId: 'pod-abc', alreadyMember: false });
-    mockFetchPartner.mockResolvedValueOnce({
-      partnerId: 'user_alice',
-      partnerDisplayName: 'Alice',
-    });
+    const invalidateSpy = jest.spyOn(QueryClient.prototype, 'invalidateQueries');
 
-    render(wrap(<InviteTokenScreen />));
+    try {
+      render(wrap(<InviteTokenScreen />));
 
-    await waitFor(() => {
-      expect(mockConsume).toHaveBeenCalledWith(expect.anything(), 'tok_abc');
-      expect(mockReplace).toHaveBeenCalledWith('/home');
-    });
-    expect(usePodStore.getState()).toMatchObject({
-      activePodId: 'pod-abc',
-      partnerId: 'user_alice',
-      partnerDisplayName: 'Alice',
-    });
+      await waitFor(() => {
+        expect(mockConsume).toHaveBeenCalledWith(expect.anything(), 'tok_abc');
+        expect(mockReplace).toHaveBeenCalledWith('/home');
+      });
+      // Provisional until the get_my_pod refetch fills in the partner.
+      expect(usePodStore.getState()).toMatchObject({
+        activePodId: 'pod-abc',
+        partnerId: '',
+        partnerDisplayName: 'Your partner',
+      });
+      expect(invalidateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ queryKey: expect.arrayContaining(['pod-membership']) }),
+      );
+    } finally {
+      invalidateSpy.mockRestore();
+    }
   });
 
   it('still replaces to /home on already_member=true (idempotent re-tap)', async () => {
     setSignedIn(true);
     mockConsume.mockResolvedValueOnce({ podId: 'pod-abc', alreadyMember: true });
-    mockFetchPartner.mockResolvedValueOnce({
-      partnerId: 'user_alice',
-      partnerDisplayName: 'Alice',
-    });
 
     render(wrap(<InviteTokenScreen />));
 
@@ -119,16 +118,24 @@ describe('InviteTokenScreen', () => {
     });
   });
 
-  it('falls back to "Your partner" when the partner row is not yet visible', async () => {
+  it('refetches membership on consumer_already_in_a_pod so the client self-heals', async () => {
     setSignedIn(true);
-    mockConsume.mockResolvedValueOnce({ podId: 'pod-abc', alreadyMember: false });
-    mockFetchPartner.mockResolvedValueOnce(null);
+    mockConsume.mockRejectedValueOnce(
+      new PodRpcError('consumer_already_in_a_pod', 'consumer_already_in_a_pod'),
+    );
+    const invalidateSpy = jest.spyOn(QueryClient.prototype, 'invalidateQueries');
 
-    render(wrap(<InviteTokenScreen />));
+    try {
+      render(wrap(<InviteTokenScreen />));
 
-    await waitFor(() => {
-      expect(usePodStore.getState().partnerDisplayName).toBe('Your partner');
-    });
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ queryKey: expect.arrayContaining(['pod-membership']) }),
+        );
+      });
+    } finally {
+      invalidateSpy.mockRestore();
+    }
   });
 
   it.each([

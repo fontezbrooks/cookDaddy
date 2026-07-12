@@ -11,6 +11,7 @@ import { ThemedText } from '@/components/themed-text';
 import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { useAnalytics } from '@/lib/analytics';
+import { goBackOr } from '@/lib/navigation';
 import { useAuthStore } from '@/state/useAuthStore';
 import { usePodStore } from '@/state/usePodStore';
 
@@ -59,7 +60,7 @@ export default function AccountSettingsScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <AppBar title="Account" onBack={() => router.back()} />
+        <AppBar title="Account" onBack={() => goBackOr(router, '/settings')} />
 
         <SecondaryButton
           testID="account-sign-out"

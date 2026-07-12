@@ -26,7 +26,10 @@ export function useCreatePodInvite() {
     },
     onError: (err) => {
       if (err instanceof PodRpcError && err.code === 'already_in_a_pod') {
-        setHint('You’re already paired. Reload to see your pod.');
+        // Self-heal (FR-3): the server says a pod exists, so refetch the
+        // membership instead of asking the user to reload.
+        setHint('You’re already paired — refreshing your pod…');
+        queryClient.invalidateQueries({ queryKey: ['pod-membership', userId] });
       } else {
         setHint('Couldn’t create an invite. Please try again.');
       }

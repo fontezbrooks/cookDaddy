@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/clerk-expo';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
@@ -12,35 +12,39 @@ import { DesignTokens } from '@/constants/design-tokens';
 import { Spacing } from '@/constants/theme';
 import { formatInviteCode, sanitizeCodeInput } from '@/lib/invite-code';
 import { INVITE_ERROR_COPY } from '@/lib/invite-error-copy';
-import {
-  consumePodInvite,
-  fetchPartnerForPod,
-  PodRpcError,
-  type PodRpcErrorCode,
-} from '@/lib/pod-rpcs';
+import { consumePodInvite, PodRpcError, type PodRpcErrorCode } from '@/lib/pod-rpcs';
 import { createSupabaseClient } from '@/lib/supabase';
 import { usePodStore } from '@/state/usePodStore';
 
 export default function JoinScreen() {
   const { userId, getToken } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [code, setCode] = useState('');
   const supabase = useMemo(() => createSupabaseClient(getToken as never), [getToken]);
 
   const mutation = useMutation({
     mutationFn: async () => {
       if (!userId) throw new PodRpcError('unknown', 'no session');
-      const result = await consumePodInvite(supabase, code);
-      const partner = await fetchPartnerForPod(supabase, result.podId, userId);
-      return { result, partner };
+      return consumePodInvite(supabase, code);
     },
-    onSuccess: ({ result, partner }) => {
+    onSuccess: (result) => {
+      // Provisional store update so Home doesn't flash the empty state; the
+      // membership refetch fills in the partner via get_my_pod (FR-1).
       usePodStore.getState().setActivePod({
         podId: result.podId,
-        partnerId: partner?.partnerId ?? '',
-        partnerDisplayName: partner?.partnerDisplayName ?? 'Your partner',
+        partnerId: '',
+        partnerDisplayName: 'Your partner',
       });
+      queryClient.invalidateQueries({ queryKey: ['pod-membership', userId] });
       router.replace('/home');
+    },
+    onError: (err) => {
+      // Self-heal (FR-3): the server says we're already in a pod the client
+      // doesn't know about — refetch the membership.
+      if (err instanceof PodRpcError && err.code === 'consumer_already_in_a_pod') {
+        queryClient.invalidateQueries({ queryKey: ['pod-membership', userId] });
+      }
     },
   });
 
