@@ -24,6 +24,14 @@ jest.mock('@/lib/session-rpcs', () => {
   return {
     ...actual,
     markSessionActive: (...args: unknown[]) => mockMarkActive(...args),
+    // Adapter: fixtures below drive the read via mockMaybeSingle({data,error})
+    // (the pre-028 PostgREST shape); getSession consumes the same shape so the
+    // screen's swap to the RPC needed no fixture churn.
+    getSession: async () => {
+      const { data, error } = await mockMaybeSingle();
+      if (error) throw new Error((error as { message?: string }).message ?? 'error');
+      return data;
+    },
   };
 });
 
@@ -131,13 +139,7 @@ jest.mock('@/lib/use-pod-matches', () => ({
 
 const mockMaybeSingle = jest.fn();
 jest.mock('@/lib/supabase', () => ({
-  createSupabaseClient: () => ({
-    from: () => ({
-      select: () => ({
-        eq: () => ({ maybeSingle: mockMaybeSingle }),
-      }),
-    }),
-  }),
+  createSupabaseClient: () => ({ rpc: jest.fn() }),
 }));
 
 const mockReplace = jest.fn();
@@ -208,6 +210,16 @@ describe('SessionScreen', () => {
     await waitFor(() => {
       expect(screen.getByTestId('session-not-found')).toBeOnTheScreen();
     });
+  });
+
+  it('renders the retry card (NOT "not found") when the session read fails', async () => {
+    mockMaybeSingle.mockResolvedValue({ data: null, error: { message: 'rpc unreachable' } });
+    render(wrap(<SessionScreen />));
+    await waitFor(() => {
+      expect(screen.getByTestId('session-error')).toBeOnTheScreen();
+    });
+    expect(screen.queryByTestId('session-not-found')).toBeNull();
+    expect(screen.getByTestId('session-error-retry')).toBeOnTheScreen();
   });
 
   it('renders the lobby with deck size and Start swiping CTA when status=lobby', async () => {

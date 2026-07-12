@@ -76,6 +76,41 @@ export async function startSession(
   };
 }
 
+export type SessionRead = {
+  id: string;
+  status: 'lobby' | 'active' | 'ended';
+  pod_id: string;
+  deck_recipe_ids: string[];
+  ended_reason: string | null;
+  pods: { created_at: string } | null;
+};
+
+// getSession: session bootstrap read via the get_session SECURITY DEFINER RPC
+// (migration 028). The pod-scoped RLS SELECT returns nothing on device while
+// definer RPCs work — same class the pod-membership rebuild (027) fixed, see
+// docs/POD-READ-PATH/README.md. Shape mirrors the old embedded select so the
+// screen consumes it unchanged. Null = not found OR not a member of the
+// session's pod (identical on purpose — no session-id probing).
+export async function getSession(
+  supabase: SupabaseClient,
+  sessionId: string,
+): Promise<SessionRead | null> {
+  const { data, error } = await supabase.rpc('get_session', { p_session_id: sessionId });
+  if (error) {
+    throw new SessionRpcError(codeFromMessage(error.message), error.message);
+  }
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row?.id) return null;
+  return {
+    id: row.id,
+    status: row.status as SessionRead['status'],
+    pod_id: row.pod_id,
+    deck_recipe_ids: (row.deck_recipe_ids as string[]) ?? [],
+    ended_reason: (row.ended_reason as string | null) ?? null,
+    pods: row.pod_created_at ? { created_at: row.pod_created_at as string } : null,
+  };
+}
+
 export async function markSessionActive(
   supabase: SupabaseClient,
   sessionId: string,

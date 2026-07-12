@@ -6,6 +6,7 @@
 
 import {
   endSession,
+  getSession,
   markSessionActive,
   SessionRpcError,
   startSession,
@@ -17,6 +18,49 @@ type RpcMock = jest.Mock;
 function makeSupabase(rpc: RpcMock) {
   return { rpc } as unknown as Parameters<typeof startSession>[0];
 }
+
+describe('getSession', () => {
+  it('parses the row and maps pod_created_at into the pods embed shape', async () => {
+    const rpc = jest.fn().mockResolvedValue({
+      data: [
+        {
+          id: 'sess-1',
+          status: 'lobby',
+          pod_id: 'pod-1',
+          deck_recipe_ids: ['r1', 'r2'],
+          ended_reason: null,
+          pod_created_at: '2026-05-25T12:00:00.000Z',
+        },
+      ],
+      error: null,
+    });
+    await expect(getSession(makeSupabase(rpc), 'sess-1')).resolves.toEqual({
+      id: 'sess-1',
+      status: 'lobby',
+      pod_id: 'pod-1',
+      deck_recipe_ids: ['r1', 'r2'],
+      ended_reason: null,
+      pods: { created_at: '2026-05-25T12:00:00.000Z' },
+    });
+    expect(rpc).toHaveBeenCalledWith('get_session', { p_session_id: 'sess-1' });
+  });
+
+  it('returns null on an empty rowset (not found OR not a member)', async () => {
+    const rpc = jest.fn().mockResolvedValue({ data: [], error: null });
+    await expect(getSession(makeSupabase(rpc), 'sess-x')).resolves.toBeNull();
+  });
+
+  it('throws SessionRpcError with the raised code', async () => {
+    const rpc = jest.fn().mockResolvedValue({
+      data: null,
+      error: { message: 'unauthenticated', code: 'P0001' },
+    });
+    await expect(getSession(makeSupabase(rpc), 'sess-1')).rejects.toMatchObject({
+      name: 'SessionRpcError',
+      code: 'unauthenticated',
+    });
+  });
+});
 
 describe('startSession', () => {
   it('returns parsed { sessionId, deckRecipeIds } on success', async () => {
